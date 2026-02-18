@@ -5,7 +5,7 @@ const skills: CharacterSkills = {
     intro: {
       1: {
         name: "Freezing Thorns",
-        classification: ["glacio", "intro"],
+        classifications: ["glacio", "intro"],
         mv: 0.7,
         frames: 60,
         hits: 1,
@@ -17,7 +17,7 @@ const skills: CharacterSkills = {
     outro: {
       1: {
         name: "Silversnow",
-        classification: ["glacio", "outro"],
+        classifications: ["glacio", "outro"],
         mv: 0,
         frames: 0,
         hits: 0,
@@ -29,7 +29,7 @@ const skills: CharacterSkills = {
     basic: {
       1: {
         name: "Frigid Light 1",
-        classification: ["glacio", "basic"],
+        classifications: ["glacio", "basic"],
         mv: 0.371,
         frames: 21,
         hits: 1,
@@ -39,7 +39,7 @@ const skills: CharacterSkills = {
       },
       2: {
         name: "Frigid Light 2",
-        classification: ["glacio", "basic"],
+        classifications: ["glacio", "basic"],
         mv: 0.245,
         frames: 32,
         hits: 1,
@@ -49,7 +49,7 @@ const skills: CharacterSkills = {
       },
       3: {
         name: "Frigid Light 3",
-        classification: ["glacio", "basic"],
+        classifications: ["glacio", "basic"],
         mv: 0.434,
         frames: 42,
         hits: 4,
@@ -59,7 +59,7 @@ const skills: CharacterSkills = {
       },
       4: {
         name: "Frigid Light 4",
-        classification: ["glacio", "basic"],
+        classifications: ["glacio", "basic"],
         mv: 0.399,
         frames: 34,
         hits: 2,
@@ -69,7 +69,7 @@ const skills: CharacterSkills = {
       },
       5: {
         name: "Frigid Light 5",
-        classification: ["glacio", "basic"],
+        classifications: ["glacio", "basic"],
         mv: 1.176,
         frames: 108,
         hits: 1,
@@ -81,7 +81,7 @@ const skills: CharacterSkills = {
     heavy: {
       1: {
         name: "Frigid Light",
-        classification: ["glacio", "heavy"],
+        classifications: ["glacio", "heavy"],
         mv: 0.56,
         frames: 60,
         hits: 1,
@@ -93,7 +93,7 @@ const skills: CharacterSkills = {
     skill: {
       1: {
         name: "Eternal Frost",
-        classification: ["glacio", "skill"],
+        classifications: ["glacio", "skill"],
         mv: 1.81,
         frames: 65,
         cooldown: 10,
@@ -106,7 +106,7 @@ const skills: CharacterSkills = {
     liberation: {
       1: {
         name: "Glacial Gaze",
-        classification: ["glacio", "liberation"],
+        classifications: ["glacio", "liberation"],
         mv: 4.0716,
         frames: 94,
         freezetime: 84,
@@ -120,7 +120,7 @@ const skills: CharacterSkills = {
     forte: {
       1: {
         name: "Detonate",
-        classification: ["glacio", "heavy"],
+        classifications: ["glacio", "heavy"],
         mv: 1.874,
         frames: 92,
         hits: 1,
