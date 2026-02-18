@@ -1,19 +1,20 @@
 type Element = "aero" | "electro" | "fusion" | "glacio" | "havoc" | "spectro"
 
 type SkillType =
-  | "intro"
-  | "outro"
   | "basic"
-  | "skill"
+  | "echo"
+  | "forte"
+  | "intro"
   | "heavy"
   | "liberation"
-  | "forte"
+  | "outro"
+  | "skill"
 
 type Classification = (Element | SkillType)[]
 
 type Skill = {
   name: string
-  classification: Classification
+  classifications: Classification
   mv: number
   frames: number
   freezetime?: number
@@ -41,36 +42,53 @@ export interface ActionItem {
 }
 
 export interface BonusStats {
-  "Flat Attack": 0
-  "Flat Health": 0
-  "Flat Defense": 0
-  Attack: 0.182
-  Health: 0
-  Defense: 0
-  "Energy Regen": 0.2
-  Crit: 0.405
-  "Crit Dmg": 0.81
-  Basic: 0
-  Heavy: 0
-  Skill: 0
-  Liberation: 0
+  atkflat: number
+  hpflat: number
+  defflat: number
+  atk: number
+  hp: number
+  def: number
+  er: number
+  crit: number
+  cdmg: number
+  basic: number
+  heavy: number
+  skill: number
+  liberation: number
   /* Element */
-  Aero: 0
-  Electro: 0
-  Fusion: 0
-  Glacio: 0
-  Havoc: 0
-  Spectro: 0
+  aero: number
+  electro: number
+  fusion: number
+  glacio: number
+  havoc: number
+  spectro: number
 }
 
 type DCondKeys = "Forte" | "Forte2" | "Concerto" | "Resonance"
 
+export interface Weapon {
+  name: string
+  attack: number
+  mainStat: string
+  mainStatAmount: number
+}
+
+export interface Echo {
+  name: string
+  damage: number
+  castTime: number
+  cooldown: number
+  set: string
+  classifications: Classification
+  hits: number
+}
+
 export interface Character {
   name: string
   sequence: number
-  weapon: string
+  weapon: Weapon
   weaponRank: number
-  echo: string
+  echo: Echo
   echoSet: string
   build: string
   element: string
