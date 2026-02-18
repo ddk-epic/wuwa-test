@@ -1,8 +1,7 @@
 type Element = "aero" | "electro" | "fusion" | "glacio" | "havoc" | "spectro"
 
-type SkillType =
+type SkillBaseType =
   | "basic"
-  | "echo"
   | "forte"
   | "intro"
   | "heavy"
@@ -10,11 +9,11 @@ type SkillType =
   | "outro"
   | "skill"
 
-type Classification = (Element | SkillType)[]
+type SkillType = SkillBaseType | "echo"
 
 type Skill = {
   name: string
-  classifications: Classification
+  classifications: (Element | SkillBaseType)[]
   mv: number
   frames: number
   freezetime?: number
@@ -29,7 +28,7 @@ type SkillSequence = {
   1: Skill
 } & Record<number, Skill>
 
-type SkillCategory = Record<SkillType, SkillSequence>
+type SkillCategory = Record<SkillBaseType, SkillSequence>
 
 export interface CharacterSkills {
   [char: string]: SkillCategory
@@ -79,7 +78,7 @@ export interface Echo {
   castTime: number
   cooldown: number
   set: string
-  classifications: Classification
+  classifications: (Element | SkillType)[]
   hits: number
 }
 
