@@ -24,16 +24,54 @@ const bonusStats: BonusStats = {
 }
 
 const team: Record<string, Character> = {
+  Encore: {
+    name: "Encore",
+    sequence: 0,
+    weapon: {
+      name: "Stringmaster",
+      rank: 1,
+      attack: 40,
+      mainStat: "Crit. Rate",
+      mainStatAmount: 0.8,
+    },
+    echo: {
+    name: "Inferno Rider",
+    damage: 8.08,
+    castTime: 2.8,
+    cooldown: 20,
+    set: "Molten Rift",
+    classifications: ["echo", "fusion"],
+    hits: 1,
+  },
+    echoSet: "Molten Rift",
+    build: "43311 Ele/Ele",
+    element: "fusion",
+    maxForte: 100,
+    maxForte2: 0,
+    /* stats */
+    attack: 34,
+    defense: 102,
+    health: 841 * 12.5,
+    crit: 0.5 + 0.36 + 0.405,
+    critDmg: 1.5 + 0.81 + 0.44,
+    bonusStats,
+    dCond: {
+  Forte: 0,
+  Forte2: 0,
+  Concerto: 0,
+  Resonance: 150,
+}
+  },
   Sanhua: {
     name: "Sanhua",
     sequence: 0,
     weapon: {
       name: "Emerald of Genesis",
+      rank: 1,
       attack: 47,
       mainStat: "Crit. Rate",
-      mainStatAmount: 5.4,
+      mainStatAmount: .54,
     },
-    weaponRank: 1,
     echo: {
     name: "Impermanence Heron",
     damage: 3.1056,
@@ -55,12 +93,12 @@ const team: Record<string, Character> = {
     crit: 0.5 + 0.243 + 0.405,
     critDmg: 1.5 + 0.81 + 0.44,
     bonusStats,
-    dCond: new Map([
-      ["Forte", 0],
-      ["Forte2", 0],
-      ["Concerto", 0],
-      ["Resonance", 150],
-    ]),
+    dCond: {
+  Forte: 0,
+  Forte2: 0,
+  Concerto: 0,
+  Resonance: 150,
+}
   },
 }
 
