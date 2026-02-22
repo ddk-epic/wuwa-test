@@ -1,15 +1,15 @@
-import type { BonusStats, Character } from "./types"
+import type { BonusStats, Team } from "./types"
 
 const bonusStats: BonusStats = {
-  atkflat: 350,
-  hpflat: 4560,
-  defflat: 0,
+  atkFlat: 350,
+  hpFlat: 4560,
+  defFlat: 0,
   atk: 0.182,
   hp: 0,
   def: 0,
   er: 0.2,
   crit: 0.405,
-  cdmg: 0.81,
+  critDmg: 0.81,
   basic: 0,
   heavy: 0,
   skill: 0,
@@ -23,7 +23,7 @@ const bonusStats: BonusStats = {
   spectro: 0,
 }
 
-const team: Record<string, Character> = {
+const team: Team = {
   Encore: {
     name: "Encore",
     sequence: 0,
@@ -35,14 +35,14 @@ const team: Record<string, Character> = {
       mainStatAmount: 0.8,
     },
     echo: {
-    name: "Inferno Rider",
-    damage: 8.08,
-    castTime: 2.8,
-    cooldown: 20,
-    set: "Molten Rift",
-    classifications: ["echo", "fusion"],
-    hits: 1,
-  },
+      name: "Inferno Rider",
+      damage: 8.08,
+      castTime: 2.8,
+      cooldown: 20,
+      set: "Molten Rift",
+      classifications: ["echo", "fusion"],
+      hits: 1,
+    },
     echoSet: "Molten Rift",
     build: "43311 Ele/Ele",
     element: "fusion",
@@ -56,11 +56,11 @@ const team: Record<string, Character> = {
     critDmg: 1.5 + 0.81 + 0.44,
     bonusStats,
     dCond: {
-  Forte: 0,
-  Forte2: 0,
-  Concerto: 0,
-  Resonance: 150,
-}
+      Forte: 0,
+      Forte2: 0,
+      Concerto: 0,
+      Resonance: 150,
+    },
   },
   Sanhua: {
     name: "Sanhua",
@@ -70,17 +70,17 @@ const team: Record<string, Character> = {
       rank: 1,
       attack: 47,
       mainStat: "Crit. Rate",
-      mainStatAmount: .54,
+      mainStatAmount: 0.54,
     },
     echo: {
-    name: "Impermanence Heron",
-    damage: 3.1056,
-    castTime: 1.5,
-    cooldown: 20,
-    set: "Moonlit Clouds",
-    classifications: ["echo", "havoc"],
-    hits: 1,
-  },
+      name: "Impermanence Heron",
+      damage: 3.1056,
+      castTime: 1.5,
+      cooldown: 20,
+      set: "Moonlit Clouds",
+      classifications: ["echo", "havoc"],
+      hits: 1,
+    },
     echoSet: "Moonlit Clouds",
     build: "43311 Ele/Ele",
     element: "glacio",
@@ -94,11 +94,11 @@ const team: Record<string, Character> = {
     critDmg: 1.5 + 0.81 + 0.44,
     bonusStats,
     dCond: {
-  Forte: 0,
-  Forte2: 0,
-  Concerto: 0,
-  Resonance: 150,
-}
+      Forte: 0,
+      Forte2: 0,
+      Concerto: 0,
+      Resonance: 150,
+    },
   },
 }
 

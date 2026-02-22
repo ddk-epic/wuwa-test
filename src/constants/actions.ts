@@ -1,46 +1,51 @@
-import skills from "./skills"
 import type { ActionItem } from "./types"
+
+import skills from "./skills"
 
 const actions: ActionItem[] = [
   {
-    char: "Sanhua",
-    action: skills.sanhua.intro[1],
+    char: "Encore",
+    skill: skills.encore.skill[1],
   },
   {
     char: "Sanhua",
-    action: skills.sanhua.skill[1],
+    skill: skills.sanhua.intro[1],
   },
   {
     char: "Sanhua",
-    action: skills.sanhua.liberation[1],
+    skill: skills.sanhua.skill[1],
   },
   {
     char: "Sanhua",
-    action: skills.sanhua.basic[1],
+    skill: skills.sanhua.liberation[1],
   },
   {
     char: "Sanhua",
-    action: skills.sanhua.basic[2],
+    skill: skills.sanhua.forte[1],
+  },
+  {
+    char: "Encore",
+    skill: skills.encore.skill[2],
   },
   {
     char: "Sanhua",
-    action: skills.sanhua.basic[3],
+    skill: skills.sanhua.basic[1],
   },
   {
     char: "Sanhua",
-    action: skills.sanhua.basic[4],
+    skill: skills.sanhua.basic[2],
   },
   {
     char: "Sanhua",
-    action: skills.sanhua.outro[1],
+    skill: skills.sanhua.outro[1],
   },
 ]
 
 let time = 0
 
-const actionList = actions.map((item) => {
-  const res = { ...item, time };
-  time += item.action.frames;
+const actionList = actions.map((action) => {
+  const res = { ...action, time };
+  time += action.skill.frames;
   return res;
 })
 

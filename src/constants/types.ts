@@ -1,4 +1,4 @@
-type Element = "aero" | "electro" | "fusion" | "glacio" | "havoc" | "spectro"
+type Element = "aero" | "electro" | "fusion" | "glacio" | "havoc" | "spectro" | null
 
 type SkillBaseType =
   | "basic"
@@ -9,10 +9,67 @@ type SkillBaseType =
   | "outro"
   | "skill"
 
+type BuffType =
+  | "atkFlat"
+  | "hpFlat"
+  | "defFlat"
+  | "atk"
+  | "hp"
+  | "def"
+  | "er"
+  | "crit"
+  | "critDmg"
+  | "basic"
+  | "heavy"
+  | "skill"
+  | "liberation"
+  | "all"
+  | "baDeep"
+  | "heDeep"
+  | "skDeep"
+  | "liDeep"
+  | "allDeep"
+  | "aero"
+  | "electro"
+  | "fusion"
+  | "glacio"
+  | "havoc"
+  | "spectro"
+  | "coord"
+  | "coDeep"
+  | "resistance"
+  | "ignoreDef"
+  | "outro"
+  | "erMulti"
+  | "frMulti"
+  | "physical"
+
 type SkillType = SkillBaseType | "echo"
 
-type Skill = {
+export type BuffObject = {
   name: string
+  type: string
+  classifications: (Element | BuffType)[]
+  target: string
+  appliesTo: string
+  stackLimit: number
+  stackInterval: number
+  sequenceReq: number
+  value: number
+  duration: number
+  forte?: number
+  forte2?: number
+  concerto?: number
+  resonance?: number
+}
+
+export type ActiveBuffObject = {
+  endTime: number
+} & BuffObject
+
+export type Skill = {
+  name: string
+  category: string
   classifications: (Element | SkillBaseType)[]
   mv: number
   frames: number
@@ -34,22 +91,39 @@ export interface CharacterSkills {
   [char: string]: SkillCategory
 }
 
-export interface ActionItem {
+export type ActionItem = {
   char: string
-  action: Skill
-  time?: number
+  skill: Skill
 }
 
+export type ActionListItem = {
+  time: number
+} & ActionItem
+
+export type ActionList = ActionListItem[]
+
+export type Result = {
+  char: string
+  skill: Skill
+  time: number
+  concerto: number
+  resonance: number
+  damage: number
+  buffs?: BuffObject[]
+}
+
+export type ResultList = Result[]
+
 export interface BonusStats {
-  atkflat: number
-  hpflat: number
-  defflat: number
+  atkFlat: number
+  hpFlat: number
+  defFlat: number
   atk: number
   hp: number
   def: number
   er: number
   crit: number
-  cdmg: number
+  critDmg: number
   basic: number
   heavy: number
   skill: number
@@ -67,6 +141,7 @@ type DCondKeys = "Forte" | "Forte2" | "Concerto" | "Resonance"
 
 export interface Weapon {
   name: string
+  rank: number
   attack: number
   mainStat: string
   mainStatAmount: number
@@ -86,7 +161,6 @@ export interface Character {
   name: string
   sequence: number
   weapon: Weapon
-  weaponRank: number
   echo: Echo
   echoSet: string
   build: string
@@ -100,5 +174,19 @@ export interface Character {
   crit: number
   critDmg: number
   bonusStats: BonusStats
-  dCond: Map<DCondKeys, number>
+  dCond: Record<DCondKeys, number>
+}
+
+export type Team = Record<string, Character>
+
+export type BuffMap = Record<BuffType, number>
+
+export type Context = {
+  activeBuffs: ActiveBuffObject[]
+  activeCharacter: string
+  buffMap: BuffMap
+  characters: Team
+  hasSwapped: boolean
+  prevChar: string
+  time: number
 }

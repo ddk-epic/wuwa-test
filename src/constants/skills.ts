@@ -1,12 +1,11 @@
 import type { CharacterSkills } from "./types"
 
-import { sanhua } from "@/lib/effects/sanhua"
-
 const skills: CharacterSkills = {
   encore: {
     intro: {
       1: {
         name: "Woolies Can Help!",
+        category: "Intro",
         classifications: ["fusion", "intro"],
         mv: 1,
         frames: 92,
@@ -19,6 +18,7 @@ const skills: CharacterSkills = {
     outro: {
       1: {
         name: "Thermal Field",
+        category: "Outro",
         classifications: ["fusion", "outro"],
         mv: 7.0704,
         frames: 0,
@@ -31,6 +31,7 @@ const skills: CharacterSkills = {
     basic: {
       1: {
         name: "Woolies Attack 1",
+        category: "Basic",
         classifications: ["fusion", "basic"],
         mv: 0.28,
         frames: 30,
@@ -41,6 +42,7 @@ const skills: CharacterSkills = {
       },
       2: {
         name: "Woolies Attack 2",
+        category: "Basic",
         classifications: ["fusion", "basic"],
         mv: 0.333,
         frames: 30,
@@ -51,6 +53,7 @@ const skills: CharacterSkills = {
       },
       3: {
         name: "Woolies Attack 3",
+        category: "Basic",
         classifications: ["fusion", "basic"],
         mv: 0.667,
         frames: 30,
@@ -61,6 +64,7 @@ const skills: CharacterSkills = {
       },
       4: {
         name: "Woolies Attack 4",
+        category: "Basic",
         classifications: ["fusion", "basic"],
         mv: 0.77,
         frames: 30,
@@ -71,6 +75,7 @@ const skills: CharacterSkills = {
       },
       5: {
         name: "Woolies Attack 5",
+        category: "Basic",
         classifications: ["fusion", "basic"],
         mv: 1.2,
         frames: 90,
@@ -81,6 +86,7 @@ const skills: CharacterSkills = {
       },
       6: {
         name: "Cosmos - Frolicking 1",
+        category: "Basic",
         classifications: ["fusion", "basic"],
         mv: 0.9072,
         frames: 20,
@@ -91,6 +97,7 @@ const skills: CharacterSkills = {
       },
       7: {
         name: "Cosmos - Frolicking 2",
+        category: "Basic",
         classifications: ["fusion", "basic"],
         mv: 0.8511,
         frames: 40,
@@ -101,6 +108,7 @@ const skills: CharacterSkills = {
       },
       8: {
         name: "Cosmos - Frolicking 3",
+        category: "Basic",
         classifications: ["fusion", "basic"],
         mv: 1.3276,
         frames: 30,
@@ -111,6 +119,7 @@ const skills: CharacterSkills = {
       },
       9: {
         name: "Cosmos - Frolicking 4",
+        category: "Basic",
         classifications: ["fusion", "basic"],
         mv: 2.9277,
         frames: 90,
@@ -123,6 +132,7 @@ const skills: CharacterSkills = {
     heavy: {
       1: {
         name: "none",
+        category: "Heavy",
         classifications: ["fusion", "heavy"],
         mv: 0,
         frames: 0,
@@ -135,6 +145,7 @@ const skills: CharacterSkills = {
     skill: {
       1: {
         name: "Flaming Woolies",
+        category: "Skill",
         classifications: ["fusion", "skill"],
         mv: 1.706,
         frames: 108,
@@ -146,6 +157,7 @@ const skills: CharacterSkills = {
       },
       2: {
         name: "Energetic Welcome",
+        category: "Skill",
         classifications: ["fusion", "skill"],
         mv: 1.81,
         frames: 60,
@@ -157,6 +169,7 @@ const skills: CharacterSkills = {
       },
       3: {
         name: "Cosmos Rampage",
+        category: "Skill",
         classifications: ["fusion", "skill"],
         mv: 1.274,
         frames: 30,
@@ -170,6 +183,7 @@ const skills: CharacterSkills = {
     liberation: {
       1: {
         name: "Cosmos Rave",
+        category: "Liberation",
         classifications: ["fusion", "liberation"],
         mv: 0,
         frames: 0,
@@ -184,6 +198,7 @@ const skills: CharacterSkills = {
     forte: {
       1: {
         name: "Cloudy Frenzy",
+        category: "Forte",
         classifications: ["fusion", "liberation"],
         mv: 1.68,
         frames: 202,
@@ -194,6 +209,7 @@ const skills: CharacterSkills = {
       },
       2: {
         name: "Cosmos Rupture",
+        category: "Forte",
         classifications: ["fusion", "liberation"],
         mv: 3.8918,
         frames: 202,
@@ -208,6 +224,7 @@ const skills: CharacterSkills = {
     intro: {
       1: {
         name: "Freezing Thorns",
+        category: "Intro",
         classifications: ["glacio", "intro"],
         mv: 0.7,
         frames: 60,
@@ -220,6 +237,7 @@ const skills: CharacterSkills = {
     outro: {
       1: {
         name: "Silversnow",
+        category: "Outro",
         classifications: ["glacio", "outro"],
         mv: 0,
         frames: 0,
@@ -227,12 +245,12 @@ const skills: CharacterSkills = {
         forte: 0,
         concerto: 0,
         resonance: 0,
-        buff: sanhua.o1,
       },
     },
     basic: {
       1: {
         name: "Frigid Light 1",
+        category: "Basic",
         classifications: ["glacio", "basic"],
         mv: 0.371,
         frames: 21,
@@ -243,6 +261,7 @@ const skills: CharacterSkills = {
       },
       2: {
         name: "Frigid Light 2",
+        category: "Basic",
         classifications: ["glacio", "basic"],
         mv: 0.245,
         frames: 32,
@@ -253,6 +272,7 @@ const skills: CharacterSkills = {
       },
       3: {
         name: "Frigid Light 3",
+        category: "Basic",
         classifications: ["glacio", "basic"],
         mv: 0.434,
         frames: 42,
@@ -263,6 +283,7 @@ const skills: CharacterSkills = {
       },
       4: {
         name: "Frigid Light 4",
+        category: "Basic",
         classifications: ["glacio", "basic"],
         mv: 0.399,
         frames: 34,
@@ -273,6 +294,7 @@ const skills: CharacterSkills = {
       },
       5: {
         name: "Frigid Light 5",
+        category: "Basic",
         classifications: ["glacio", "basic"],
         mv: 1.176,
         frames: 108,
@@ -285,6 +307,7 @@ const skills: CharacterSkills = {
     heavy: {
       1: {
         name: "Frigid Light",
+        category: "Heavy",
         classifications: ["glacio", "heavy"],
         mv: 0.56,
         frames: 60,
@@ -297,6 +320,7 @@ const skills: CharacterSkills = {
     skill: {
       1: {
         name: "Eternal Frost",
+        category: "Skill",
         classifications: ["glacio", "skill"],
         mv: 1.81,
         frames: 65,
@@ -310,6 +334,7 @@ const skills: CharacterSkills = {
     liberation: {
       1: {
         name: "Glacial Gaze",
+        category: "Liberation",
         classifications: ["glacio", "liberation"],
         mv: 4.0716,
         frames: 94,
@@ -324,6 +349,7 @@ const skills: CharacterSkills = {
     forte: {
       1: {
         name: "Detonate",
+        category: "Forte",
         classifications: ["glacio", "heavy"],
         mv: 1.874,
         frames: 92,

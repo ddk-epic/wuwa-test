@@ -9,7 +9,7 @@ export const totalBuffMap: BuffMap = {
   def: 0,
   er: 0,
   crit: 0,
-  cDmg: 0,
+  critDmg: 0,
   basic: 0,
   heavy: 0,
   skill: 0,
