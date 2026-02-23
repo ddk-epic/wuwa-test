@@ -16,6 +16,7 @@ function ActionList() {
     "Concerto",
     "Resonance",
     "Damage",
+    "+dmg",
   ]
   const resultList = calculate(team, actions, totalBuffMap)
 
@@ -34,6 +35,7 @@ function ActionList() {
               <span className="w-18 font-bold text-right">{heading[4]}</span>
               <span className="w-18 font-bold text-right">{heading[5]}</span>
               <span className="w-22 font-bold text-right">{heading[6]}</span>
+              <span className="w-22 font-bold">{heading[7]}</span>
             </div>
             {resultList.map((item, idx) => {
               return (
@@ -50,11 +52,15 @@ function ActionList() {
                   <span className="w-18 text-right">
                     {item.resonance.toFixed(2)}
                   </span>
-                  <span className="w-28 text-right pr-6">
+                  <span className="w-24 text-right pr-6">
                     {Math.round(item.damage)}
                   </span>
+                  <span className="w-6 flex items-center text-xs">
+                    +{Math.round(item.procc.damage)}
+                  </span>
                   <span className="w-100 flex items-center text-xs">
-                    ({item?.buffs?.length}) [{item?.buffs?.map((buff) => buff.name).join(", ")}]
+                    ({item?.buffs?.length}) [
+                    {item?.buffs?.map((buff) => buff.name).join(", ")}]
                   </span>
                 </div>
               )

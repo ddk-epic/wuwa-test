@@ -52,7 +52,7 @@ type BuffType =
   | "physical"
   | "none"
 
-type BuffCategory = "Buff" | "BuffBonus" | "BuffNext" | "Damage"
+type BuffCategory = "Buff" | "BuffBonus" | "BuffConsume" | "BuffNext" | "Damage"
 
 type SkillType = SkillBaseType | "echo"
 
@@ -62,7 +62,7 @@ export type BuffObject = {
   classifications: (Element | BuffType)[]
   trigger: string[]
   appliesTo: string
-  target: BuffType
+  target: BuffType[]
   stackLimit: number
   stackInterval: number
   sequenceReq: number
@@ -88,6 +88,7 @@ export type Skill = {
   cooldown?: number
   hits: number
   forte: number
+  forte2?: number
   concerto: number
   resonance: number
 }
@@ -121,6 +122,7 @@ export type Result = {
   concerto: number
   resonance: number
   damage: number
+  procc: Procc
   buffs?: BuffObject[]
 }
 
@@ -193,6 +195,12 @@ export type Team = Record<string, Character>
 
 export type BuffMap = Record<BuffType, number>
 
+type Procc = {
+  damage: number
+  heal: number
+  shield: number
+}
+
 export type Context = {
   activeBuffs: Record<string, ActiveBuffObject[]>
   activeCharacter: string
@@ -203,6 +211,7 @@ export type Context = {
   characters: Team
   hasSwapped: boolean
   prevChar: string
+  procc: Procc
   row: number
   time: number
 }

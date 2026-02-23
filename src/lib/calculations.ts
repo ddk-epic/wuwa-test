@@ -17,7 +17,7 @@ import weapons from "@/constants/weapons"
 
 import { buffs } from "./effects/buffs"
 
-import { hasSwapped } from "./helper"
+import { hasSwapped, removeBuffByName } from "./helper"
 
 function removeExpiredBuffs(ctx: Context) {
   const activeCharacter = ctx.activeCharacter
@@ -75,15 +75,16 @@ function addTriggeredBuffs(ctx: Context, skill: Skill) {
     )
     const hasTrigger = buff.trigger.includes(skill.name)
 
-    // add end time
     if (!isAlreadyActive && hasTrigger) {
+      // add end time
       const endTime =
         (currentTime + buff.duration * 60 - (skill.freezetime ?? 0)) / 60 // frame time
       const activeBuffObject = { ...buff, endTime }
 
+      // handle outro
       if (buff.type === "BuffNext" && buff.appliesTo === "Next") {
         ctx.buffNext.push(activeBuffObject)
-        console.log(`add ${activeBuffObject.name} to buffNext`)
+        // console.log(`add ${activeBuffObject.name} to buffNext`)
       } else {
         ctx.activeBuffs[activeCharacter].push(activeBuffObject)
         console.log(
@@ -91,24 +92,6 @@ function addTriggeredBuffs(ctx: Context, skill: Skill) {
         )
       }
     }
-  }
-}
-
-function evaluateBuffs(ctx: Context) {
-  const activeCharacter = ctx.activeCharacter
-  const buffs = ctx.activeBuffs[activeCharacter]
-
-  if (buffs.length === 0) {
-    return
-  }
-
-  for (const buff of buffs) {
-    if (buff.type.includes("Buff")) {
-      ctx.buffMap[buff.target] += buff.value
-    }
-    console.log(
-      `(${ctx.row}) ctx.buffMap[${buff.target}]: ${ctx.buffMap[buff.target]}`,
-    )
   }
 }
 
@@ -156,14 +139,57 @@ function calculateDamage(ctx: Context, skill: Skill) {
   return totalDamage
 }
 
+function evaluateBuffs(ctx: Context) {
+  const activeCharacter = ctx.activeCharacter
+  const buffs = ctx.activeBuffs[activeCharacter]
+
+  if (buffs.length === 0) return
+
+  for (const buff of buffs) {
+    if (!buff) continue
+
+    switch (buff.type) {
+      case "BuffConsume":
+        break
+
+      case "Damage":
+        const damageProcc: Skill = {
+          name: `${buff.name} dmg`,
+          category: "Forte",
+          classifications: ["glacio", "skill"],
+          mv: buff.value,
+          frames: 0,
+          hits: 1,
+          forte: buff?.forte ?? 0,
+          forte2: buff?.forte2 ?? 0,
+          concerto: buff?.concerto ?? 0,
+          resonance: buff?.resonance ?? 0,
+        }
+        ctx.procc.damage = calculateDamage(ctx, damageProcc)
+        evaluateDCond(ctx, damageProcc)
+        removeBuffByName(ctx.activeBuffs[activeCharacter], buff.name)
+        break
+
+      default:
+        for (const target of buff.target) {
+          ctx.buffMap[target] += buff.value
+          console.log(
+            `(${ctx.row}) buffMap[${buff.target}]: ${ctx.buffMap[target]}`,
+          )
+        }
+    }
+  }
+}
+
 function processAction(
   ctx: Context,
   action: ActionListItem,
-  buffMap: BuffMap,
+  initialBuffMap: BuffMap,
 ) {
   // update ctx
   ctx.activeCharacter = action.char
   ctx.time = action.time
+  ctx.buffMap = { ...initialBuffMap }
 
   const activeCharacter = ctx.activeCharacter
   const skill = action.skill
@@ -194,12 +220,13 @@ function processAction(
     concerto: ctx.characters[ctx.activeCharacter].dCond.Concerto,
     resonance: ctx.characters[ctx.activeCharacter].dCond.Resonance,
     damage,
+    procc: { ...ctx.procc },
     buffs: [...ctx.activeBuffs[activeCharacter]],
   }
 
   // setup for next iteration
-  ctx.buffMap = { ...buffMap }
   ctx.prevChar = ctx.activeCharacter
+  ctx.procc = { damage: 0, heal: 0, shield: 0 }
   ctx.row += 1
   return resultObject
 }
@@ -228,6 +255,11 @@ function calculate(
     Object.values(character) // intro, outro, basic
       .flatMap((category) => Object.values(category)),
   )
+  const procc = {
+    damage: 0,
+    heal: 0,
+    shield: 0,
+  }
 
   // global mutable context
   const ctx: Context = {
@@ -240,6 +272,7 @@ function calculate(
     characters: teamConfiguration,
     hasSwapped: false,
     prevChar: "",
+    procc,
     row: 1,
     time: 0,
   }

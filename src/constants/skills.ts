@@ -355,7 +355,7 @@ const skills: CharacterSkills = {
         frames: 92,
         hits: 1,
         forte: 0,
-        concerto: 2,
+        concerto: 15 + 2,
         resonance: 0.87,
       },
     },
