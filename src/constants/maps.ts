@@ -34,4 +34,5 @@ export const totalBuffMap: BuffMap = {
   erMulti: 0,
   frMulti: 0,
   physical: 0,
+  none: 0,
 }

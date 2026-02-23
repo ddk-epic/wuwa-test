@@ -4,12 +4,8 @@ import skills from "./skills"
 
 const actions: ActionItem[] = [
   {
-    char: "Encore",
-    skill: skills.encore.skill[1],
-  },
-  {
     char: "Sanhua",
-    skill: skills.sanhua.intro[1],
+    skill: skills.sanhua.basic[1],
   },
   {
     char: "Sanhua",
@@ -25,7 +21,7 @@ const actions: ActionItem[] = [
   },
   {
     char: "Encore",
-    skill: skills.encore.skill[2],
+    skill: skills.encore.skill[1],
   },
   {
     char: "Sanhua",
@@ -39,14 +35,22 @@ const actions: ActionItem[] = [
     char: "Sanhua",
     skill: skills.sanhua.outro[1],
   },
+  {
+    char: "Encore",
+    skill: skills.encore.intro[1],
+  },
+  {
+    char: "Encore",
+    skill: skills.encore.liberation[1],
+  },
 ]
 
 let time = 0
 
 const actionList = actions.map((action) => {
-  const res = { ...action, time };
-  time += action.skill.frames;
-  return res;
+  const res = { ...action, time }
+  time += action.skill.frames
+  return res
 })
 
 export default actionList

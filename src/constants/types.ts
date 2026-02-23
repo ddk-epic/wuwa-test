@@ -1,4 +1,11 @@
-type Element = "aero" | "electro" | "fusion" | "glacio" | "havoc" | "spectro" | null
+type Element =
+  | "aero"
+  | "electro"
+  | "fusion"
+  | "glacio"
+  | "havoc"
+  | "spectro"
+  | null
 
 type SkillBaseType =
   | "basic"
@@ -43,15 +50,19 @@ type BuffType =
   | "erMulti"
   | "frMulti"
   | "physical"
+  | "none"
+
+type BuffCategory = "Buff" | "BuffBonus" | "BuffNext" | "Damage"
 
 type SkillType = SkillBaseType | "echo"
 
 export type BuffObject = {
   name: string
-  type: string
+  type: BuffCategory
   classifications: (Element | BuffType)[]
-  target: string
+  trigger: string[]
   appliesTo: string
+  target: BuffType
   stackLimit: number
   stackInterval: number
   sequenceReq: number
@@ -103,6 +114,7 @@ export type ActionListItem = {
 export type ActionList = ActionListItem[]
 
 export type Result = {
+  row: number
   char: string
   skill: Skill
   time: number
@@ -182,11 +194,15 @@ export type Team = Record<string, Character>
 export type BuffMap = Record<BuffType, number>
 
 export type Context = {
-  activeBuffs: ActiveBuffObject[]
+  activeBuffs: Record<string, ActiveBuffObject[]>
   activeCharacter: string
+  allSkills: Skill[]
   buffMap: BuffMap
+  buffNext: ActiveBuffObject[]
+  buffList: BuffObject[]
   characters: Team
   hasSwapped: boolean
   prevChar: string
+  row: number
   time: number
 }
