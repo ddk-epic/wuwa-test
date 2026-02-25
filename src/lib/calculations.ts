@@ -118,7 +118,8 @@ function evaluateDCond(ctx: Context, skill: Skill) {
 }
 
 function calculateDamage(ctx: Context, skill: Skill) {
-  const char = team[ctx.activeCharacter]
+  const activeCharacter = ctx.activeCharacter
+  const char = team[activeCharacter]
   const weapon = weapons[char.weapon.name]
   const levelMultiplier = 12.5
   const enemyDefenseMultiplier = 0.52
@@ -126,12 +127,12 @@ function calculateDamage(ctx: Context, skill: Skill) {
   const attack =
     (char.attack + weapon.attack) *
       levelMultiplier *
-      (1 + char.bonusStats.atk + ctx.buffMap.atk) +
+      (1 + char.bonusStats.atk + ctx.buffMap[activeCharacter].atk) +
     char.bonusStats.atkFlat +
-    ctx.buffMap.atkFlat
+    ctx.buffMap[activeCharacter].atkFlat
   const damage = attack * skill.mv // * 1 + skillscaling bonus
-  const crit = Math.min(char.crit + ctx.buffMap.crit, 1)
-  const critDmg = char.critDmg + ctx.buffMap.critDmg
+  const crit = Math.min(char.crit + ctx.buffMap[activeCharacter].crit, 1)
+  const critDmg = char.critDmg + ctx.buffMap[activeCharacter].critDmg
   const critMultiplier = critDmg - crit + crit * critDmg
 
   const totalDamage = damage * critMultiplier * enemyDefenseMultiplier
@@ -172,7 +173,7 @@ function evaluateBuffs(ctx: Context) {
 
       default:
         for (const target of buff.target) {
-          ctx.buffMap[target] += buff.value
+          ctx.buffMap[activeCharacter][target] += buff.value
           console.log(
             `(${ctx.row}) buffMap[${buff.target}]: ${ctx.buffMap[target]}`,
           )
@@ -184,7 +185,7 @@ function evaluateBuffs(ctx: Context) {
 function processAction(
   ctx: Context,
   action: ActionListItem,
-  initialBuffMap: BuffMap,
+  initialBuffMap: Record<string, BuffMap>,
 ) {
   // update ctx
   ctx.activeCharacter = action.char
@@ -224,6 +225,8 @@ function processAction(
     buffs: [...ctx.activeBuffs[activeCharacter]],
   }
 
+  // const buffMapValues = [...ctx.buffMap].map()
+
   // setup for next iteration
   ctx.prevChar = ctx.activeCharacter
   ctx.procc = { damage: 0, heal: 0, shield: 0 }
@@ -246,7 +249,15 @@ function calculate(
     {} as Record<string, ActiveBuffObject[]>,
   )
   const teamConfiguration = structuredClone(characters)
-  const initialBuffMap = { ...buffmatrix }
+  const initialBuffMap: Record<string, BuffMap> = Object.keys(
+    characters,
+  ).reduce(
+    (acc, character) => {
+      acc[character] = { ...buffmatrix }
+      return acc
+    },
+    {} as Record<string, BuffMap>,
+  )
   const initialBuffList: BuffObject[] = Object.keys(characters)
     .map((charName) => buffs[charName.toLowerCase()])
     .flat()
@@ -260,6 +271,9 @@ function calculate(
     heal: 0,
     shield: 0,
   }
+  const resultList: ResultList = []
+
+  // process passive Buffs
 
   // global mutable context
   const ctx: Context = {
@@ -276,8 +290,6 @@ function calculate(
     row: 1,
     time: 0,
   }
-
-  const resultList: ResultList = []
 
   // calculation loop
   for (const action of actionList) {

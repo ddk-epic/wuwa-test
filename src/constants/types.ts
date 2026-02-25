@@ -205,7 +205,7 @@ export type Context = {
   activeBuffs: Record<string, ActiveBuffObject[]>
   activeCharacter: string
   allSkills: Skill[]
-  buffMap: BuffMap
+  buffMap: Record<string, BuffMap>
   buffNext: ActiveBuffObject[]
   buffList: BuffObject[]
   characters: Team
