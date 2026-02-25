@@ -17,12 +17,9 @@ type SkillBaseType =
   | "skill"
 
 type BuffType =
-  | "atkFlat"
-  | "hpFlat"
-  | "defFlat"
   | "atk"
-  | "hp"
   | "def"
+  | "hp"
   | "er"
   | "crit"
   | "critDmg"
@@ -42,13 +39,13 @@ type BuffType =
   | "glacio"
   | "havoc"
   | "spectro"
-  | "coord"
-  | "coDeep"
-  | "resistance"
-  | "ignoreDef"
-  | "outro"
+  | "bonus"
+  | "amp"
+  | "multiplier"
+  | "resIgnore"
+  | "defIgnore"
   | "erMulti"
-  | "frMulti"
+  | "foMulti"
   | "physical"
   | "none"
 
@@ -59,13 +56,15 @@ type SkillType = SkillBaseType | "echo"
 export type BuffObject = {
   name: string
   type: BuffCategory
-  classifications: (Element | BuffType)[]
-  trigger: string[]
+  owner: string
+  // classifications?: (Element | BuffType)[]
+  createdBy: string[]
   appliesTo: string
-  target: BuffType[]
-  stackLimit: number
-  stackInterval: number
-  sequenceReq: number
+  modifier: BuffType[]
+  consumedBy?: string[]
+  stackLimit?: number
+  stackInterval?: number
+  sequenceReq?: number
   value: number
   duration: number
   forte?: number
@@ -124,6 +123,7 @@ export type Result = {
   damage: number
   procc: Procc
   buffs?: BuffObject[]
+  buffMap: number[]
 }
 
 export type ResultList = Result[]
@@ -207,6 +207,7 @@ export type Context = {
   allSkills: Skill[]
   buffMap: Record<string, BuffMap>
   buffNext: ActiveBuffObject[]
+  buffDeferred: ActiveBuffObject[]
   buffList: BuffObject[]
   characters: Team
   hasSwapped: boolean
