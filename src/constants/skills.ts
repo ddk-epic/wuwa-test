@@ -350,7 +350,7 @@ const skills: CharacterSkills = {
       1: {
         name: "Detonate",
         category: "Forte",
-        classifications: ["glacio", "heavy"],
+        classifications: ["glacio", "skill"],
         mv: 1.874,
         frames: 92,
         hits: 1,

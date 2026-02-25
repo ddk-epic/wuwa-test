@@ -68,18 +68,27 @@ function addTriggeredBuffs(ctx: Context, skill: Skill) {
   const activeCharacter = ctx.activeCharacter
   const currentTime = ctx.time
 
-  // triggered by Skill
+  // add buff triggered by Skill
   for (const buff of ctx.buffList) {
     const isAlreadyActive = ctx.activeBuffs[activeCharacter].some(
       (b) => b.name === buff.name,
     )
-    const hasTrigger = buff.trigger.includes(skill.name)
+    const hasTrigger = buff.createdBy.some((trigger) => trigger === skill.name)
 
     if (!isAlreadyActive && hasTrigger) {
-      // add end time
+      // handle end time
       const endTime =
         (currentTime + buff.duration * 60 - (skill.freezetime ?? 0)) / 60 // frame time
       const activeBuffObject = { ...buff, endTime }
+
+      // handle damage procc
+
+      if (buff.type === "Damage" && buff.consumedBy) {
+        if (buff.consumedBy) {
+          ctx.buffDeferred.push(activeBuffObject)
+          console.log(`add ${activeBuffObject.name} to buffDeferred`)
+        }
+      }
 
       // handle outro
       if (buff.type === "BuffNext" && buff.appliesTo === "Next") {
@@ -128,8 +137,7 @@ function calculateDamage(ctx: Context, skill: Skill) {
     (char.attack + weapon.attack) *
       levelMultiplier *
       (1 + char.bonusStats.atk + ctx.buffMap[activeCharacter].atk) +
-    char.bonusStats.atkFlat +
-    ctx.buffMap[activeCharacter].atkFlat
+    char.bonusStats.atkFlat
   const damage = attack * skill.mv // * 1 + skillscaling bonus
   const crit = Math.min(char.crit + ctx.buffMap[activeCharacter].crit, 1)
   const critDmg = char.critDmg + ctx.buffMap[activeCharacter].critDmg
@@ -140,7 +148,7 @@ function calculateDamage(ctx: Context, skill: Skill) {
   return totalDamage
 }
 
-function evaluateBuffs(ctx: Context) {
+function evaluateBuffs(ctx: Context, skill: Skill) {
   const activeCharacter = ctx.activeCharacter
   const buffs = ctx.activeBuffs[activeCharacter]
 
@@ -154,29 +162,40 @@ function evaluateBuffs(ctx: Context) {
         break
 
       case "Damage":
-        const damageProcc: Skill = {
-          name: `${buff.name} dmg`,
-          category: "Forte",
-          classifications: ["glacio", "skill"],
-          mv: buff.value,
-          frames: 0,
-          hits: 1,
-          forte: buff?.forte ?? 0,
-          forte2: buff?.forte2 ?? 0,
-          concerto: buff?.concerto ?? 0,
-          resonance: buff?.resonance ?? 0,
+        for (const buff of ctx.buffDeferred) {
+          if (
+            buff.consumedBy &&
+            buff.consumedBy.some((skillName) => skillName === skill.name)
+          ) {
+            const damageProcc: Skill = {
+              name: `${buff.name} Procc`,
+              category: skill.category,
+              classifications: skill.classifications,
+              mv: buff.value,
+              frames: 0,
+              hits: 1,
+              forte: buff?.forte ?? 0,
+              forte2: buff?.forte2 ?? 0,
+              concerto: buff?.concerto ?? 0,
+              resonance: buff?.resonance ?? 0,
+            }
+            ctx.procc.damage = calculateDamage(ctx, damageProcc)
+            evaluateDCond(ctx, damageProcc)
+            removeBuffByName(ctx.activeBuffs[activeCharacter], buff.name)
+            // console.log(
+            //   `${damageProcc.name} successfully procced for`,
+            //   ctx.procc.damage,
+            // )
+          }
         }
-        ctx.procc.damage = calculateDamage(ctx, damageProcc)
-        evaluateDCond(ctx, damageProcc)
-        removeBuffByName(ctx.activeBuffs[activeCharacter], buff.name)
         break
 
       default:
-        for (const target of buff.target) {
-          ctx.buffMap[activeCharacter][target] += buff.value
-          console.log(
-            `(${ctx.row}) buffMap[${buff.target}]: ${ctx.buffMap[target]}`,
-          )
+        for (const modifier of buff.modifier) {
+          ctx.buffMap[activeCharacter][modifier] += buff.value
+          // console.log(
+          //   `(${ctx.row}) buffMap[${buff.modifier}]: ${ctx.buffMap[activeCharacter][modifier]}`,
+          // )
         }
     }
   }
@@ -190,7 +209,7 @@ function processAction(
   // update ctx
   ctx.activeCharacter = action.char
   ctx.time = action.time
-  ctx.buffMap = { ...initialBuffMap }
+  ctx.buffMap = structuredClone(initialBuffMap)
 
   const activeCharacter = ctx.activeCharacter
   const skill = action.skill
@@ -205,13 +224,15 @@ function processAction(
   addTriggeredBuffs(ctx, skill)
 
   // evaluate buffs
-  evaluateBuffs(ctx)
+  evaluateBuffs(ctx, skill)
 
   // handle team buff
 
   // evaluate dynamic conditions (concerto, resonance)
   evaluateDCond(ctx, skill)
   const damage = calculateDamage(ctx, skill)
+
+  const buffMapValues = Object.values(ctx.buffMap[activeCharacter]).slice(0, 32)
 
   const resultObject: Result = {
     row: ctx.row,
@@ -223,9 +244,8 @@ function processAction(
     damage,
     procc: { ...ctx.procc },
     buffs: [...ctx.activeBuffs[activeCharacter]],
+    buffMap: buffMapValues,
   }
-
-  // const buffMapValues = [...ctx.buffMap].map()
 
   // setup for next iteration
   ctx.prevChar = ctx.activeCharacter
@@ -282,6 +302,7 @@ function calculate(
     allSkills: initialSkillList,
     buffMap: initialBuffMap,
     buffList: initialBuffList,
+    buffDeferred: [],
     buffNext: [],
     characters: teamConfiguration,
     hasSwapped: false,
