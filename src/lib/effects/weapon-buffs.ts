@@ -5,6 +5,7 @@ export const weaponBuffs: Record<string, WeaponBuffObject[]> = {
     {
       name: "Electric Amplification (Ele)",
       type: "Buff",
+      owner: "Self",
       createdBy: ["Stringmaster"],
       appliesTo: "Self",
       modifier: ["allEle"],
@@ -14,6 +15,7 @@ export const weaponBuffs: Record<string, WeaponBuffObject[]> = {
     {
       name: "Electric Amplification (ATK)",
       type: "BuffStacking",
+      owner: "Self",
       createdBy: ["Stringmaster"],
       triggeredBy: ["skill"],
       appliesTo: "Self",
@@ -26,6 +28,7 @@ export const weaponBuffs: Record<string, WeaponBuffObject[]> = {
     {
       name: "Electric Amplification (Off-field)",
       type: "BuffStacking",
+      owner: "Self",
       createdBy: ["Stringmaster"],
       triggeredBy: ["skill"],
       appliesTo: "Self",
@@ -33,7 +36,7 @@ export const weaponBuffs: Record<string, WeaponBuffObject[]> = {
       stackLimit: 2,
       stackInterval: 0,
       value: [0.12, 0.15, 0.18, 0.21, 0.24],
-      duration: 99999,
+      duration: 1,
     },
   ],
 }

@@ -22,6 +22,7 @@ import weapons from "@/constants/weapons"
 
 import { buffs } from "./effects/buffs"
 import { echoBuffs } from "./effects/echo-buffs"
+import { setBuffs } from "./effects/set-buffs"
 import { weaponBuffs } from "./effects/weapon-buffs"
 
 function removeExpiredBuffs(ctx: Context) {
@@ -259,6 +260,106 @@ function processAction(
   return resultObject
 }
 
+function getSkillData(characters: Record<string, Character>) {
+  const team = Object.keys(characters)
+  // const echo = characters[]
+
+  const characterSkills: Skill[] = team
+    .map((charName) => Object.values(skills[charName]))
+    .flatMap((category) =>
+      Object.values(category) // intro, outro, basic
+        .flatMap((entry) => Object.values(entry)),
+    )
+
+  const echoSkills: Skill[] = team.map((charName) => {
+    const echo = echoes[characters[charName].echo]
+    const { set, ...rest } = echo
+    return rest
+  })
+
+  const allSkills = [...characterSkills, ...echoSkills]
+  // console.log(allSkills)
+
+  return allSkills
+}
+
+function getBuffData(characters: Record<string, Character>) {
+  const team = Object.keys(characters)
+
+  const characterBuffData: BuffObject[] = team
+    .map((charName) => buffs[charName])
+    .flat()
+
+  const weaponBuffData: BuffObject[] = team
+    .map((charName) => {
+      const sequence = characters[charName].sequence
+      const getWeaponBuffs = weaponBuffs[characters[charName].weapon.name]
+
+      // update WeaponBuffObject
+      if (!getWeaponBuffs) return []
+
+      return getWeaponBuffs.map((buff) => {
+        const value = buff.value[Math.max(0, sequence - 1)]
+        const returnObj = {
+          ...buff,
+          appliesTo: charName,
+          owner: charName,
+          value,
+        }
+        return returnObj
+      })
+    })
+    .flat()
+
+  const setBuffData: BuffObject[] = team
+    .map((charName) => {
+      const echoSets = characters[charName].echoSet
+      const getEchoBuffs = echoSets.flatMap((echoName) => {
+        // if only 1 set, return 2pc and 5pc
+        if (echoSets.length === 1) {
+          return setBuffs[echoName]
+        } else {
+          // TODO: proper handling for 3pc
+          return setBuffs[echoName][0]
+        }
+      })
+      // console.log(echoBuffs)
+
+      return getEchoBuffs.map((buff) => {
+        const appliesTo = buff.appliesTo === "Self" ? charName : buff.appliesTo
+        const buffObj = {
+          ...buff,
+          createdBy: [charName],
+          appliesTo,
+        }
+
+        if ("owner" in buff) {
+          buffObj.owner = charName
+        }
+
+        return buffObj
+      })
+    })
+    .flat()
+
+  const echoBuffData: BuffObject[] = team
+    .map((charName) => {
+      const echoName = characters[charName].echo
+      return echoBuffs[echoName]
+    })
+    .flat()
+
+  const allBuffs = [
+    ...characterBuffData,
+    ...weaponBuffData,
+    ...setBuffData,
+    ...echoBuffData,
+  ]
+  // console.log(allBuffs)
+
+  return allBuffs
+}
+
 function getBuffMap(
   characters: Record<string, Character>,
   buffMap: BuffMap,
@@ -287,12 +388,15 @@ function getBuffMap(
   return initialBuffMap
 }
 
-function getContext(
-  characterData: Record<string, Character>,
-  baseBuffMap: Record<string, BuffMap>,
-): Context {
-  const characters = structuredClone(characterData)
+function preparePassiveBuffs(
+  characters: Record<string, Character>,
+  allBuffs: BuffObject[],
+) {
   const team = Object.keys(characters)
+
+  const allPassiveBuffs = Object.values(allBuffs)
+    .flat()
+    .filter((buff) => buff.duration === 99999)
 
   const activeBuffs: Record<string, ActiveBuffObject[]> = team.reduce(
     (acc, character) => {
@@ -302,58 +406,30 @@ function getContext(
     {} as Record<string, ActiveBuffObject[]>,
   )
 
-  const characterSkills: Skill[] = Object.values(skills).flatMap((category) =>
-    Object.values(category) // intro, outro, basic
-      .flatMap((entry) => Object.values(entry)),
-  )
-
-  const echoSkills: Skill[] = Object.values(echoes).flatMap((echo) => {
-    const { set, ...rest } = echo
-    return rest
+  allPassiveBuffs.forEach((buff) => {
+    const activeBuff: ActiveBuffObject = { ...buff, endTime: 99999 }
+    activeBuffs[buff.appliesTo].push(activeBuff)
   })
-  const skillList = [...characterSkills, ...echoSkills]
-  // console.log(skillList)
 
-  const characterBuffData: BuffObject[] = team
-    .map((charName) => buffs[charName])
-    .flat()
+  return activeBuffs
+}
 
-  const weaponBuffData: BuffObject[] = team
-    .map((charName) => {
-      const sequence = characters[charName].sequence
-      const getWeaponBuffs = weaponBuffs[characters[charName].weapon.name]
+function getContext(
+  characterData: Record<string, Character>,
+  baseBuffMap: Record<string, BuffMap>,
+  allSkills: Skill[],
+  allBuffs: BuffObject[],
+  initialActiveBuffs: Record<string, ActiveBuffObject[]>,
+): Context {
+  const characters = structuredClone(characterData)
 
-      // update WeaponBuffObject
-      if (!getWeaponBuffs) return []
-
-      return getWeaponBuffs.map((buff) => {
-        const value = buff.value[Math.max(0, sequence - 1)]
-        return { ...buff, appliesTo: charName, owner: charName, value }
-      })
-    })
-    .flat()
-
-  const echoBuffData: BuffObject[] = team
-    .map((charName) => {
-      const echoName = characters[charName].echo
-      return echoBuffs[echoName]
-    })
-    .flat()
-
-  const allBuffs = [...characterBuffData, ...weaponBuffData, ...echoBuffData]
-  // console.log(buffList)
-
-  const procc = {
-    damage: 0,
-    heal: 0,
-    shield: 0,
-  }
+  const procc = { damage: 0, heal: 0, shield: 0 }
 
   return {
-    activeBuffs,
+    activeBuffs: initialActiveBuffs,
     activeCharacter: "",
     allBuffs,
-    allSkills: skillList,
+    allSkills,
     buffMap: baseBuffMap,
     buffDeferred: [],
     buffNext: [],
@@ -373,11 +449,24 @@ function calculate(
 ): ResultList {
   const resultList: ResultList = []
 
-  // process passive Buffs
+  // get Data
+  const skillData = getSkillData(characters)
+  const buffData = getBuffData(characters)
+
+  // process character stats
   const initialBuffMap = getBuffMap(characters, baseBuffMap)
 
+  // process passive Buffs
+  const initialActiveBuffs = preparePassiveBuffs(characters, buffData)
+
   // global mutable context
-  const ctx: Context = getContext(characters, initialBuffMap)
+  const ctx: Context = getContext(
+    characters,
+    initialBuffMap,
+    skillData,
+    buffData,
+    initialActiveBuffs,
+  )
 
   // calculation loop
   for (const action of actionList) {

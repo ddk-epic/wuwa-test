@@ -65,7 +65,7 @@ type BuffCategory =
 export type BuffObject = {
   name: string
   type: BuffCategory
-  owner: string | null
+  owner: string
   // classifications?: (Element | BuffType)[]
   createdBy: string[]
   triggeredBy?: string[]
@@ -86,6 +86,7 @@ export type BuffObject = {
 export type WeaponBuffObject = {
   name: string
   type: BuffCategory
+  owner: string
   createdBy: string[]
   triggeredBy?: string[]
   appliesTo: string
