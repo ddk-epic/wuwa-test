@@ -13,15 +13,16 @@ import type {
   Skill,
 } from "@/constants/types"
 
+import { hasSwapped, removeBuffByName } from "./helper"
+
 import team from "@/constants/characters"
+import echoes from "@/constants/echoes"
 import skills from "@/constants/skills"
 import weapons from "@/constants/weapons"
 
 import { buffs } from "./effects/buffs"
-
-import { hasSwapped, removeBuffByName } from "./helper"
-import { weaponBuffs } from "./effects/weapon-buffs"
 import { echoBuffs } from "./effects/echo-buffs"
+import { weaponBuffs } from "./effects/weapon-buffs"
 
 function removeExpiredBuffs(ctx: Context) {
   const activeCharacter = ctx.activeCharacter
@@ -288,7 +289,7 @@ function getBuffMap(
 
 function getContext(
   characterData: Record<string, Character>,
-  buffmatrix: Record<string, BuffMap>,
+  baseBuffMap: Record<string, BuffMap>,
 ): Context {
   const characters = structuredClone(characterData)
   const team = Object.keys(characters)
@@ -301,12 +302,17 @@ function getContext(
     {} as Record<string, ActiveBuffObject[]>,
   )
 
-  const characterSkills: Skill[] = Object.values(skills).flatMap((character) =>
-    Object.values(character) // intro, outro, basic
-      .flatMap((category) => Object.values(category)),
+  const characterSkills: Skill[] = Object.values(skills).flatMap((category) =>
+    Object.values(category) // intro, outro, basic
+      .flatMap((entry) => Object.values(entry)),
   )
-  // TODO: echo skills
-  const skillList = [...characterSkills]
+
+  const echoSkills: Skill[] = Object.values(echoes).flatMap((echo) => {
+    const { set, ...rest } = echo
+    return rest
+  })
+  const skillList = [...characterSkills, ...echoSkills]
+  // console.log(skillList)
 
   const characterBuffData: BuffObject[] = team
     .map((charName) => buffs[charName])
@@ -348,7 +354,7 @@ function getContext(
     activeCharacter: "",
     allBuffs,
     allSkills: skillList,
-    buffMap: buffmatrix,
+    buffMap: baseBuffMap,
     buffDeferred: [],
     buffNext: [],
     characters,

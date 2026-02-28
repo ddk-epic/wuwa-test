@@ -45,7 +45,7 @@ function ActionList() {
               return (
                 <div key={idx} className="flex space-x-6">
                   <span className="w-2">{item.row}</span>
-                  <span className="w-28">{item.char}</span>
+                  <span className="w-28">{item.char.charAt(0).toUpperCase() + item.char.slice(1)}</span>
                   <span className="w-56">{`${item.skill.category}: ${item.skill.name}`}</span>
                   <span className="w-18 text-right">
                     {frameToSecond(item.time, 2)}

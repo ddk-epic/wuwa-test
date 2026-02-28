@@ -62,8 +62,6 @@ type BuffCategory =
   | "BuffOffField"
   | "Damage"
 
-type SkillType = SkillBaseType | "echo"
-
 export type BuffObject = {
   name: string
   type: BuffCategory
@@ -105,17 +103,19 @@ export type ActiveBuffObject = {
 export type Skill = {
   name: string
   category: string
-  classifications: (Element | SkillBaseType)[]
+  classifications: (Element | SkillBaseType | "echo")[]
   mv: number
   frames: number
   freezetime?: number
   cooldown?: number
   hits: number
-  forte: number
+  forte?: number
   forte2?: number
   concerto: number
   resonance: number
 }
+
+export type Echo = { set: string } & Skill
 
 type SkillSequence = {
   1: Skill
@@ -186,22 +186,12 @@ export interface Weapon {
   mainStatAmount: number
 }
 
-export interface Echo {
-  name: string
-  damage: number
-  castTime: number
-  cooldown: number
-  set: string
-  classifications: (Element | SkillType)[]
-  hits: number
-}
-
 export interface Character {
   name: string
   sequence: number
   weapon: Weapon
   echo: string
-  echoSet: string
+  echoSet: string[]
   build: string
   element: string
   maxForte: number
