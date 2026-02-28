@@ -4,14 +4,14 @@ const weapons: Record<string, Weapon> = {
   "Emerald of Genesis": {
     name: "Emerald of Genesis",
     rank: 1,
-    attack: 47,
+    atk: 47,
     mainStat: "Crit. Rate",
     mainStatAmount: 5.4,
   },
-  "Stringmaster": {
+  Stringmaster: {
     name: "Stringmaster",
     rank: 1,
-    attack: 40,
+    atk: 40,
     mainStat: "Crit. Rate",
     mainStatAmount: 0.8,
   },

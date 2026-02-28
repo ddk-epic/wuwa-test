@@ -4,43 +4,43 @@ import skills from "./skills"
 
 const actions: ActionItem[] = [
   {
-    char: "Sanhua",
+    char: "sanhua",
     skill: skills.sanhua.basic[1],
   },
   {
-    char: "Sanhua",
+    char: "sanhua",
     skill: skills.sanhua.skill[1],
   },
   {
-    char: "Sanhua",
+    char: "sanhua",
     skill: skills.sanhua.liberation[1],
   },
   {
-    char: "Sanhua",
+    char: "sanhua",
     skill: skills.sanhua.forte[1],
   },
   {
-    char: "Encore",
+    char: "encore",
     skill: skills.encore.skill[1],
   },
   {
-    char: "Sanhua",
+    char: "sanhua",
     skill: skills.sanhua.basic[1],
   },
   {
-    char: "Sanhua",
+    char: "sanhua",
     skill: skills.sanhua.basic[2],
   },
   {
-    char: "Sanhua",
+    char: "sanhua",
     skill: skills.sanhua.outro[1],
   },
   {
-    char: "Encore",
+    char: "encore",
     skill: skills.encore.intro[1],
   },
   {
-    char: "Encore",
+    char: "encore",
     skill: skills.encore.liberation[1],
   },
 ]

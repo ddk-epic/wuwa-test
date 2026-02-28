@@ -5,9 +5,9 @@ export const totalBuffMap: BuffMap = {
   atk: 0,
   def: 0,
   hp: 0,
-  er: 0,
-  crit: 0,
-  critDmg: 0,
+  er: 1,
+  crit: 0.05,
+  critDmg: 1.5,
   // damage bonuses
   basic: 0,
   heavy: 0,
@@ -36,5 +36,8 @@ export const totalBuffMap: BuffMap = {
   erMulti: 0,
   foMulti: 0,
   physical: 0,
+  allEle: 0,
+  concerto: 0,
+  resonance: 0,
   none: 0,
 }

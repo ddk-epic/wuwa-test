@@ -16,7 +16,7 @@ type SkillBaseType =
   | "outro"
   | "skill"
 
-type BuffType =
+export type BuffType =
   | "atk"
   | "def"
   | "hp"
@@ -47,18 +47,30 @@ type BuffType =
   | "erMulti"
   | "foMulti"
   | "physical"
+  | "allEle"
+  | "concerto"
+  | "resonance"
   | "none"
 
-type BuffCategory = "Buff" | "BuffBonus" | "BuffConsume" | "BuffNext" | "Damage"
+type BuffCategory =
+  | "Buff"
+  | "BuffBonus"
+  | "BuffConsume"
+  | "BuffEnergy"
+  | "BuffNext"
+  | "BuffStacking"
+  | "BuffOffField"
+  | "Damage"
 
 type SkillType = SkillBaseType | "echo"
 
 export type BuffObject = {
   name: string
   type: BuffCategory
-  owner: string
+  owner: string | null
   // classifications?: (Element | BuffType)[]
   createdBy: string[]
+  triggeredBy?: string[]
   appliesTo: string
   modifier: BuffType[]
   consumedBy?: string[]
@@ -71,6 +83,19 @@ export type BuffObject = {
   forte2?: number
   concerto?: number
   resonance?: number
+}
+
+export type WeaponBuffObject = {
+  name: string
+  type: BuffCategory
+  createdBy: string[]
+  triggeredBy?: string[]
+  appliesTo: string
+  modifier: BuffType[]
+  stackLimit?: number
+  stackInterval?: number
+  value: number[]
+  duration: number
 }
 
 export type ActiveBuffObject = {
@@ -156,7 +181,7 @@ type DCondKeys = "Forte" | "Forte2" | "Concerto" | "Resonance"
 export interface Weapon {
   name: string
   rank: number
-  attack: number
+  atk: number
   mainStat: string
   mainStatAmount: number
 }
@@ -175,23 +200,21 @@ export interface Character {
   name: string
   sequence: number
   weapon: Weapon
-  echo: Echo
+  echo: string
   echoSet: string
   build: string
   element: string
   maxForte: number
   maxForte2: number
   /* stats */
-  attack: number
-  defense: number
-  health: number
+  atk: number
+  def: number
+  hp: number
   crit: number
   critDmg: number
   bonusStats: BonusStats
   dCond: Record<DCondKeys, number>
 }
-
-export type Team = Record<string, Character>
 
 export type BuffMap = Record<BuffType, number>
 
@@ -209,7 +232,7 @@ export type Context = {
   buffNext: ActiveBuffObject[]
   buffDeferred: ActiveBuffObject[]
   buffList: BuffObject[]
-  characters: Team
+  characters: Record<string, Character>
   hasSwapped: boolean
   prevChar: string
   procc: Procc
