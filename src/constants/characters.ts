@@ -1,5 +1,7 @@
 import type { BonusStats, Character } from "./types"
 
+export const CHARACTERS: string[] = ["encore", "camellya", "sanhua", "shorekeeper"]
+
 const bonusStats: BonusStats = {
   atkFlat: 350,
   hpFlat: 4560,
