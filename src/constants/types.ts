@@ -1,4 +1,4 @@
-type Element =
+export type Element =
   | "aero"
   | "electro"
   | "fusion"
@@ -191,7 +191,7 @@ export interface Character {
   echo: string
   echoSet: string[]
   build: string
-  element: string
+  element: Element
   maxForte: number
   maxForte2: number
   /* stats */
