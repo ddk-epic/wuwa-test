@@ -3,7 +3,7 @@ import type { Echo } from "./types"
 const echoes: Record<string, Echo> = {
   "Impermanence Heron": {
     name: "Impermanence Heron",
-    category: "Echo",
+    category: "echo",
     classifications: ["havoc", "echo"],
     mv: 3.1056,
     frames: 90,
@@ -15,7 +15,7 @@ const echoes: Record<string, Echo> = {
   },
   "Inferno Rider": {
     name: "Inferno Rider",
-    category: "Echo",
+    category: "echo",
     classifications: ["fusion", "echo"],
     mv: 8.08,
     frames: 168,

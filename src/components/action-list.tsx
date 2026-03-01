@@ -45,8 +45,10 @@ function ActionList() {
               return (
                 <div key={idx} className="flex space-x-6">
                   <span className="w-2">{item.row}</span>
-                  <span className="w-28">{item.char.charAt(0).toUpperCase() + item.char.slice(1)}</span>
-                  <span className="w-56">{`${item.skill.category}: ${item.skill.name}`}</span>
+                  <span className="w-28">
+                    {item.char.charAt(0).toUpperCase() + item.char.slice(1)}
+                  </span>
+                  <span className="w-56">{`${item.skill.category.charAt(0).toUpperCase() + item.skill.category.slice(1)}: ${item.skill.name}`}</span>
                   <span className="w-18 text-right">
                     {frameToSecond(item.time, 2)}
                   </span>
@@ -69,7 +71,8 @@ function ActionList() {
                   <span className="w-56 flex items-center text-xs">
                     {(() => {
                       let idx = 0
-                      return [6, 5, 5, 6, 5].map((size) => {
+                      return [6, 5, 5, 6, 5]
+                        .map((size) => {
                           const group = item?.buffMap.slice(idx, idx + size)
                           idx += size
                           return `[${group.join(" ")}]`

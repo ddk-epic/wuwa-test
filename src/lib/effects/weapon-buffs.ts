@@ -3,7 +3,7 @@ import type { WeaponBuffObject } from "@/constants/types"
 export const weaponBuffs: Record<string, WeaponBuffObject[]> = {
   Stringmaster: [
     {
-      name: "Electric Amplification (Ele)",
+      name: "Stringmaster (Ele)",
       type: "Buff",
       owner: "Self",
       createdBy: ["Stringmaster"],
@@ -13,7 +13,7 @@ export const weaponBuffs: Record<string, WeaponBuffObject[]> = {
       duration: 99999,
     },
     {
-      name: "Electric Amplification (ATK)",
+      name: "Stringmaster (ATK)",
       type: "BuffStacking",
       owner: "Self",
       createdBy: ["Stringmaster"],
@@ -26,7 +26,7 @@ export const weaponBuffs: Record<string, WeaponBuffObject[]> = {
       duration: 5,
     },
     {
-      name: "Electric Amplification (Off-field)",
+      name: "Stringmaster (Off-field)",
       type: "BuffStacking",
       owner: "Self",
       createdBy: ["Stringmaster"],
@@ -37,6 +37,31 @@ export const weaponBuffs: Record<string, WeaponBuffObject[]> = {
       stackInterval: 0,
       value: [0.12, 0.15, 0.18, 0.21, 0.24],
       duration: 1,
+    },
+  ],
+  "Emerald of Genesis": [
+    {
+      name: "Emerald of Genesis (ER)",
+      type: "Buff",
+      owner: "Self",
+      createdBy: ["Emerald of Genesis"],
+      appliesTo: "Self",
+      modifier: ["er"],
+      value: [0.128, 0.16, 0.192, 0.224, 0.256],
+      duration: 99999,
+    },
+    {
+      name: "Emerald of Genesis (ATK)",
+      type: "BuffStacking",
+      owner: "Self",
+      createdBy: ["Emerald of Genesis"],
+      triggeredBy: ["skill"],
+      appliesTo: "Self",
+      modifier: ["atk"],
+      stackLimit: 2,
+      stackInterval: 0,
+      value: [0.06, 0.075, 0.09, 0.105, 0.12],
+      duration: 10,
     },
   ],
 }

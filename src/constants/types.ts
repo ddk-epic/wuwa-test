@@ -5,7 +5,6 @@ type Element =
   | "glacio"
   | "havoc"
   | "spectro"
-  | null
 
 type SkillBaseType =
   | "basic"
@@ -68,7 +67,7 @@ export type BuffObject = {
   owner: string
   // classifications?: (Element | BuffType)[]
   createdBy: string[]
-  triggeredBy?: string[]
+  triggeredBy?: (string | SkillBaseType | "echo")[]
   appliesTo: string
   modifier: BuffType[]
   consumedBy?: string[]
@@ -88,7 +87,7 @@ export type WeaponBuffObject = {
   type: BuffCategory
   owner: string
   createdBy: string[]
-  triggeredBy?: string[]
+  triggeredBy?: (string | SkillBaseType | "echo")[]
   appliesTo: string
   modifier: BuffType[]
   stackLimit?: number
@@ -103,7 +102,7 @@ export type ActiveBuffObject = {
 
 export type Skill = {
   name: string
-  category: string
+  category: SkillBaseType | "echo"
   classifications: (Element | SkillBaseType | "echo")[]
   mv: number
   frames: number
