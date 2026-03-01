@@ -1,7 +1,7 @@
 import type { Element } from "./types"
 
 export const ELEMENT_COLORS: Record<
-  Element,
+  (Element | "default"),
   { text: string; bg: string; border: string }
 > = {
   aero: {
@@ -33,5 +33,10 @@ export const ELEMENT_COLORS: Record<
     text: "text-yellow-300",
     bg: "bg-yellow-400",
     border: "border-yellow-400",
+  },
+  default: {
+    text: "text-white",
+    bg: "bg-white",
+    border: "border-white",
   },
 }

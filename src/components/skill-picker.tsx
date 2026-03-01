@@ -28,8 +28,9 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
       {/* Character tabs */}
       <div className="flex border-b">
         {characters.map((char, i) => {
-          if (!char) return
-          const element = team[char].element
+          if (!char || !team[char]) return null
+          const element = team[char].element || "default"
+
           return (
             <button
               key={i}
@@ -39,12 +40,14 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
                 activeTab === i
                   ? cn(
                       "border-b-2 bg-secondary/50 text-foreground",
-                      ELEMENT_COLORS[element].border ?? "border-primary",
+                      ELEMENT_COLORS[element]?.border ?? "border-primary",
                     )
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary/30",
               )}
             >
-              <span className={cn("block", ELEMENT_COLORS[element].text)}>
+              <span
+                className={cn("block", ELEMENT_COLORS[element]?.text ?? "")}
+              >
                 {char.charAt(0).toUpperCase() + char.slice(1)}
               </span>
               <span className="text-[12px] font-mono uppercase">{element}</span>
