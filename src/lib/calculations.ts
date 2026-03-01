@@ -9,7 +9,6 @@ import type {
   Character,
   Context,
   Result,
-  ResultList,
   Skill,
 } from "@/constants/types"
 
@@ -49,11 +48,11 @@ function removeExpiredBuffs(ctx: Context) {
 function addOnSwapBuffs(ctx: Context) {
   const activeCharacter = ctx.activeCharacter
   const currentTime = ctx.time
-  const buffs = ctx.buffNext
+  const buffNext = ctx.buffNext
 
-  if (!hasSwapped(ctx.prevChar, activeCharacter) || buffs.length === 0) return
+  if (!hasSwapped(ctx.prevChar, activeCharacter) || buffNext.length === 0) return
 
-  for (const buff of buffs) {
+  for (const buff of buffNext) {
     const isAlreadyActive = ctx.activeBuffs[activeCharacter].some(
       (b) => b.name === buff.name,
     )
@@ -75,14 +74,18 @@ function addTriggeredBuffs(ctx: Context, skill: Skill) {
   const activeCharacter = ctx.activeCharacter
   const currentTime = ctx.time
 
-  // add buff triggered by Skill
   for (const buff of ctx.allBuffs) {
     const isAlreadyActive = ctx.activeBuffs[activeCharacter].some(
       (b) => b.name === buff.name,
     )
-    const hasTrigger = buff.createdBy.includes(skill.name)
+    // check ownership
+    if (buff.owner !== activeCharacter) continue
 
-    if (!isAlreadyActive && hasTrigger) {
+    // add buff triggered by Skill or SkillType
+    const hasNameMatch = buff.createdBy.includes(skill.name)
+    const hasTriggerMatch = !!buff.triggeredBy?.includes(skill.category)
+
+    if (!isAlreadyActive && (hasNameMatch || hasTriggerMatch)) {
       // handle end time
       const endTime =
         (currentTime + buff.duration * 60 - (skill.freezetime ?? 0)) / 60 // frame time
@@ -91,22 +94,22 @@ function addTriggeredBuffs(ctx: Context, skill: Skill) {
       // handle damage procc
 
       if (buff.type === "Damage" && buff.consumedBy) {
-        if (buff.consumedBy) {
-          ctx.buffDeferred.push(activeBuffObject)
-          // console.log(`add ${activeBuffObject.name} to buffDeferred`)
-        }
+        ctx.buffDeferred.push(activeBuffObject)
+        // console.log(`add ${activeBuffObject.name} to buffDeferred`)
+        continue
       }
 
       // handle outro
       if (buff.type === "BuffNext" && buff.appliesTo === "Next") {
         ctx.buffNext.push(activeBuffObject)
         // console.log(`add ${activeBuffObject.name} to buffNext`)
-      } else {
-        ctx.activeBuffs[activeCharacter].push(activeBuffObject)
-        // console.log(
-        //   `add ${activeBuffObject.name} to activeBuffs[${activeCharacter}]`,
-        // )
+        continue
       }
+
+      ctx.activeBuffs[activeCharacter].push(activeBuffObject)
+      console.log(
+        `add ${activeBuffObject.name} to activeBuffs[${activeCharacter}]`,
+      )
     }
   }
 }
@@ -422,11 +425,11 @@ function getContext(
   initialActiveBuffs: Record<string, ActiveBuffObject[]>,
 ): Context {
   const characters = structuredClone(characterData)
-
+  const activeBuffs = structuredClone(initialActiveBuffs)
   const procc = { damage: 0, heal: 0, shield: 0 }
 
   return {
-    activeBuffs: initialActiveBuffs,
+    activeBuffs,
     activeCharacter: "",
     allBuffs,
     allSkills,
@@ -446,8 +449,8 @@ function calculate(
   characters: Record<string, Character>,
   actionList: ActionList,
   baseBuffMap: BuffMap,
-): ResultList {
-  const resultList: ResultList = []
+): Result[] {
+  const resultList: Result[] = []
 
   // get Data
   const skillData = getSkillData(characters)
@@ -458,6 +461,7 @@ function calculate(
 
   // process passive Buffs
   const initialActiveBuffs = preparePassiveBuffs(characters, buffData)
+  console.log(initialActiveBuffs)
 
   // global mutable context
   const ctx: Context = getContext(
