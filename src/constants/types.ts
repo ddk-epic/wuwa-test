@@ -151,8 +151,6 @@ export type Result = {
   buffMap: number[]
 }
 
-export type ResultList = Result[]
-
 export interface BonusStats {
   atkFlat: number
   hpFlat: number
