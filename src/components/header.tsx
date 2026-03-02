@@ -84,7 +84,7 @@ function HeaderBar({
 
         <button
           onClick={handleReset}
-          className="flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
           disabled={sequence.length === 0}
         >
           <RotateCcw className="h-3 w-3" />

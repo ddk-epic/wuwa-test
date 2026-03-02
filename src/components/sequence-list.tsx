@@ -13,9 +13,8 @@ function SequenceList({ sequence, onRemoveSkill }: SequenceListProps) {
       <div className="mx-auto">
         {/* Sequence Header */}
         <div className="flex h-full flex-col mb-1 overflow-hidden border-x border-t bg-card">
-          <div className="flex border-b gap-2 px-3 py-2">
-            <span className="w-4 text-[12px] font-mono uppercase tracking-widest text-muted-foreground">
-            </span>
+          <div className="flex gap-2 px-3 py-2 border-b">
+            <span className="w-4 text-[12px] font-mono uppercase tracking-widest text-muted-foreground"></span>
             <span className="w-19.5 text-[12px] font-mono uppercase tracking-widest text-muted-foreground">
               Character
             </span>
@@ -29,7 +28,7 @@ function SequenceList({ sequence, onRemoveSkill }: SequenceListProps) {
         </div>
         {/* Sequence list */}
         {sequence.length === 0 ? (
-          <div className="flex h-48 items-center justify-center border border-dashed">
+          <div className="h-48 flex items-center justify-center border border-dashed">
             <p className="text-md text-muted-foreground">
               Add skills from the sidebar to build your rotation.
             </p>

@@ -18,73 +18,75 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
   const activeChar = characters[activeTab] ?? characters[0]
 
   return (
-    <aside className="flex h-full flex-col overflow-hidden border bg-card">
-      <div className="border-b px-3 py-2">
-        <p className="text-[12px] font-mono uppercase tracking-widest text-muted-foreground">
-          Skills
-        </p>
-      </div>
+    <div className="w-72 shrink-0 border-l">
+      <aside className="h-full flex flex-col overflow-hidden border bg-card">
+        <div className="px-3 py-2 border-b">
+          <p className="text-[12px] font-mono uppercase tracking-widest text-muted-foreground">
+            Skills
+          </p>
+        </div>
+        {/* Character tabs */}
+        <div className="flex border-b">
+          {characters.map((char, i) => {
+            if (!char || !team[char]) return null
+            const element = team[char].element || "default"
 
-      {/* Character tabs */}
-      <div className="flex border-b">
-        {characters.map((char, i) => {
-          if (!char || !team[char]) return null
-          const element = team[char].element || "default"
-
-          return (
-            <button
-              key={i}
-              onClick={() => setActiveTab(i)}
-              className={cn(
-                "flex-1 px-2 py-2 text-xs font-sans transition-colors",
-                activeTab === i
-                  ? cn(
-                      "border-b-2 bg-secondary/50 text-foreground",
-                      ELEMENT_COLORS[element]?.border ?? "border-primary",
-                    )
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/30",
-              )}
-            >
-              <span
-                className={cn("block", ELEMENT_COLORS[element]?.text ?? "")}
+            return (
+              <button
+                key={i}
+                onClick={() => setActiveTab(i)}
+                className={cn(
+                  "flex-1 px-2 py-2 text-xs font-sans transition-colors",
+                  activeTab === i
+                    ? cn(
+                        "border-b-2 bg-secondary/50 text-foreground",
+                        ELEMENT_COLORS[element]?.border ?? "border-primary",
+                      )
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/30",
+                )}
               >
-                {char.charAt(0).toUpperCase() + char.slice(1)}
-              </span>
-              <span className="text-[12px] font-mono uppercase">{element}</span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Skill list */}
-      <div className="flex-1 overflow-y-auto p-1.5">
-        {activeChar && (
-          <div className="flex flex-col gap-1">
-            {Object.values(skills[activeChar] ?? {}).map((skillSequence) => {
-              return Object.values(skillSequence).map((skill) => (
-                <button
-                  key={skill.name}
-                  onClick={() => onAddSkill(activeChar, skill, sequence)}
-                  className={cn(
-                    "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
-                  )}
+                <span
+                  className={cn("block", ELEMENT_COLORS[element]?.text ?? "")}
                 >
-                  <span className="shrink-0 rounded px-1.5 py-0.5 text-[12px] font-mono font-semibold uppercase tracking-wider">
-                    {skill.category.slice(0, 5)}
-                  </span>
-                  <span className="flex-1 truncate text-sm text-foreground">
-                    {skill.name}
-                  </span>
-                  <span className="shrink-0 text-xs font-mono text-muted-foreground">
-                    {(skill.frames / 60).toFixed(2)}
-                  </span>
-                </button>
-              ))
-            })}
-          </div>
-        )}
-      </div>
-    </aside>
+                  {char.charAt(0).toUpperCase() + char.slice(1)}
+                </span>
+                <span className="text-[12px] font-mono uppercase">
+                  {element}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+        {/* Skill list */}
+        <div className="flex-1 overflow-y-auto p-1.5">
+          {activeChar && (
+            <div className="flex flex-col gap-1">
+              {Object.values(skills[activeChar] ?? {}).map((skillSequence) => {
+                return Object.values(skillSequence).map((skill) => (
+                  <button
+                    key={skill.name}
+                    onClick={() => onAddSkill(activeChar, skill, sequence)}
+                    className={cn(
+                      "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
+                    )}
+                  >
+                    <span className="shrink-0 px-1.5 py-0.5 rounded text-[12px] font-mono font-semibold uppercase tracking-wider">
+                      {skill.category.slice(0, 5)}
+                    </span>
+                    <span className="flex-1 text-sm text-foreground truncate">
+                      {skill.name}
+                    </span>
+                    <span className="shrink-0 text-xs font-mono text-muted-foreground">
+                      {(skill.frames / 60).toFixed(2)}
+                    </span>
+                  </button>
+                ))
+              })}
+            </div>
+          )}
+        </div>
+      </aside>
+    </div>
   )
 }
 

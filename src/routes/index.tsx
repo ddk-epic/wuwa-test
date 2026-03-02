@@ -32,7 +32,7 @@ function App() {
     setSequence((prev) => prev.filter((_, i) => i !== index))
   }
   return (
-    <div className="min-w-260 flex h-screen flex-col overflow-hidden">
+    <div className="min-w-270 h-screen flex flex-col overflow-hidden">
       <HeaderBar
         characters={characters}
         sequence={sequence}
@@ -41,17 +41,12 @@ function App() {
       />
       <div className="flex flex-1 overflow-hidden">
         {/* Main */}
-        <SequenceList
+        <SequenceList sequence={sequence} onRemoveSkill={handleRemoveSkill} />
+        <SkillSidebar
+          characters={characters}
           sequence={sequence}
-          onRemoveSkill={handleRemoveSkill}
+          onAddSkill={handleAddSkill}
         />
-        <div className="w-64 shrink-0 border-l">
-          <SkillSidebar
-            characters={characters}
-            sequence={sequence}
-            onAddSkill={handleAddSkill}
-          />
-        </div>
       </div>
     </div>
   )
