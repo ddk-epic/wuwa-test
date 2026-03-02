@@ -50,7 +50,8 @@ function addOnSwapBuffs(ctx: Context) {
   const currentTime = ctx.time
   const buffNext = ctx.buffNext
 
-  if (!hasSwapped(ctx.prevChar, activeCharacter) || buffNext.length === 0) return
+  if (!hasSwapped(ctx.prevChar, activeCharacter) || buffNext.length === 0)
+    return
 
   for (const buff of buffNext) {
     const isAlreadyActive = ctx.activeBuffs[activeCharacter].some(
@@ -446,11 +447,22 @@ function getContext(
 }
 
 function calculate(
-  characters: Record<string, Character>,
+  characterIds: (string | null)[],
   actionList: ActionList,
   baseBuffMap: BuffMap,
 ): Result[] {
   const resultList: Result[] = []
+
+  const characters: Record<string, Character> = characterIds.reduce(
+    (acc, character) => {
+      if (!character || !team[character]) {
+        return acc
+      }
+      acc[character] = team[character]
+      return acc
+    },
+    {} as Record<string, Character>,
+  )
 
   // get Data
   const skillData = getSkillData(characters)

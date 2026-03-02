@@ -7,10 +7,13 @@ interface SequenceListProps {
   onRemoveSkill: (index: number) => void
 }
 
-function SequenceList({ sequence, onRemoveSkill }: SequenceListProps) {
+function SequenceList({
+  sequence,
+  onRemoveSkill,
+}: SequenceListProps) {
   return (
-    <main className="flex-1 overflow-y-auto px-4">
-      <div className="mx-auto">
+    <div className="flex-2 overflow-y-auto">
+      <div>
         {/* Sequence Header */}
         <div className="flex h-full flex-col mb-1 overflow-hidden border-x border-t bg-card">
           <div className="flex gap-2 px-3 py-2 border-b">
@@ -46,7 +49,7 @@ function SequenceList({ sequence, onRemoveSkill }: SequenceListProps) {
           </div>
         )}
       </div>
-    </main>
+    </div>
   )
 }
 

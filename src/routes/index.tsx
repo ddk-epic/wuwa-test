@@ -1,11 +1,13 @@
 import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 
+import CalculateButton from "@/components/calculate-button"
 import HeaderBar from "@/components/header"
+import ResultList from "@/components/result-list"
 import SequenceList from "@/components/sequence-list"
 import SkillSidebar from "@/components/skill-picker"
 
-import type { ActionListItem, Skill } from "@/constants/types"
+import type { ActionListItem, Result, Skill } from "@/constants/types"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -16,6 +18,7 @@ function App() {
     null,
   ])
   const [sequence, setSequence] = useState<ActionListItem[]>([])
+  const [result, setResult] = useState<Result[]>([])
 
   const handleAddSkill = (
     char: string,
@@ -40,8 +43,19 @@ function App() {
         setSequence={setSequence}
       />
       <div className="flex flex-1 overflow-hidden">
-        {/* Main */}
-        <SequenceList sequence={sequence} onRemoveSkill={handleRemoveSkill} />
+        <main className="relative flex flex-1 px-4">
+          {/* Main */}
+          <SequenceList sequence={sequence} onRemoveSkill={handleRemoveSkill} />
+          <ResultList result={result} setResult={setResult} />
+          {/* Calculate button */}
+          <div className="absolute bottom-4 right-4">
+            <CalculateButton
+              characters={characters}
+              sequence={sequence}
+              setResult={setResult}
+            />
+          </div>
+        </main>
         <SkillSidebar
           characters={characters}
           sequence={sequence}
