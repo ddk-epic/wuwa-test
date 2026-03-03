@@ -25,6 +25,7 @@ function HeaderBar({
   onSelect,
   onReset,
 }: HeaderBarProps) {
+  const placeholder = ["Character 1", "Character 2", "Character 3"]
 
   return (
     <header className="flex shrink-0 items-center justify-between px-6 py-4 border-b bg-card/70">
@@ -39,7 +40,8 @@ function HeaderBar({
 
         {/* Character selectors */}
         <div className="flex items-center gap-2">
-          {["Character 1", "Character 2", "Character 3"].map((slot, i) => {
+          {characters.map((slot, i) => {
+            const character = slot ?? placeholder[i]
             const availableCharacters = CHARACTERS.filter(
               (char) => !characters.includes(char) || characters[i] === char,
             )
@@ -48,11 +50,12 @@ function HeaderBar({
               <div key={i} className="flex items-center gap-1.5">
                 <Select onValueChange={(value) => onSelect(i, value)}>
                   <SelectTrigger className="w-32">
-                    <SelectValue placeholder={slot}>
-                      {characters[i]
-                        ? characters[i].charAt(0).toUpperCase() +
-                          characters[i].slice(1)
-                        : ""}
+                    <SelectValue
+                      placeholder={
+                        character.charAt(0).toUpperCase() + character.slice(1)
+                      }
+                    >
+                      {character.charAt(0).toUpperCase() + character.slice(1)}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
