@@ -15,25 +15,16 @@ import { CHARACTERS } from "@/constants/characters"
 interface HeaderBarProps {
   characters: (string | null)[]
   sequence: ActionListItem[]
-  setCharacters: React.Dispatch<React.SetStateAction<(string | null)[]>>
-  setSequence: React.Dispatch<React.SetStateAction<ActionListItem[]>>
+  onSelect: (index: number, value: string) => void
+  onReset: () => void
 }
 
 function HeaderBar({
   characters,
   sequence,
-  setCharacters,
-  setSequence,
+  onSelect,
+  onReset,
 }: HeaderBarProps) {
-  const handleSelect = (index: number, value: string) => {
-    const newSlots = [...characters]
-    newSlots[index] = value
-    setCharacters(newSlots)
-  }
-
-  const handleReset = () => {
-    setSequence([])
-  }
 
   return (
     <header className="flex shrink-0 items-center justify-between px-6 py-4 border-b">
@@ -55,7 +46,7 @@ function HeaderBar({
 
             return (
               <div key={i} className="flex items-center gap-1.5">
-                <Select onValueChange={(value) => handleSelect(i, value)}>
+                <Select onValueChange={(value) => onSelect(i, value)}>
                   <SelectTrigger className="w-32">
                     <SelectValue placeholder={slot}>
                       {characters[i]
@@ -83,7 +74,7 @@ function HeaderBar({
         <DpsSummary sequence={sequence} />
 
         <button
-          onClick={handleReset}
+          onClick={onReset}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
           disabled={sequence.length === 0}
         >

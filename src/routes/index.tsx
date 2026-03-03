@@ -8,6 +8,8 @@ import SequenceList from "@/components/sequence-list"
 import SkillSidebar from "@/components/skill-picker"
 
 import type { ActionListItem, Result, Skill } from "@/constants/types"
+import { totalBuffMap } from "@/constants/maps"
+import calculate from "@/lib/calculations"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -34,13 +36,33 @@ function App() {
   const handleRemoveSkill = (index: number) => {
     setSequence((prev) => prev.filter((_, i) => i !== index))
   }
+
+  const handleSelect = (index: number, value: string) => {
+    const newSlots = [...characters]
+    newSlots[index] = value
+    setCharacters(newSlots)
+  }
+
+  const handleCalculate = (
+    characters: (string | null)[],
+    actionList: ActionListItem[],
+  ) => {
+    const result = calculate(characters, actionList, totalBuffMap)
+    setResult(result)
+  }
+
+  const handleReset = () => {
+    setSequence([])
+    setResult([])
+  }
+
   return (
     <div className="min-w-270 h-screen flex flex-col overflow-hidden">
       <HeaderBar
         characters={characters}
         sequence={sequence}
-        setCharacters={setCharacters}
-        setSequence={setSequence}
+        onSelect={handleSelect}
+        onReset={handleReset}
       />
       <div className="flex flex-1 overflow-hidden">
         <main className="relative flex flex-1 px-4">
@@ -52,7 +74,7 @@ function App() {
             <CalculateButton
               characters={characters}
               sequence={sequence}
-              setResult={setResult}
+              handleCalculate={handleCalculate}
             />
           </div>
         </main>

@@ -1,25 +1,24 @@
-import { totalBuffMap } from "@/constants/maps"
-import type { ActionListItem, Result } from "@/constants/types"
-import calculate from "@/lib/calculations"
 import { cn } from "@/lib/utils"
+
+import type { ActionListItem } from "@/constants/types"
 
 interface CalculateButtonProps {
   characters: (string | null)[]
   sequence: ActionListItem[]
-  setResult: React.Dispatch<React.SetStateAction<Result[]>>
+  handleCalculate: (
+    characters: (string | null)[],
+    actionList: ActionListItem[],
+  ) => void
 }
 
 function CalculateButton({
   characters,
   sequence,
-  setResult,
+  handleCalculate,
 }: CalculateButtonProps) {
   return (
     <button
-      onClick={() => {
-        const result = calculate(characters, sequence, totalBuffMap)
-        setResult(result)
-      }}
+      onClick={() => handleCalculate(characters, sequence)}
       className={cn(
         "flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold brightness-90 shadow-lg transition-all",
         sequence.length === 0
