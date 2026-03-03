@@ -50,18 +50,14 @@ function HeaderBar({
               <div key={i} className="flex items-center gap-1.5">
                 <Select onValueChange={(value) => onSelect(i, value)}>
                   <SelectTrigger className="w-32">
-                    <SelectValue
-                      placeholder={
-                        character.charAt(0).toUpperCase() + character.slice(1)
-                      }
-                    >
-                      {character.charAt(0).toUpperCase() + character.slice(1)}
+                    <SelectValue placeholder={character.capitalize()}>
+                      {character.capitalize()}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {availableCharacters.map((char, idx) => (
                       <SelectItem key={idx} value={char}>
-                        {char.charAt(0).toUpperCase() + char.slice(1)}
+                        {char.capitalize()}
                       </SelectItem>
                     ))}
                   </SelectContent>
