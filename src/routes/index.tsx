@@ -1,5 +1,7 @@
-import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
+
+import calculate from "@/lib/calculations"
+import { usePersistedState } from "@/hooks/use-persisted-state"
 
 import CalculateButton from "@/components/calculate-button"
 import HeaderBar from "@/components/header"
@@ -9,18 +11,19 @@ import SkillSidebar from "@/components/skill-picker"
 
 import type { ActionListItem, Result, Skill } from "@/constants/types"
 import { totalBuffMap } from "@/constants/maps"
-import calculate from "@/lib/calculations"
 
 export const Route = createFileRoute("/")({ component: App })
 
 function App() {
-  const [characters, setCharacters] = useState<(string | null)[]>([
-    null,
-    null,
-    null,
-  ])
-  const [sequence, setSequence] = useState<ActionListItem[]>([])
-  const [result, setResult] = useState<Result[]>([])
+  const [characters, setCharacters] = usePersistedState<(string | null)[]>(
+    "characters",
+    [null, null, null],
+  )
+  const [sequence, setSequence] = usePersistedState<ActionListItem[]>(
+    "sequence",
+    [],
+  )
+  const [result, setResult] = usePersistedState<Result[]>("result", [])
 
   const handleAddSkill = (
     char: string,
