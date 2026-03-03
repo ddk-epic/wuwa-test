@@ -15,7 +15,7 @@ function SequenceList({
     <div className="flex-2 overflow-y-auto">
       <div>
         {/* Sequence Header */}
-        <div className="flex h-full flex-col mb-1 overflow-hidden border-x border-t bg-card">
+        <div className="flex h-full flex-col mb-1 border-x border-t bg-card overflow-hidden opacity-85">
           <div className="flex gap-2 px-3 py-2 border-b">
             <span className="w-4 text-[12px] font-mono uppercase tracking-widest text-muted-foreground"></span>
             <span className="w-19.5 text-[12px] font-mono uppercase tracking-widest text-muted-foreground">

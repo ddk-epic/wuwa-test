@@ -19,7 +19,7 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
 
   return (
     <div className="w-72 shrink-0 border-l">
-      <aside className="h-full flex flex-col overflow-hidden border bg-card">
+      <aside className="h-full flex flex-col overflow-hidden border bg-card opacity-85">
         <div className="px-3 py-2 border-b">
           <p className="text-[12px] font-mono uppercase tracking-widest text-muted-foreground">
             Skills

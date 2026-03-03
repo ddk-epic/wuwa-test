@@ -13,7 +13,7 @@ function ResultEntry({ entry, index }: ResultEntryProps) {
   const element = team[entry.char].element
 
   return (
-    <div className="group flex items-center gap-2 rounded-md border bg-secondary/50 px-3 py-1.5 transition-colors hover:border-primary/30">
+    <div className="group flex items-center gap-2 rounded-md border bg-secondary/70 px-3 py-1.5 transition-colors hover:border-primary/30">
       <span className="w-4 text-right text-[12px] font-mono text-muted-foreground">{index + 1}</span>
       <span className="w-10 font-mono text-[12px] uppercase">{element}</span>
       <span

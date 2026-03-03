@@ -16,7 +16,7 @@ function SequenceEntry({ entry, index, onRemove }: SequenceEntryProps) {
   const skill = entry.skill
 
   return (
-    <div className="group flex items-center gap-2 rounded-md border bg-secondary/50 px-3 py-1.5 transition-colors hover:border-primary/30">
+    <div className="group flex items-center gap-2 rounded-md border bg-secondary/70 px-3 py-1.5 transition-colors hover:border-primary/30">
       <span className="w-4 text-right text-[12px] font-mono text-muted-foreground">
         {index + 1}
       </span>
