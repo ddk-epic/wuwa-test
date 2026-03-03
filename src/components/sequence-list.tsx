@@ -7,24 +7,17 @@ interface SequenceListProps {
   onRemoveSkill: (index: number) => void
 }
 
-function SequenceList({
-  sequence,
-  onRemoveSkill,
-}: SequenceListProps) {
+function SequenceList({ sequence, onRemoveSkill }: SequenceListProps) {
   return (
     <div className="flex-2 overflow-y-auto">
       <div>
         {/* Sequence Header */}
         <div className="flex h-full flex-col mb-1 border-x border-t bg-card overflow-hidden opacity-85">
           <div className="flex gap-2 px-3 py-2 border-b">
-            <span className="w-4 text-[12px] font-mono uppercase tracking-widest text-muted-foreground"></span>
-            <span className="w-19.5 text-[12px] font-mono uppercase tracking-widest text-muted-foreground">
-              Character
-            </span>
-            <span className="text-[12px] font-mono uppercase tracking-widest text-muted-foreground">
-              Skill
-            </span>
-            <span className="pr-6 ml-auto text-[12px] font-mono uppercase tracking-widest text-muted-foreground">
+            <span className="w-4 text-[12px] column-header"></span>
+            <span className="w-19.5 text-[12px] column-header">Character</span>
+            <span className="text-[12px] column-header">Skill</span>
+            <span className="pr-6 ml-auto text-[12px] column-header">
               Time&thinsp;(s)
             </span>
           </div>

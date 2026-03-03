@@ -13,26 +13,20 @@ function DpsSummary({ sequence }: DpsSummaryProps) {
       {/* Main stats */}
       <div className="flex items-center gap-5">
         <div>
-          <p className="text-[12px] font-mono uppercase tracking-widest text-muted-foreground">
-            DMG
-          </p>
+          <p className="text-[12px] column-header">DMG</p>
           <p className="text-2xl font-mono font-bold text-primary leading-tight">
             1,000,000
           </p>
         </div>
         <div className="h-8 w-px bg-border" />
         <div className="min-w-16">
-          <p className="text-[12px] font-mono uppercase tracking-widest text-muted-foreground">
-            DPS
-          </p>
+          <p className="text-[12px] column-header">DPS</p>
           <p className="text-md font-mono font-semibold text-foreground leading-tight">
             70,000
           </p>
         </div>
         <div className="min-w-16">
-          <p className="text-[12px] font-mono uppercase tracking-widest text-muted-foreground">
-            Time
-          </p>
+          <p className="text-[12px] column-header">Time</p>
           <p className="text-md font-mono font-semibold text-foreground leading-tight">
             {totalTime.toFixed(2)}s
           </p>

@@ -111,3 +111,7 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+.column-header {
+  @apply font-mono uppercase tracking-widest text-muted-foreground;
+}
