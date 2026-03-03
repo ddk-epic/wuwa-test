@@ -86,6 +86,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  scrollbar-width: thin;
+  scrollbar-color: #555 #222;
+
   background: linear-gradient(
     to bottom,
     oklch(0.15 0.02 290),
