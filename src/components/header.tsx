@@ -27,7 +27,7 @@ function HeaderBar({
 }: HeaderBarProps) {
 
   return (
-    <header className="flex shrink-0 items-center justify-between px-6 py-4 border-b">
+    <header className="flex shrink-0 items-center justify-between px-6 py-4 border-b bg-card/70">
       <div className="flex items-center gap-6">
         {/* Title */}
         <div>

@@ -9,7 +9,7 @@ interface ResultListProps {
 function ResultList({ result }: ResultListProps) {
   if (result.length > 0) {
     return (
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1">
         <div>
           {/* Sequence Header */}
           <div className="flex h-full flex-col mb-1 overflow-hidden border-x border-t bg-card">

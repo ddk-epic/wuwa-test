@@ -65,7 +65,7 @@ function App() {
         onReset={handleReset}
       />
       <div className="flex flex-1 overflow-hidden">
-        <main className="relative flex flex-1 px-4">
+        <main className="relative flex flex-1 px-4 overflow-auto">
           {/* Main */}
           <SequenceList sequence={sequence} onRemoveSkill={handleRemoveSkill} />
           <ResultList result={result} setResult={setResult} />

@@ -9,7 +9,7 @@ interface SequenceListProps {
 
 function SequenceList({ sequence, onRemoveSkill }: SequenceListProps) {
   return (
-    <div className="flex-2 overflow-y-auto">
+    <div className="flex-2">
       <div>
         {/* Sequence Header */}
         <div className="flex h-full flex-col mb-1 border-x border-t bg-card overflow-hidden opacity-85">
