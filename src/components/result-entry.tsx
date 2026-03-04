@@ -52,7 +52,7 @@ function ResultEntry({ entry }: ResultEntryProps) {
         </span>
       </Hint>
       <Hint label={totalBuffMap}>
-        <span className="w-32 text-xs truncate" title={totalBuffMap}>
+        <span className="w-32 text-xs truncate">
           {totalBuffMap}
         </span>
       </Hint>

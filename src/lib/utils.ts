@@ -18,3 +18,17 @@ export function cn(...inputs: ClassValue[]) {
 export function frameToSecond(number: number, digits: number) {
   return Number(number / 60).toFixed(digits)
 }
+
+export function roundBuffMap<T extends Record<string, number>>(
+  obj: T,
+  decimals = 3
+): T {
+  const factor = 10 ** decimals;
+
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [
+      k,
+      Math.round((v + Number.EPSILON) * factor) / factor,
+    ])
+  ) as T;
+}
