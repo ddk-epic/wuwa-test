@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils"
 
+import Hint from "./hint"
+
 import type { Result } from "@/constants/types"
 import { ELEMENT_COLORS } from "@/constants/colors"
 import team from "@/constants/characters"
@@ -13,7 +15,7 @@ function ResultEntry({ entry }: ResultEntryProps) {
   const character = team[entry.char]
   const element = character.element
 
-  const activeBuffArray = entry?.buffs?.map((buff) => buff.name).join(", ")
+  const activeBuffArray = entry.buffs?.map((buff) => buff.name).join(", ") ?? ""
   const totalBuffMap = (() => {
     let idx = 0
     return [6, 5, 5, 6, 5]
@@ -44,15 +46,16 @@ function ResultEntry({ entry }: ResultEntryProps) {
       <span className="w-10 mr-4 text-right text-xs font-mono">
         {entry.procc.damage.toFixed(1)}
       </span>
-      <span
-        className="w-32 text-xs truncate"
-        title={(entry.buffs ?? []).length > 0 ? activeBuffArray : ""}
-      >
-        ({entry?.buffs?.length}) [{activeBuffArray}]
-      </span>
-      <span className="w-32 text-xs truncate" title={totalBuffMap}>
-        {totalBuffMap}
-      </span>
+      <Hint label={activeBuffArray}>
+        <span className="w-32 text-xs truncate">
+          ({entry.buffs?.length ?? 0}) [{activeBuffArray}]
+        </span>
+      </Hint>
+      <Hint label={totalBuffMap}>
+        <span className="w-32 text-xs truncate" title={totalBuffMap}>
+          {totalBuffMap}
+        </span>
+      </Hint>
     </div>
   )
 }
