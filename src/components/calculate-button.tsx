@@ -20,7 +20,7 @@ function CalculateButton({
     <button
       onClick={() => handleCalculate(characters, sequence)}
       className={cn(
-        "flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold brightness-90 shadow-lg transition-all",
+        "flex items-center gap-2 rounded-lg px-4 py-2.5 z-10 text-sm font-semibold brightness-90 shadow-lg transition-all",
         sequence.length === 0
           ? "border border-border bg-secondary text-muted-foreground"
           : "border bg-primary text-primary-foreground hover:brightness-110",

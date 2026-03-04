@@ -69,12 +69,17 @@ function App() {
         onReset={handleReset}
       />
       <div className="flex flex-1 overflow-hidden">
-        <main className="relative flex flex-1 px-4 overflow-auto">
+        <main className="relative flex flex-1">
           {/* Main */}
-          <SequenceList sequence={sequence} onRemoveSkill={handleRemoveSkill} />
-          <ResultList result={result} setResult={setResult} />
+          <div className="flex flex-1 pl-4 pr-3 overflow-auto [scrollbar-gutter:stable]">
+            <SequenceList
+              sequence={sequence}
+              onRemoveSkill={handleRemoveSkill}
+            />
+            <ResultList result={result} setResult={setResult} />
+          </div>
           {/* Calculate button */}
-          <div className="absolute bottom-4 right-4">
+          <div className="absolute bottom-4 right-6">
             <CalculateButton
               characters={characters}
               sequence={sequence}

@@ -58,7 +58,7 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
           })}
         </div>
         {/* Skill list */}
-        <div className="flex-1 overflow-y-auto p-1.5">
+        <div className="flex-1 overflow-y-auto p-1.5 pr-px [scrollbar-gutter:stable]">
           {activeChar && (
             <div className="flex flex-col gap-1">
               {Object.values(skills[activeChar] ?? {}).map((skillSequence) => {
