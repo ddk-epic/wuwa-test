@@ -9,12 +9,13 @@ import {
 } from "./ui/select"
 import DpsSummary from "./dps-summary"
 
-import type { ActionListItem } from "@/constants/types"
+import type { ActionListItem, Result } from "@/constants/types"
 import { CHARACTERS } from "@/constants/characters"
 
 interface HeaderBarProps {
   characters: (string | null)[]
   sequence: ActionListItem[]
+  result: Result[]
   onSelect: (index: number, value: string) => void
   onReset: () => void
 }
@@ -22,6 +23,7 @@ interface HeaderBarProps {
 function HeaderBar({
   characters,
   sequence,
+  result,
   onSelect,
   onReset,
 }: HeaderBarProps) {
@@ -70,7 +72,7 @@ function HeaderBar({
 
       <div className="flex items-center gap-5">
         {/* Inline DPS summary */}
-        <DpsSummary sequence={sequence} />
+        <DpsSummary sequence={sequence} result={result} />
 
         <button
           onClick={onReset}

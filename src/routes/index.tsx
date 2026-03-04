@@ -64,6 +64,7 @@ function App() {
       <HeaderBar
         characters={characters}
         sequence={sequence}
+        result={result}
         onSelect={handleSelect}
         onReset={handleReset}
       />

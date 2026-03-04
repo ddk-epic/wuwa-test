@@ -27,7 +27,7 @@ function CalculateButton({
       )}
       disabled={sequence.length === 0}
     >
-      Calculate DPS
+      Calculate
     </button>
   )
 }

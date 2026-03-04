@@ -1,12 +1,15 @@
-import type { ActionListItem } from "@/constants/types"
+import type { ActionListItem, Result } from "@/constants/types"
 
 interface DpsSummaryProps {
   sequence: ActionListItem[]
+  result: Result[]
 }
 
-function DpsSummary({ sequence }: DpsSummaryProps) {
+function DpsSummary({ sequence, result }: DpsSummaryProps) {
+  const totalDamage = result.reduce((acc, entry) => acc + entry.damage, 0)
   const totalTime =
     sequence.reduce((acc, entry) => acc + entry.skill.frames, 0) / 60
+  const totalDps = totalDamage / totalTime || 0
 
   return (
     <div className="flex items-start gap-6 pr-2">
@@ -15,14 +18,14 @@ function DpsSummary({ sequence }: DpsSummaryProps) {
         <div>
           <p className="text-[12px] column-header">DMG</p>
           <p className="text-2xl font-mono font-bold text-primary leading-tight">
-            1,000,000
+            {Math.round(totalDamage).toLocaleString("en-US")}
           </p>
         </div>
         <div className="h-8 w-px bg-border" />
         <div className="min-w-16">
           <p className="text-[12px] column-header">DPS</p>
           <p className="text-md font-mono font-semibold text-foreground leading-tight">
-            70,000
+            {Math.round(totalDps).toLocaleString("en-US")}
           </p>
         </div>
         <div className="min-w-16">
