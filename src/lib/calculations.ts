@@ -267,14 +267,16 @@ function processAction(
 
 function getSkillData(characters: Record<string, Character>) {
   const team = Object.keys(characters)
-  // const echo = characters[]
 
-  const characterSkills: Skill[] = team
-    .map((charName) => Object.values(skills[charName]))
-    .flatMap((category) =>
-      Object.values(category) // intro, outro, basic
-        .flatMap((entry) => Object.values(entry)),
-    )
+  const characterSkills: Skill[] = []
+
+  team.forEach((charName) => {
+    Object.values(skills[charName]).forEach((category) => {
+      Object.values(category).forEach((skill) => {
+        if (skill) characterSkills.push(skill)
+      })
+    })
+  })
 
   const echoSkills: Skill[] = team.map((charName) => {
     const echo = echoes[characters[charName].echo]

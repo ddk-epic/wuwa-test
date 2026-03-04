@@ -119,16 +119,7 @@ const skills: CharacterSkills = {
       },
     },
     heavy: {
-      1: {
-        name: "none",
-        category: "heavy",
-        classifications: ["fusion", "heavy"],
-        mv: 0,
-        frames: 0,
-        hits: 0,
-        concerto: 0,
-        resonance: 0,
-      },
+      1: null
     },
     skill: {
       1: {

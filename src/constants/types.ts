@@ -118,8 +118,8 @@ export type Skill = {
 export type Echo = { set: string } & Skill
 
 type SkillSequence = {
-  1: Skill
-} & Record<number, Skill>
+  1: Skill | null
+} & Record<number, Skill | null>
 
 type SkillCategory = Record<SkillBaseType, SkillSequence>
 
