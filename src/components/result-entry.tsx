@@ -1,31 +1,57 @@
 import { cn } from "@/lib/utils"
 
 import type { Result } from "@/constants/types"
-import team from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
+import team from "@/constants/characters"
 
 interface ResultEntryProps {
   entry: Result
   index: number
 }
 
-function ResultEntry({ entry, index }: ResultEntryProps) {
-  const element = team[entry.char].element
+function ResultEntry({ entry }: ResultEntryProps) {
+  const character = team[entry.char]
+  const element = character.element
+
+  const activeBuffArray = entry?.buffs?.map((buff) => buff.name).join(", ")
+  const totalBuffMap = (() => {
+    let idx = 0
+    return [6, 5, 5, 6, 5]
+      .map((size) => {
+        const group = entry?.buffMap.slice(idx, idx + size)
+        idx += size
+        return `[${group.join(" ")}]`
+      })
+      .join(" ")
+  })()
 
   return (
-    <div className="group flex items-center gap-2 rounded-md border bg-secondary/70 px-3 py-1.5 transition-colors hover:border-primary/30">
-      <span className="w-4 text-right text-[12px] font-mono text-muted-foreground">{index + 1}</span>
-      <span className="w-10 font-mono text-[12px] uppercase">{element}</span>
+    <div className="group flex items-center gap-4 rounded-md border bg-secondary/70 px-3 py-1.5 transition-colors hover:border-primary/30">
+      <span className="w-8 ml-4 text-right text-xs font-mono">
+        {entry.concerto.toFixed(1)}
+      </span>
+      <span className="w-14 mr-4 text-right text-xs font-mono">
+        {entry.resonance.toFixed(1)}
+      </span>
       <span
         className={cn(
-          "text-sm text-foreground",
+          "w-10 text-right text-sm text-foreground",
           ELEMENT_COLORS[element].text ?? "",
         )}
       >
-        {Math.round(entry.damage)}
+        {Math.round(entry.damage).toLocaleString("en-US")}
       </span>
-      <span className="ml-auto text-xs font-mono">
-        {/* {entry.time.toFixed(2)} */}
+      <span className="w-10 mr-4 text-right text-xs font-mono">
+        {entry.procc.damage.toFixed(1)}
+      </span>
+      <span
+        className="w-32 text-xs truncate"
+        title={(entry.buffs ?? []).length > 0 ? activeBuffArray : ""}
+      >
+        ({entry?.buffs?.length}) [{activeBuffArray}]
+      </span>
+      <span className="w-32 text-xs truncate" title={totalBuffMap}>
+        {totalBuffMap}
       </span>
     </div>
   )
