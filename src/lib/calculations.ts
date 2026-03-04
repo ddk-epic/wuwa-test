@@ -97,7 +97,6 @@ function addTriggeredBuffs(ctx: Context, skill: Skill) {
       if (buff.type === "Damage" && buff.consumedBy) {
         ctx.buffDeferred.push(activeBuffObject)
         // console.log(`add ${activeBuffObject.name} to buffDeferred`)
-        continue
       }
 
       // handle outro

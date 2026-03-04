@@ -44,7 +44,7 @@ function ResultEntry({ entry }: ResultEntryProps) {
         {Math.round(entry.damage).toLocaleString("en-US")}
       </span>
       <span className="w-10 mr-4 text-right text-xs font-mono">
-        {entry.procc.damage.toFixed(1)}
+        {Math.round(entry.procc.damage)}
       </span>
       <Hint label={activeBuffArray}>
         <span className="w-32 text-xs truncate">
