@@ -11,15 +11,6 @@ function ResultList({ result }: ResultListProps) {
     return (
       <div className="flex-1">
         <div>
-          {/* Result header */}
-          <div className="flex h-full flex-col mb-1 overflow-hidden border-x border-t bg-card">
-            <div className="flex gap-2 px-3 py-2 border-b">
-              <span className="w-10 ml-2 text-[12px] text-right column-header">Con.</span>
-              <span className="w-14 mr-7 text-[12px] text-right column-header">Res.</span>
-              <span className="w-13 text-[12px] column-header">Damage</span>
-              <span className="w-20 text-[12px] column-header">+Dmg</span>
-            </div>
-          </div>
           {/* Result list */}
           <div className="flex flex-col gap-1">
             {result.map((action, i) => (

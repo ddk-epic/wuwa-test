@@ -16,20 +16,20 @@ function DpsSummary({ sequence, result }: DpsSummaryProps) {
       {/* Main stats */}
       <div className="flex items-center gap-5">
         <div>
-          <p className="text-[12px] column-header">DMG</p>
+          <p className="text-xs column-header">DMG</p>
           <p className="text-2xl font-mono font-bold text-primary leading-tight">
             {Math.round(totalDamage).toLocaleString("en-US")}
           </p>
         </div>
         <div className="h-8 w-px bg-border" />
         <div className="min-w-16">
-          <p className="text-[12px] column-header">DPS</p>
+          <p className="text-xs column-header">DPS</p>
           <p className="text-md font-mono font-semibold text-foreground leading-tight">
             {Math.round(totalDps).toLocaleString("en-US")}
           </p>
         </div>
         <div className="min-w-16">
-          <p className="text-[12px] column-header">Time</p>
+          <p className="text-xs column-header">Time</p>
           <p className="text-md font-mono font-semibold text-foreground leading-tight">
             {totalTime.toFixed(2)}s
           </p>

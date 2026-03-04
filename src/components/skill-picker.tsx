@@ -21,7 +21,7 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
     <div className="w-72 shrink-0 border-l bg-card opacity-85">
       <aside className="h-full flex flex-col overflow-hidden border">
         <div className="px-3 py-2 border-b">
-          <p className="text-[12px] column-header">
+          <p className="text-xs column-header">
             Skills
           </p>
         </div>
@@ -50,7 +50,7 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
                 >
                   {char.charAt(0).toUpperCase() + char.slice(1)}
                 </span>
-                <span className="text-[12px] font-mono uppercase">
+                <span className="text-xs font-mono uppercase">
                   {element}
                 </span>
               </button>
@@ -70,7 +70,7 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
                       "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
                     )}
                   >
-                    <span className="shrink-0 px-1.5 py-0.5 rounded text-[12px] font-mono font-semibold uppercase tracking-wider">
+                    <span className="shrink-0 px-1.5 py-0.5 rounded text-xs font-mono font-semibold uppercase tracking-wider">
                       {skill.category.slice(0, 5)}
                     </span>
                     <span className="flex-1 text-sm text-foreground truncate">

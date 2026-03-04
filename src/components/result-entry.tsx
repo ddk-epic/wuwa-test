@@ -47,12 +47,12 @@ function ResultEntry({ entry }: ResultEntryProps) {
         {Math.round(entry.procc.damage)}
       </span>
       <Hint label={activeBuffArray}>
-        <span className="w-32 text-xs truncate">
+        <span className="max-w-32 text-xs truncate">
           ({entry.buffs?.length ?? 0}) [{activeBuffArray}]
         </span>
       </Hint>
       <Hint label={totalBuffMap}>
-        <span className="w-32 text-xs truncate">
+        <span className="max-w-32 text-xs truncate">
           {totalBuffMap}
         </span>
       </Hint>
