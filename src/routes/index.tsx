@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 
+import { cn } from "@/lib/utils"
 import calculate from "@/lib/calculations"
 import { usePersistedState } from "@/hooks/use-persisted-state"
 
@@ -11,7 +12,6 @@ import SkillSidebar from "@/components/skill-picker"
 
 import type { ActionListItem, Result, Skill } from "@/constants/types"
 import { totalBuffMap } from "@/constants/maps"
-import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -41,10 +41,19 @@ function App() {
     setSequence((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleSelect = (index: number, value: string) => {
-    const newSlots = [...characters]
-    newSlots[index] = value
-    setCharacters(newSlots)
+  const handleCharacterChange = (index: number, value: string) => {
+    const oldChar = characters[index]
+    const newChar = value === "__none__" ? null : value
+
+    setCharacters((prev) => {
+      const updated = [...prev]
+      updated[index] = newChar
+      return updated
+    })
+    
+    setSequence((prev) =>
+      oldChar ? prev.filter((s) => s.char !== oldChar) : prev,
+    )
   }
 
   const handleCalculate = (
@@ -66,7 +75,7 @@ function App() {
         characters={characters}
         sequence={sequence}
         result={result}
-        onSelect={handleSelect}
+        onCharacterChange={handleCharacterChange}
         onReset={handleReset}
       />
       {/* Main section */}
@@ -99,7 +108,6 @@ function App() {
                     <span className="w-13 text-xs column-header">Damage</span>
                     <span className="w-20 text-xs column-header">+Dmg</span>
                   </div>
-                  
                 </div>
               </>
             )}
