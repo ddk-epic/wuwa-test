@@ -1,6 +1,6 @@
 import type { Echo } from "./types"
 
-const echoes: Record<string, Echo> = {
+export const echoes: Record<string, Echo> = {
   "Impermanence Heron": {
     name: "Impermanence Heron",
     category: "echo",
@@ -27,4 +27,5 @@ const echoes: Record<string, Echo> = {
   },
 }
 
-export default echoes
+export const ECHOES = Object.keys(echoes)
+export const ECHO_SETS = Object.values(echoes).map((echo) => echo.set)

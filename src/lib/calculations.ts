@@ -14,10 +14,9 @@ import type {
 
 import { hasSwapped, removeBuffByName } from "./helper"
 
-import team from "@/constants/characters"
-import echoes from "@/constants/echoes"
+import characterData from "@/constants/characters"
+import { echoes } from "@/constants/echoes"
 import skills from "@/constants/skills"
-import weapons from "@/constants/weapons"
 
 import { buffs } from "./effects/buffs"
 import { echoBuffs } from "./effects/echo-buffs"
@@ -139,8 +138,8 @@ function evaluateDCond(ctx: Context, skill: Skill) {
 
 function calculateDamage(ctx: Context, skill: Skill) {
   const activeCharacter = ctx.activeCharacter
-  const char = team[activeCharacter]
-  const weapon = weapons[char.weapon.name]
+  const char = characterData[activeCharacter]
+  const weapon = char.weapon
   const levelMultiplier = 12.5
   const enemyDefenseMultiplier = 0.52
 
@@ -458,10 +457,10 @@ function calculate(
 
   const characters: Record<string, Character> = characterIds.reduce(
     (acc, character) => {
-      if (!character || !team[character]) {
+      if (!character || !characterData[character]) {
         return acc
       }
-      acc[character] = team[character]
+      acc[character] = characterData[character]
       return acc
     },
     {} as Record<string, Character>,

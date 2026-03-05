@@ -1,6 +1,5 @@
 import type { BonusStats, Character } from "./types"
-
-export const CHARACTERS: string[] = ["encore", "camellya", "sanhua", "shorekeeper"]
+import { weaponData } from "./weapons"
 
 const bonusStats: BonusStats = {
   atkFlat: 350,
@@ -25,17 +24,11 @@ const bonusStats: BonusStats = {
   spectro: 0,
 }
 
-const team: Record<string, Character> = {
+const characterData: Record<string, Character> = {
   encore: {
     name: "Encore",
     sequence: 0,
-    weapon: {
-      name: "Stringmaster",
-      rank: 1,
-      atk: 40,
-      mainStat: "Crit. Rate",
-      mainStatAmount: 0.8,
-    },
+    weapon: weaponData["Stringmaster"],
     echo: "Inferno Rider",
     echoSet: ["Molten Rift"],
     build: "43311 Ele/Ele",
@@ -59,13 +52,7 @@ const team: Record<string, Character> = {
   sanhua: {
     name: "Sanhua",
     sequence: 0,
-    weapon: {
-      name: "Emerald of Genesis",
-      rank: 1,
-      atk: 47,
-      mainStat: "Crit. Rate",
-      mainStatAmount: 0.54,
-    },
+    weapon: weaponData["Emerald of Genesis"],
     echo: "Impermanence Heron",
     echoSet: ["Moonlit Clouds"],
     build: "43311 Ele/Ele",
@@ -107,6 +94,53 @@ const team: Record<string, Character> = {
       Resonance: 150,
     },
   },
+  shorekeeper: {
+    name: "Shorekeeper",
+    sequence: 0,
+    weapon: weaponData["Stellar Symphony"],
+    echo: "Impermanence Heron",
+    echoSet: ["Moonlit Clouds"],
+    build: "43311 Ele/Ele",
+    element: "spectro",
+    maxForte: 5,
+    maxForte2: 0,
+    /* stats */
+    atk: 23,
+    def: 90,
+    hp: 1337 * 12.5,
+    crit: 0.05,
+    critDmg: 1.5,
+    bonusStats: {
+      atkFlat: 350,
+      hpFlat: 4560,
+      defFlat: 0,
+      atk: 0,
+      hp: 0.172,
+      def: 0,
+      er: 0.46 + 0.77,
+      crit: 0,
+      critDmg: 0.81,
+      basic: 0,
+      heavy: 0,
+      skill: 0,
+      liberation: 0.172,
+      /* Element */
+      aero: 0,
+      electro: 0,
+      fusion: 0,
+      glacio: 0.6,
+      havoc: 0,
+      spectro: 0,
+    },
+    dCond: {
+      Forte: 0,
+      Forte2: 0,
+      Concerto: 0,
+      Resonance: 150,
+    },
+  },
 }
 
-export default team
+export const CHARACTERS = Object.keys(characterData)
+
+export default characterData
