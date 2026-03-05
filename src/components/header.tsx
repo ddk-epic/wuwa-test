@@ -1,5 +1,6 @@
 import { RotateCcw } from "lucide-react"
 
+import { Button } from "./ui/button"
 import {
   Select,
   SelectContent,
@@ -70,18 +71,18 @@ function HeaderBar({
         </div>
       </div>
 
-      <div className="flex items-center gap-5">
+      <div className="flex items-center space-x-0.75">
         {/* Inline DPS summary */}
         <DpsSummary sequence={sequence} result={result} />
-
-        <button
+        <Button
+          variant="outline"
           onClick={onReset}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+          className="text-muted-foreground"
           disabled={sequence.length === 0}
         >
           <RotateCcw className="h-3 w-3" />
           Reset
-        </button>
+        </Button>
       </div>
     </header>
   )
