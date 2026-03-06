@@ -3,13 +3,15 @@ import { RotateCcw } from "lucide-react"
 import { Button } from "./ui/button"
 import DpsSummary from "./dps-summary"
 
-import type { ActionListItem, Result } from "@/constants/types"
+import type { ActionListItem, Character, Result } from "@/constants/types"
 import AddCharacterModal from "./add-character-modal"
 
 interface HeaderBarProps {
   characters: (string | null)[]
   sequence: ActionListItem[]
   result: Result[]
+  charData: (Character | null)[]
+  updateCharData: (index: number, label: "sequence" | "weapon" | "echoSet", value: string) => void
   onCharacterChange: (index: number, value: string) => void
   onReset: () => void
 }
@@ -18,10 +20,11 @@ function HeaderBar({
   characters,
   sequence,
   result,
+  charData,
+  updateCharData,
   onCharacterChange,
   onReset,
 }: HeaderBarProps) {
-
   return (
     <header className="flex shrink-0 items-center justify-between px-6 py-4 border-b bg-card/70">
       <div className="flex items-center gap-6">
@@ -35,7 +38,12 @@ function HeaderBar({
 
         {/* Character selectors */}
         <div className="flex items-center gap-2">
-          <AddCharacterModal characters={characters} onCharacterChange={onCharacterChange} />
+          <AddCharacterModal
+            characters={characters}
+            charData={charData}
+            updateCharData={updateCharData}
+            onCharacterChange={onCharacterChange}
+          />
         </div>
       </div>
 

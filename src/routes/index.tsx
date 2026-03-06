@@ -10,14 +10,25 @@ import ResultList from "@/components/result-list"
 import SequenceList from "@/components/sequence-list"
 import SkillSidebar from "@/components/skill-picker"
 
-import type { ActionListItem, Result, Skill } from "@/constants/types"
+import type {
+  ActionListItem,
+  Character,
+  Result,
+  Skill,
+} from "@/constants/types"
+import characterData from "@/constants/characters"
 import { totalBuffMap } from "@/constants/maps"
+import { weaponData } from "@/constants/weapons"
 
 export const Route = createFileRoute("/")({ component: App })
 
 function App() {
   const [characters, setCharacters] = usePersistedState<(string | null)[]>(
     "characters",
+    [null, null, null],
+  )
+  const [charData, setCharData] = usePersistedState<(Character | null)[]>(
+    "charData",
     [null, null, null],
   )
   const [sequence, setSequence] = usePersistedState<ActionListItem[]>(
@@ -50,11 +61,49 @@ function App() {
       updated[index] = newChar
       return updated
     })
-    
+
+    setCharData((prev) => {
+      const updatedCharData = [...prev]
+      updatedCharData[index] = newChar ? characterData[newChar] : null
+      return updatedCharData
+    })
+
     setSequence((prev) =>
       oldChar ? prev.filter((s) => s.char !== oldChar) : prev,
     )
   }
+
+  const updateCharData = (
+    index: number,
+    label: "sequence" | "weapon" | "echoSet",
+    value: string,
+  ) =>
+    setCharData((prev) => {
+      const updatedCharData = [...prev]
+
+      if (!updatedCharData[index]) return prev
+
+      const updatedChar = { ...updatedCharData[index] }
+
+      if (label === "sequence") {
+        updatedChar.sequence = Number(value)
+      }
+
+      if (label === "weapon") {
+        updatedChar.weapon = weaponData[value]
+      }
+
+      if (label === "echoSet") {
+        if (updatedChar.echoSet.length < 2) {
+          updatedChar.echoSet = [...updatedChar.echoSet, value]
+        } else {
+          console.log("ERROR:", "Cannot add more echo sets")
+        }
+      }
+
+      updatedCharData[index] = updatedChar
+      return updatedCharData
+    })
 
   const handleCalculate = (
     characters: (string | null)[],
@@ -75,7 +124,9 @@ function App() {
         characters={characters}
         sequence={sequence}
         result={result}
+        charData={charData}
         onCharacterChange={handleCharacterChange}
+        updateCharData={updateCharData}
         onReset={handleReset}
       />
       {/* Main section */}

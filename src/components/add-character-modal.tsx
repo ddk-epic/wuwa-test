@@ -18,18 +18,27 @@ import {
 } from "./ui/select"
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group"
 
+import type { Character } from "@/constants/types"
 import characterData, { CHARACTERS } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 import { ECHO_SETS } from "@/constants/echoes"
-import { WEAPONS } from "@/constants/weapons"
+import { weaponData } from "@/constants/weapons"
 
 interface AddCharacterModalProps {
   characters: (string | null)[]
+  charData: (Character | null)[]
+  updateCharData: (
+    index: number,
+    label: "sequence" | "weapon" | "echoSet",
+    value: string,
+  ) => void
   onCharacterChange: (index: number, value: string) => void
 }
 
 function AddCharacterModal({
   characters,
+  charData,
+  updateCharData,
   onCharacterChange,
 }: AddCharacterModalProps) {
   const placeholder = ["Character 1", "Character 2", "Character 3"]
@@ -59,26 +68,32 @@ function AddCharacterModal({
         </DialogHeader>
         <div>
           <div className="flex gap-2">
-            {characters.map((slot, i) => {
-              const character = slot ?? placeholder[i]
-              const element = characterData[character]?.element ?? "default"
+            {characters.map((character, i) => {
+              const element = character
+                ? characterData[character]?.element
+                : "default"
+              const weapons = character
+                ? Object.values(weaponData).filter(
+                    (w) => w.type === characterData[character].weaponType,
+                  )
+                : []
               const availableCharacters = CHARACTERS.filter(
-                (char) => !characters.includes(char) || characters[i] === char,
+                (char) => !characters.includes(char) || character === char,
               )
               return (
                 <div key={i} className="w-full space-y-4">
                   {/* Character selection */}
                   <div className="flex gap-1.5">
                     <Select
-                      value={character}
+                      value={character ?? placeholder[i]}
                       onValueChange={(value) => onCharacterChange(i, value)}
                     >
                       <SelectTrigger className="flex-1">
                         <SelectValue placeholder={placeholder[i]}>
-                          {character.capitalize()}
+                          {character?.capitalize() ?? placeholder[i]}
                         </SelectValue>
                       </SelectTrigger>
-                      <SelectContent className="w-2xl">
+                      <SelectContent position="popper">
                         <SelectItem key={0} value="__none__">
                           Character...
                         </SelectItem>
@@ -91,17 +106,27 @@ function AddCharacterModal({
                     </Select>
                   </div>
                   {/* Character settings */}
-                  {slot && (
+                  {character && (
                     <div className="space-y-2 px-px">
+                      {/* Character Image */}
                       <div className="aspect-4/3 border"></div>
-                      <div className="uppercase">{character}</div>
-                      <ToggleGroup type="single">
-                        {[1, 2, 3, 4, 5, 6].map((num) => (
+                      {/* Character Stats */}
+                      <div className="space-x-2">
+                        <span className="uppercase">{character}</span>
+                        <span className="text-xs column-header">type</span>
+                      </div>
+                      <ToggleGroup
+                        type="single"
+                        value={charData[i]?.sequence.toString() || "0"}
+                        onValueChange={(value) => {
+                          updateCharData(i, "sequence", value)
+                        }}
+                      >
+                        {Array.from({ length: 7 }, (_, num) => (
                           <ToggleGroupItem
                             key={num}
                             value={num.toString()}
-                            onClick={() => {}}
-                            className={`border rounded ${ELEMENT_COLORS[element].state}`}
+                            className={`p-2.25 border rounded ${ELEMENT_COLORS[element].state}`}
                           >
                             {num}
                           </ToggleGroupItem>
@@ -109,8 +134,24 @@ function AddCharacterModal({
                       </ToggleGroup>
                       <div>atk | crit values</div>
                       <div className="space-y-2">
-                        <Choose label="Weapon..." array={WEAPONS} />
-                        <Choose label="Echo set..." array={ECHO_SETS} />
+                        <Choose
+                          label="Weapon..."
+                          array={weapons}
+                          value={charData[i]?.weapon.name ?? "Weapon"}
+                          getValue={(w) => w.name}
+                          getLabel={(w) => w.name}
+                          onSelect={(value) =>
+                            updateCharData(i, "weapon", value)
+                          }
+                        />
+                        <Choose
+                          label="Echo set..."
+                          array={ECHO_SETS}
+                          value={`[${charData[i]?.echoSet.join(", ")}]`}
+                          onSelect={(value) =>
+                            updateCharData(i, "echoSet", value)
+                          }
+                        />
                         {/* <Choose label="Set config..." array={} /> */}
                       </div>
                     </div>
