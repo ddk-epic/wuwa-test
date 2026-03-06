@@ -28,6 +28,7 @@ const characterData: Record<string, Character> = {
   encore: {
     name: "Encore",
     sequence: 0,
+    weaponType: "Rectifier",
     weapon: weaponData["Stringmaster"],
     echo: "Inferno Rider",
     echoSet: ["Molten Rift"],
@@ -52,6 +53,7 @@ const characterData: Record<string, Character> = {
   sanhua: {
     name: "Sanhua",
     sequence: 0,
+    weaponType: "Sword",
     weapon: weaponData["Emerald of Genesis"],
     echo: "Impermanence Heron",
     echoSet: ["Moonlit Clouds"],
@@ -97,6 +99,7 @@ const characterData: Record<string, Character> = {
   shorekeeper: {
     name: "Shorekeeper",
     sequence: 0,
+    weaponType: "Rectifier",
     weapon: weaponData["Stellar Symphony"],
     echo: "Impermanence Heron",
     echoSet: ["Moonlit Clouds"],

@@ -178,6 +178,7 @@ type DCondKeys = "Forte" | "Forte2" | "Concerto" | "Resonance"
 
 export interface Weapon {
   name: string
+  type: string
   rank: number
   atk: number
   mainStat: string
@@ -187,6 +188,7 @@ export interface Weapon {
 export interface Character {
   name: string
   sequence: number
+  weaponType: string
   weapon: Weapon
   echo: string
   echoSet: string[]
