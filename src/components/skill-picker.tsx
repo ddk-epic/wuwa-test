@@ -2,7 +2,7 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 
 import type { Skill, ActionListItem } from "@/constants/types"
-import team from "@/constants/characters"
+import characterData from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 import skills from "@/constants/skills"
 
@@ -26,8 +26,8 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
         {/* Character tabs */}
         <div className="flex border-b">
           {characters.map((char, i) => {
-            if (!char || !team[char]) return null
-            const element = team[char].element || "default"
+            if (!char || !characterData[char]) return null
+            const element = characterData[char].element || "default"
 
             return (
               <button

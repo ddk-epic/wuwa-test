@@ -147,7 +147,7 @@ export type Result = {
   resonance: number
   damage: number
   procc: Procc
-  buffs?: BuffObject[]
+  buffs?: ActiveBuffObject[]
   buffMap: number[]
 }
 

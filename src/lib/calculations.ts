@@ -15,7 +15,7 @@ import type {
 import { hasSwapped, removeBuffByName } from "./helper"
 
 import characterData from "@/constants/characters"
-import { echoes } from "@/constants/echoes"
+import { echoData } from "@/constants/echoes"
 import skills from "@/constants/skills"
 
 import { buffs } from "./effects/buffs"
@@ -278,7 +278,7 @@ function getSkillData(characters: Record<string, Character>) {
   })
 
   const echoSkills: Skill[] = team.map((charName) => {
-    const echo = echoes[characters[charName].echo]
+    const echo = echoData[characters[charName].echo]
     const { set, ...rest } = echo
     return rest
   })
@@ -293,7 +293,7 @@ function getBuffData(characters: Record<string, Character>) {
   const team = Object.keys(characters)
 
   const characterBuffData: BuffObject[] = team
-    .map((charName) => buffs[charName])
+    .map((charName) => buffs[charName] ?? [])
     .flat()
 
   const weaponBuffData: BuffObject[] = team
@@ -475,7 +475,6 @@ function calculate(
 
   // process passive Buffs
   const initialActiveBuffs = preparePassiveBuffs(characters, buffData)
-  console.log(initialActiveBuffs)
 
   // global mutable context
   const ctx: Context = getContext(
