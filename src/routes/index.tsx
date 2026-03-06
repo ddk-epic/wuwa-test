@@ -1,12 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router"
 
-import { cn } from "@/lib/utils"
 import calculate from "@/lib/calculations"
 import { usePersistedState } from "@/hooks/use-persisted-state"
 
 import CalculateButton from "@/components/calculate-button"
 import HeaderBar from "@/components/header"
-import ResultList from "@/components/result-list"
 import SequenceList from "@/components/sequence-list"
 import SkillSidebar from "@/components/skill-picker"
 
@@ -42,6 +40,7 @@ function App() {
     skill: Skill,
     sequence: ActionListItem[],
   ) => {
+    // setResult([])
     const time =
       sequence.reduce((acc, entry) => acc + entry.skill.frames, 0) / 60
     const actionObj: ActionListItem = { char, skill, time }
@@ -130,53 +129,13 @@ function App() {
         onReset={handleReset}
       />
       {/* Main section */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="h-[90vh] flex flex-1 overflow-hidden">
         <main className="relative flex flex-col flex-1">
-          {/* TODO: fix header behaviour */}
-          <div className="w-full flex pl-4">
-            {/* Sequence Header */}
-            <div className="flex-1 mb-1 border-l border-t bg-card overflow-hidden opacity-85">
-              <div className="flex gap-4 px-3 py-2 border-b">
-                <span className="w-2 text-xs column-header"></span>
-                <span className="w-17.5 text-xs column-header">Character</span>
-                <span className="text-xs column-header">Skill</span>
-                <span className="pr-6 ml-auto text-xs column-header">
-                  Time&thinsp;(s)
-                </span>
-              </div>
-            </div>
-            {/* Result header */}
-            {result.length > 0 && (
-              <>
-                <div className="flex-1 mb-1 border-t bg-card overflow-hidden opacity-85">
-                  <div className="flex gap-4 px-3 py-2 border-b">
-                    <span className="w-8 ml-5 text-right text-xs column-header">
-                      Con.
-                    </span>
-                    <span className="w-15 mr-6 text-right text-xs column-header">
-                      Res.
-                    </span>
-                    <span className="w-13 text-xs column-header">Damage</span>
-                    <span className="w-20 text-xs column-header">+Dmg</span>
-                  </div>
-                </div>
-              </>
-            )}
-            {/* Layout filler */}
-            <div
-              className={cn(
-                "w-6 mb-1 overflow-hidden opacity-85",
-                result.length > 0 ? "border-y bg-card" : "border-l",
-              )}
-            ></div>
-          </div>
-          <div className="flex flex-1 pl-4 pr-3 overflow-auto [scrollbar-gutter:stable]">
-            <SequenceList
-              sequence={sequence}
-              onRemoveSkill={handleRemoveSkill}
-            />
-            <ResultList result={result} setResult={setResult} />
-          </div>
+          <SequenceList
+            sequence={sequence}
+            result={result}
+            onRemoveSkill={handleRemoveSkill}
+          />
           {/* Calculate button */}
           <div className="absolute bottom-4 right-6">
             <CalculateButton
