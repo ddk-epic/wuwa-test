@@ -69,14 +69,6 @@ function AddCharacterModal({
         <div>
           <div className="flex gap-2">
             {characters.map((character, i) => {
-              const element = character
-                ? characterData[character]?.element
-                : "default"
-              const weapons = character
-                ? Object.values(weaponData).filter(
-                    (w) => w.type === characterData[character].weaponType,
-                  )
-                : []
               const availableCharacters = CHARACTERS.filter(
                 (char) => !characters.includes(char) || character === char,
               )
@@ -106,56 +98,70 @@ function AddCharacterModal({
                     </Select>
                   </div>
                   {/* Character settings */}
-                  {character && (
-                    <div className="space-y-2 px-px">
-                      {/* Character Image */}
-                      <div className="aspect-4/3 border"></div>
-                      {/* Character Stats */}
-                      <div className="space-x-2">
-                        <span className="uppercase">{character}</span>
-                        <span className="text-xs column-header">type</span>
-                      </div>
-                      <ToggleGroup
-                        type="single"
-                        value={charData[i]?.sequence.toString() || "0"}
-                        onValueChange={(value) => {
-                          updateCharData(i, "sequence", value)
-                        }}
-                      >
-                        {Array.from({ length: 7 }, (_, num) => (
-                          <ToggleGroupItem
-                            key={num}
-                            value={num.toString()}
-                            className={`p-2.25 border rounded ${ELEMENT_COLORS[element].state}`}
+                  {character &&
+                    (() => {
+                      const char = characterData[character]
+                      const weapons = Object.values(weaponData).filter(
+                        (w) => w.type === char.weaponType,
+                      )
+                      return (
+                        <div className="space-y-2 px-px">
+                          {/* Character Image */}
+                          <div className="aspect-4/3 border"></div>
+                          {/* Character Stats */}
+                          <div className="space-x-2">
+                            <span className="uppercase">{character}</span>
+                            <span className="text-xs column-header">
+                              {char.element}
+                            </span>
+                          </div>
+                          <ToggleGroup
+                            type="single"
+                            value={charData[i]?.sequence.toString() || "0"}
+                            onValueChange={(value) => {
+                              updateCharData(i, "sequence", value)
+                            }}
                           >
-                            {num}
-                          </ToggleGroupItem>
-                        ))}
-                      </ToggleGroup>
-                      <div>atk | crit values</div>
-                      <div className="space-y-2">
-                        <Choose
-                          label="Weapon..."
-                          array={weapons}
-                          value={charData[i]?.weapon.name ?? "Weapon"}
-                          getValue={(w) => w.name}
-                          getLabel={(w) => w.name}
-                          onSelect={(value) =>
-                            updateCharData(i, "weapon", value)
-                          }
-                        />
-                        <Choose
-                          label="Echo set..."
-                          array={ECHO_SETS}
-                          value={`[${charData[i]?.echoSet.join(", ")}]`}
-                          onSelect={(value) =>
-                            updateCharData(i, "echoSet", value)
-                          }
-                        />
-                        {/* <Choose label="Set config..." array={} /> */}
-                      </div>
-                    </div>
-                  )}
+                            {Array.from({ length: 7 }, (_, num) => (
+                              <ToggleGroupItem
+                                key={num}
+                                value={num.toString()}
+                                className={`p-2.25 border rounded ${ELEMENT_COLORS[char.element].state}`}
+                              >
+                                {num}
+                              </ToggleGroupItem>
+                            ))}
+                          </ToggleGroup>
+                          <div className="space-x-4 my-4">
+                            <span>ATK: {char.atk}</span>
+                            <span>
+                              Crit: {char.crit * 100}% | {char.critDmg * 100}%
+                            </span>
+                          </div>
+                          <div className="space-y-2">
+                            <Choose
+                              label="Weapon..."
+                              array={weapons}
+                              value={charData[i]?.weapon.name ?? "Weapon"}
+                              getValue={(w) => w.name}
+                              getLabel={(w) => w.name}
+                              onSelect={(value) =>
+                                updateCharData(i, "weapon", value)
+                              }
+                            />
+                            <Choose
+                              label="Echo set..."
+                              array={ECHO_SETS}
+                              value={`[${charData[i]?.echoSet.join(", ")}]`}
+                              onSelect={(value) =>
+                                updateCharData(i, "echoSet", value)
+                              }
+                            />
+                            {/* <Choose label="Set config..." array={} /> */}
+                          </div>
+                        </div>
+                      )
+                    })()}
                 </div>
               )
             })}
