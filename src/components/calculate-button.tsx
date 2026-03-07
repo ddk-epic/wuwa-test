@@ -1,12 +1,13 @@
 import { cn } from "@/lib/utils"
 
 import type { ActionListItem } from "@/constants/types"
+import type { CHARACTER_KEY } from "@/constants/characters"
 
 interface CalculateButtonProps {
-  characters: (string | null)[]
+  characters: (CHARACTER_KEY | null)[]
   sequence: ActionListItem[]
   handleCalculate: (
-    characters: (string | null)[],
+    characters: (CHARACTER_KEY | null)[],
     actionList: ActionListItem[],
   ) => void
 }

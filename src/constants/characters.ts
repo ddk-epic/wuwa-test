@@ -1,15 +1,16 @@
 import type { BonusStats, Character } from "./types"
 import { weaponData } from "./weapons"
 
+// Encore echo stat bonuses - 43311 critDmg/Ele/Ele
 const bonusStats: BonusStats = {
   atkFlat: 350,
   hpFlat: 4560,
   defFlat: 0,
-  atk: 0.172,
+  atk: 0.36 + 0.172,
   hp: 0,
   def: 0,
   er: 0.2,
-  crit: 0.405 + 0.36,
+  crit: 0.405,
   critDmg: 0.81 + 0.44,
   basic: 0.172,
   heavy: 0,
@@ -71,11 +72,11 @@ const characterData: Record<string, Character> = {
       atkFlat: 350,
       hpFlat: 4560,
       defFlat: 0,
-      atk: 0.172,
+      atk: 0.36 + 0.172,
       hp: 0,
       def: 0,
-      er: 0.2,
-      crit: 0.405 + 0.243,
+      er: 0,
+      crit: 0.405,
       critDmg: 0.81 + 0.44,
       basic: 0,
       heavy: 0,
@@ -144,6 +145,12 @@ const characterData: Record<string, Character> = {
   },
 }
 
-export const CHARACTERS = Object.keys(characterData)
+export const CHARACTERS = [
+  "encore",
+  "sanhua",
+  "shorekeeper",
+  "__none__",
+] as const
+export type CHARACTER_KEY = (typeof CHARACTERS)[number]
 
 export default characterData

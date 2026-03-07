@@ -4,15 +4,15 @@ import { cn } from "@/lib/utils"
 import { SelectSeparator } from "./ui/select"
 
 import type { Skill, ActionListItem } from "@/constants/types"
-import characterData from "@/constants/characters"
+import characterData, { type CHARACTER_KEY } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 import { echoData } from "@/constants/echoes"
 import skills from "@/constants/skills"
 
 interface SkillSidebarProps {
-  characters: (string | null)[]
+  characters: (CHARACTER_KEY | null)[]
   sequence: ActionListItem[]
-  onAddSkill: (char: string, skill: Skill, sequence: ActionListItem[]) => void
+  onAddSkill: (char: CHARACTER_KEY, skill: Skill, sequence: ActionListItem[]) => void
 }
 
 function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {

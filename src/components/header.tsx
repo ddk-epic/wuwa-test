@@ -3,16 +3,21 @@ import { RotateCcw } from "lucide-react"
 import { Button } from "./ui/button"
 import DpsSummary from "./dps-summary"
 
+import type { CHARACTER_KEY } from "@/constants/characters"
 import type { ActionListItem, Character, Result } from "@/constants/types"
 import AddCharacterModal from "./add-character-modal"
 
 interface HeaderBarProps {
-  characters: (string | null)[]
+  characters: (CHARACTER_KEY | null)[]
   sequence: ActionListItem[]
   result: Result[]
   charData: (Character | null)[]
-  updateCharData: (index: number, label: "sequence" | "weapon" | "echoSet", value: string) => void
-  onCharacterChange: (index: number, value: string) => void
+  updateCharData: (
+    index: number,
+    label: "sequence" | "weapon" | "echoSet",
+    value: CHARACTER_KEY,
+  ) => void
+  onCharacterChange: (index: number, value: CHARACTER_KEY) => void
   onReset: () => void
 }
 
