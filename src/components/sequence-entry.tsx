@@ -48,18 +48,18 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
       </TableCell>
       <TableCell
         className={cn(
-          "px-3 w-18 font-mono text-xs uppercase",
+          "px-3 w-18 font-mono text-xs uppercase tracking-wide",
           ELEMENT_COLORS[element].text ?? "",
         )}
       >
         {entry.char}
       </TableCell>
-      <TableCell className="px-3 text-xs font-mono font-semibold uppercase tracking-wider">
+      <TableCell className="w-5 pl-3 text-[13px] text-right font-mono text-muted-foreground font-semibold uppercase tracking-wider">
         {skill.category.slice(0, 5)}
       </TableCell>
       <TableCell
         className={cn(
-          "px-3 max-w-32 text-sm text-foreground",
+          "pr-3 max-w-32 text-start text-sm text-foreground truncate",
           skill.category === "liberation" ? ELEMENT_COLORS[element]?.text : "",
         )}
       >

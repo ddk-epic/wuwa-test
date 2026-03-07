@@ -24,13 +24,13 @@ function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
                 Character
               </TableHead>
               <TableHead className="px-3 py-2 text-xs column-header">
-                Skill
-              </TableHead>
-              <TableHead className="px-3 py-2 text-start text-xs column-header">
                 {/* Skill */}
               </TableHead>
+              <TableHead className="pr-3 py-2 text-start text-xs column-header">
+                Skill
+              </TableHead>
               <TableHead className="px-3 py-2 text-right text-xs column-header">
-                Time (s)
+                Time
               </TableHead>
               <TableHead className="px-3 py-2 text-right text-xs column-header">
                 Con.
