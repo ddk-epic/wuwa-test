@@ -148,7 +148,7 @@ export type Result = {
   damage: number
   procc: Procc
   buffs?: ActiveBuffObject[]
-  buffMap: number[]
+  buffMap: string[]
 }
 
 export interface BonusStats {

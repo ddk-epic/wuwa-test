@@ -26,9 +26,21 @@ export function roundBuffMap<T extends Record<string, number>>(
   const factor = 10 ** decimals;
 
   return Object.fromEntries(
-    Object.entries(obj).map(([k, v]) => [
-      k,
-      Math.round((v + Number.EPSILON) * factor) / factor,
+    Object.entries(obj).map(([key, value]) => [
+      key,
+      Math.round((value + Number.EPSILON) * factor) / factor,
     ])
   ) as T;
+}
+
+export function roundBuffMapToPercentStrings<T extends Record<string, number>>(
+  obj: T,
+  decimals = 1
+): Record<keyof T, string> {
+  const factor = 10 ** decimals;
+
+  return Object.fromEntries(Object.entries(obj).map(([key, value]) => {
+    const roundedValue = Math.round((value * 100 + Number.EPSILON) * factor) / factor;
+    return [key, `${roundedValue}%`];
+  })) as Record<keyof T, string>
 }

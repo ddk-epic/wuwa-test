@@ -22,7 +22,7 @@ import { buffs } from "./effects/buffs"
 import { echoBuffs } from "./effects/echo-buffs"
 import { setBuffs } from "./effects/set-buffs"
 import { weaponBuffs } from "./effects/weapon-buffs"
-import { roundBuffMap } from "./utils"
+import { roundBuffMapToPercentStrings } from "./utils"
 
 function removeExpiredBuffs(ctx: Context) {
   const activeCharacter = ctx.activeCharacter
@@ -241,7 +241,9 @@ function processAction(
   evaluateDCond(ctx, skill)
   const damage = calculateDamage(ctx, skill)
 
-  const roundedBuffMap: BuffMap = roundBuffMap(ctx.buffMap[activeCharacter])
+  const roundedBuffMap: Record<keyof BuffMap, string> = roundBuffMapToPercentStrings(
+    ctx.buffMap[activeCharacter],
+  )
   const buffMapValues = Object.values(roundedBuffMap).slice(0, 32)
 
   const resultObject: Result = {
