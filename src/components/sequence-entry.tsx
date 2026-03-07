@@ -1,6 +1,7 @@
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+import { Button } from "./ui/button"
 import { TableCell, TableRow } from "./ui/table"
 import Hint from "./hint"
 
@@ -35,7 +36,13 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
   })()
 
   return (
-    <TableRow key={index} className={cn("group w-full", index%2 === 0 ? "bg-secondary/90" : "bg-secondary/70" )}>
+    <TableRow
+      key={index}
+      className={cn(
+        "group w-full",
+        index % 2 === 0 ? "bg-secondary/90" : "bg-secondary/70",
+      )}
+    >
       <TableCell className="px-3 text-xs font-mono text-muted-foreground text-right">
         {index + 1}
       </TableCell>
@@ -50,7 +57,12 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
       <TableCell className="px-3 text-xs font-mono font-semibold uppercase tracking-wider">
         {skill.category.slice(0, 5)}
       </TableCell>
-      <TableCell className="px-3 max-w-32 text-sm text-foreground">
+      <TableCell
+        className={cn(
+          "px-3 max-w-32 text-sm text-foreground",
+          skill.category === "liberation" ? ELEMENT_COLORS[element]?.text : "",
+        )}
+      >
         {skill.name}
       </TableCell>
       <TableCell className="px-3 text-xs font-mono text-right">
@@ -65,17 +77,16 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
       <TableCell
         className={cn(
           "px-3 w-10 text-right text-sm",
-          !!result ? ELEMENT_COLORS[element].text : "",
+          !!result && result.damage !== 0 ? ELEMENT_COLORS[element].text : "",
         )}
       >
-        {!!result
-          ? Math.round(result.damage).toLocaleString("en-US")
-          : placeholder}
+        {!!result && result.damage !== 0
+          ? Math.round(result.damage).toLocaleString("en-US") : placeholder}
       </TableCell>
       <TableCell className="px-3 w-10 text-xs font-mono text-right">
         {!!result ? Math.round(result.procc.damage) : placeholder}
       </TableCell>
-      <TableCell className="max-w-32 text-xs truncate">
+      <TableCell className="max-w-32 grow text-xs truncate">
         {!!result && (
           <Hint label={activeBuffString}>
             <span>
@@ -91,13 +102,15 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
           </Hint>
         )}
       </TableCell>
-      <TableCell className="w-4 pl-1">
-        <button
+      <TableCell className="w-4 p-0 pr-1">
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onRemove}
-          className="rounded text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+          className="size-6 text-muted-foreground opacity-0 transition-opacity hover:bg-secondary/90 hover:text-destructive group-hover:opacity-100"
         >
           <X className="h-4 w-4" />
-        </button>
+        </Button>
       </TableCell>
     </TableRow>
   )

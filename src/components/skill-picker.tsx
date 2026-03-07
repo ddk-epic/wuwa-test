@@ -42,7 +42,7 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
               key={i}
               onClick={() => setActiveTab(i)}
               className={cn(
-                "flex-1 px-2 py-2 text-xs font-sans transition-colors",
+                "flex-1 px-2 py-2 text-xs font-sans transition-colors tracking-wide",
                 activeTab === i
                   ? cn(
                       "border-b-2 bg-secondary/50 text-foreground",
@@ -51,12 +51,10 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary/30",
               )}
             >
-              <span
-                className={cn("block", ELEMENT_COLORS[element]?.text ?? "")}
-              >
+              <span className={cn("block", ELEMENT_COLORS[element]?.text)}>
                 {character.capitalize()}
               </span>
-              <span className="text-xs font-mono uppercase">{element}</span>
+              <span className="text-[12px] font-mono uppercase">{element}</span>
             </button>
           )
         })}
@@ -68,6 +66,8 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
     if (!activeChar) return null
     const { set, ...echoSkill } = echoData[characterData[activeChar].echo]
 
+    const element = characterData[activeChar].element || "default"
+
     return (
       <div className="flex flex-col gap-1">
         {/* Echo skill */}
@@ -78,8 +78,8 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
             "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
           )}
         >
-          <span className="shrink-0 px-1.5 py-0.5 rounded text-xs font-mono font-semibold uppercase tracking-wider">
-            {echoSkill.category.slice(0, 5)}
+          <span className="w-11.5 shrink-0 px-1.5 pt-0.5 rounded text-[13px] font-mono font-semibold uppercase tracking-wider">
+            {echoSkill.category}
           </span>
           <span className="flex-1 text-sm text-foreground truncate">
             {echoSkill.name}
@@ -102,10 +102,17 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
                   "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
                 )}
               >
-                <span className="shrink-0 px-1.5 py-0.5 rounded text-xs font-mono font-semibold uppercase tracking-wider">
+                <span className="w-11.5 shrink-0 px-1.5 pt-0.5 rounded text-[13px] font-mono font-semibold uppercase tracking-wider">
                   {skill.category.slice(0, 5)}
                 </span>
-                <span className="flex-1 text-sm text-foreground truncate">
+                <span
+                  className={cn(
+                    "flex-1 text-sm text-foreground truncate",
+                    skill.category === "liberation"
+                      ? ELEMENT_COLORS[element]?.text
+                      : "",
+                  )}
+                >
                   {skill.name}
                 </span>
                 <span className="shrink-0 text-xs font-mono text-muted-foreground">
