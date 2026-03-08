@@ -146,10 +146,10 @@ const characterTemplate: Record<string, Character> = {
 }
 
 export const CHARACTERS = [
+  "__none__",
   "encore",
   "sanhua",
   "shorekeeper",
-  "__none__",
 ] as const
 export type CHARACTER_KEY = (typeof CHARACTERS)[number]
 

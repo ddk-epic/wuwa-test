@@ -19,7 +19,10 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group"
 
 import type { Character } from "@/constants/types"
-import characterTemplate, { CHARACTERS, type CHARACTER_KEY } from "@/constants/characters"
+import characterTemplate, {
+  CHARACTERS,
+  type CHARACTER_KEY,
+} from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 import { ECHO_SETS } from "@/constants/echoes"
 import { weaponData } from "@/constants/weapons"
@@ -78,7 +81,9 @@ function AddCharacterModal({
                   <div className="flex gap-1.5">
                     <Select
                       value={character ?? placeholder[i]}
-                      onValueChange={(value) => onCharacterChange(i, value as CHARACTER_KEY)}
+                      onValueChange={(value) =>
+                        onCharacterChange(i, value as CHARACTER_KEY)
+                      }
                     >
                       <SelectTrigger className="flex-1">
                         <SelectValue placeholder={placeholder[i]}>
@@ -86,12 +91,11 @@ function AddCharacterModal({
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent position="popper">
-                        <SelectItem key={0} value="__none__">
-                          Character...
-                        </SelectItem>
                         {availableCharacters.map((char, idx) => (
                           <SelectItem key={idx + 1} value={char}>
-                            {char.capitalize()}
+                            {char === "__none__"
+                              ? "Character..."
+                              : char.capitalize()}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -119,7 +123,11 @@ function AddCharacterModal({
                             type="single"
                             value={charData[i]?.sequence.toString() || "0"}
                             onValueChange={(value) => {
-                              updateCharData(i, "sequence", value as CHARACTER_KEY)
+                              updateCharData(
+                                i,
+                                "sequence",
+                                value as CHARACTER_KEY,
+                              )
                             }}
                           >
                             {Array.from({ length: 7 }, (_, num) => (
@@ -146,7 +154,11 @@ function AddCharacterModal({
                               getValue={(w) => w.name}
                               getLabel={(w) => w.name}
                               onSelect={(value) =>
-                                updateCharData(i, "weapon", value as CHARACTER_KEY)
+                                updateCharData(
+                                  i,
+                                  "weapon",
+                                  value as CHARACTER_KEY,
+                                )
                               }
                             />
                             <Choose
@@ -154,7 +166,11 @@ function AddCharacterModal({
                               array={ECHO_SETS}
                               value={`[${charData[i]?.echoSet.join(", ")}]`}
                               onSelect={(value) =>
-                                updateCharData(i, "echoSet", value as CHARACTER_KEY)
+                                updateCharData(
+                                  i,
+                                  "echoSet",
+                                  value as CHARACTER_KEY,
+                                )
                               }
                             />
                             {/* <Choose label="Set config..." array={} /> */}
