@@ -14,7 +14,7 @@ import type {
   Result,
   Skill,
 } from "@/constants/types"
-import characterData, { type CHARACTER_KEY } from "@/constants/characters"
+import characterTemplate, { type CHARACTER_KEY } from "@/constants/characters"
 import { totalBuffMap } from "@/constants/maps"
 import { weaponData } from "@/constants/weapons"
 
@@ -63,7 +63,8 @@ function App() {
 
     setCharData((prev) => {
       const updatedCharData = [...prev]
-      updatedCharData[index] = newChar ? characterData[newChar] : null
+      // processCharacterData()
+      updatedCharData[index] = newChar ? characterTemplate[newChar] : null
       return updatedCharData
     })
 

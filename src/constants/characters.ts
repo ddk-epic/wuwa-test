@@ -25,7 +25,7 @@ const bonusStats: BonusStats = {
   spectro: 0,
 }
 
-const characterData: Record<string, Character> = {
+const characterTemplate: Record<string, Character> = {
   encore: {
     name: "Encore",
     sequence: 0,
@@ -153,4 +153,4 @@ export const CHARACTERS = [
 ] as const
 export type CHARACTER_KEY = (typeof CHARACTERS)[number]
 
-export default characterData
+export default characterTemplate

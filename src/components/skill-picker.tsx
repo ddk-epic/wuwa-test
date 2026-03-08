@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 import { SelectSeparator } from "./ui/select"
 
 import type { Skill, ActionListItem } from "@/constants/types"
-import characterData, { type CHARACTER_KEY } from "@/constants/characters"
+import characterTemplate, { type CHARACTER_KEY } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 import { echoData } from "@/constants/echoes"
 import skills from "@/constants/skills"
@@ -34,8 +34,8 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
     return (
       <div className="flex border-b">
         {characters.map((character, i) => {
-          if (!character || !characterData[character]) return null
-          const element = characterData[character].element || "default"
+          if (!character || !characterTemplate[character]) return null
+          const element = characterTemplate[character].element || "default"
 
           return (
             <button
@@ -64,9 +64,9 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
 
   function CharacterSkills() {
     if (!activeChar) return null
-    const { set, ...echoSkill } = echoData[characterData[activeChar].echo]
+    const { set, ...echoSkill } = echoData[characterTemplate[activeChar].echo]
 
-    const element = characterData[activeChar].element || "default"
+    const element = characterTemplate[activeChar].element || "default"
 
     return (
       <div className="flex flex-col gap-1">

@@ -14,7 +14,7 @@ import type {
 
 import { hasSwapped, removeBuffByName } from "./helper"
 
-import characterData from "@/constants/characters"
+import characterTemplate from "@/constants/characters"
 import { echoData } from "@/constants/echoes"
 import skills from "@/constants/skills"
 
@@ -138,7 +138,7 @@ function evaluateDCond(ctx: Context, skill: Skill) {
 
 function calculateDamage(ctx: Context, skill: Skill) {
   const activeCharacter = ctx.activeCharacter
-  const char = characterData[activeCharacter]
+  const char = characterTemplate[activeCharacter]
   const weapon = char.weapon
   const levelMultiplier = 12.5
   const enemyDefenseMultiplier = 0.52
@@ -241,9 +241,8 @@ function processAction(
   evaluateDCond(ctx, skill)
   const damage = calculateDamage(ctx, skill)
 
-  const roundedBuffMap: Record<keyof BuffMap, string> = roundBuffMapToPercentStrings(
-    ctx.buffMap[activeCharacter],
-  )
+  const roundedBuffMap: Record<keyof BuffMap, string> =
+    roundBuffMapToPercentStrings(ctx.buffMap[activeCharacter])
   const buffMapValues = Object.values(roundedBuffMap).slice(0, 32)
 
   const resultObject: Result = {
@@ -457,16 +456,11 @@ function calculate(
 ): Result[] {
   const resultList: Result[] = []
 
-  const characters: Record<string, Character> = characterIds.reduce(
-    (acc, character) => {
-      if (!character || !characterData[character]) {
-        return acc
-      }
-      acc[character] = characterData[character]
-      return acc
-    },
-    {} as Record<string, Character>,
-  )
+  const characters: Record<string, Character> = Object.fromEntries(
+  characterIds
+    .filter((id) => id != null)
+    .map((id) => [id, characterTemplate[id]])
+)
 
   // get Data
   const skillData = getSkillData(characters)

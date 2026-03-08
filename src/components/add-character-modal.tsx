@@ -19,7 +19,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group"
 
 import type { Character } from "@/constants/types"
-import characterData, { CHARACTERS, type CHARACTER_KEY } from "@/constants/characters"
+import characterTemplate, { CHARACTERS, type CHARACTER_KEY } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 import { ECHO_SETS } from "@/constants/echoes"
 import { weaponData } from "@/constants/weapons"
@@ -100,7 +100,7 @@ function AddCharacterModal({
                   {/* Character settings */}
                   {character &&
                     (() => {
-                      const char = characterData[character]
+                      const char = characterTemplate[character]
                       const weapons = Object.values(weaponData).filter(
                         (w) => w.type === char.weaponType,
                       )

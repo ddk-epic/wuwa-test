@@ -6,7 +6,7 @@ import { TableCell, TableRow } from "./ui/table"
 import Hint from "./hint"
 
 import type { ActionListItem, Result } from "@/constants/types"
-import characterData from "@/constants/characters"
+import characterTemplate from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 
 interface SequenceEntryProps {
@@ -19,7 +19,7 @@ interface SequenceEntryProps {
 function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
   const placeholder = "--"
   const skill = entry.skill
-  const element = characterData[entry.char].element
+  const element = characterTemplate[entry.char].element
   const result = res[index]
 
   const activeBuffString =

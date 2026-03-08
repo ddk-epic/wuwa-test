@@ -1,3 +1,5 @@
+import type { WEAPON_STAT } from "./weapons"
+
 export type Element =
   | "aero"
   | "electro"
@@ -181,7 +183,7 @@ export interface Weapon {
   type: string
   rank: number
   atk: number
-  mainStat: string
+  mainStat: WEAPON_STAT
   mainStatAmount: number
 }
 
