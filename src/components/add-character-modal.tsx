@@ -141,10 +141,22 @@ function AddCharacterModal({
                             ))}
                           </ToggleGroup>
                           <div className="space-x-4 my-4">
-                            <span>ATK: {char.atk}</span>
-                            <span>
-                              Crit: {char.crit * 100}% | {char.critDmg * 100}%
-                            </span>
+                            {charData[i] && (
+                              <>
+                                <span>ATK: {charData[i].atk}</span>
+                                <span>
+                                  Crit:{" "}
+                                  {Math.round(
+                                    (charData[i].crit * 100 + Number.EPSILON) *
+                                      10,
+                                  ) / 10}
+                                  % | {Math.round(
+                                    (charData[i].critDmg * 100 + Number.EPSILON) *
+                                      10,
+                                  ) / 10}%
+                                </span>
+                              </>
+                            )}
                           </div>
                           <div className="space-y-2">
                             <Choose

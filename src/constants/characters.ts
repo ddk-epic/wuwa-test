@@ -11,7 +11,7 @@ const bonusStats: BonusStats = {
   def: 0,
   er: 0.2,
   crit: 0.405,
-  critDmg: 0.81 + 0.44,
+  critDmg: 0.81,
   basic: 0.172,
   heavy: 0,
   skill: 0,
@@ -40,7 +40,7 @@ const characterTemplate: Record<string, Character> = {
     /* stats */
     atk: 34,
     def: 102,
-    hp: 841 * 12.5,
+    hp: 841,
     crit: 0.05,
     critDmg: 1.5,
     bonusStats,
@@ -65,9 +65,9 @@ const characterTemplate: Record<string, Character> = {
     /* stats */
     atk: 22,
     def: 77,
-    hp: 805 * 12.5,
+    hp: 805,
     crit: 0.05,
-    critDmg: 1.5 + 0.44,
+    critDmg: 1.5,
     bonusStats: {
       atkFlat: 350,
       hpFlat: 4560,
@@ -77,7 +77,7 @@ const characterTemplate: Record<string, Character> = {
       def: 0,
       er: 0,
       crit: 0.405,
-      critDmg: 0.81 + 0.44,
+      critDmg: 0.81,
       basic: 0,
       heavy: 0,
       skill: 0.172,
@@ -111,7 +111,7 @@ const characterTemplate: Record<string, Character> = {
     /* stats */
     atk: 23,
     def: 90,
-    hp: 1337 * 12.5,
+    hp: 1337,
     crit: 0.05,
     critDmg: 1.5,
     bonusStats: {
