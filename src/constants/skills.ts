@@ -1,6 +1,6 @@
 import type { CharacterSkills } from "./types"
 
-const skills: CharacterSkills = {
+const skillData: CharacterSkills = {
   encore: {
     intro: {
       1: {
@@ -119,7 +119,7 @@ const skills: CharacterSkills = {
       },
     },
     heavy: {
-      1: null
+      1: null,
     },
     skill: {
       1: {
@@ -132,6 +132,16 @@ const skills: CharacterSkills = {
         hits: 8,
         concerto: 15,
         resonance: 15.25,
+        variations: {
+          cancel: {
+            frames: 30,
+            hits: 2,
+          },
+          swap: {
+            frames: 15,
+            hits: 8,
+          },
+        },
       },
       2: {
         name: "Energetic Welcome",
@@ -293,6 +303,11 @@ const skills: CharacterSkills = {
         hits: 1,
         concerto: 15,
         resonance: 10,
+        variations: {
+          cancel: {
+            frames: 24,
+          },
+        },
       },
     },
     liberation: {
@@ -319,6 +334,11 @@ const skills: CharacterSkills = {
         hits: 1,
         concerto: 15 + 2,
         resonance: 0.87,
+        variations: {
+          swap: {
+            frames: 45,
+          },
+        },
       },
     },
   },
@@ -390,7 +410,7 @@ const skills: CharacterSkills = {
       },
     },
     heavy: {
-      1: null
+      1: null,
     },
     skill: {
       1: {
@@ -444,4 +464,4 @@ const skills: CharacterSkills = {
   },
 }
 
-export default skills
+export default skillData

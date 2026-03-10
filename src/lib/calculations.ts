@@ -14,9 +14,6 @@ import type {
 
 import { hasSwapped, removeBuffByName } from "./helper"
 
-import { echoData } from "@/constants/echoes"
-import skills from "@/constants/skills"
-
 import { buffs } from "./effects/buffs"
 import { echoBuffs } from "./effects/echo-buffs"
 import { setBuffs } from "./effects/set-buffs"
@@ -265,31 +262,6 @@ function processAction(
   return resultObject
 }
 
-function getSkillData(characters: Record<string, Character>) {
-  const team = Object.keys(characters)
-
-  const characterSkills: Skill[] = []
-
-  team.forEach((charName) => {
-    Object.values(skills[charName]).forEach((category) => {
-      Object.values(category).forEach((skill) => {
-        if (skill) characterSkills.push(skill)
-      })
-    })
-  })
-
-  const echoSkills: Skill[] = team.map((charName) => {
-    const echo = echoData[characters[charName].echo]
-    const { set, ...rest } = echo
-    return rest
-  })
-
-  const allSkills = [...characterSkills, ...echoSkills]
-  // console.log(allSkills)
-
-  return allSkills
-}
-
 function getBuffData(characters: Record<string, Character>) {
   const team = Object.keys(characters)
 
@@ -451,13 +423,16 @@ function getContext(
 
 function calculate(
   characters: Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
+  skillList: Record<CHARACTER_KEY, Record<string, Skill[]>>,
   actionList: ActionList,
   baseBuffMap: BuffMap,
 ): Result[] {
   const resultList: Result[] = []
 
   // get Data
-  const skillData = getSkillData(characters)
+  const skillData = Object.values(skillList).flatMap((categories) =>
+    Object.values(categories).flat(),
+  )
   const buffData = getBuffData(characters)
 
   // process character stats

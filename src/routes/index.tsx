@@ -21,7 +21,7 @@ import characterTemplate, { type CHARACTER_KEY } from "@/constants/characters"
 import { totalBuffMap } from "@/constants/maps"
 import { weaponData, type WEAPON_KEY } from "@/constants/weapons"
 import type { ECHO_KEY, ECHO_SET_KEY } from "@/constants/echoes"
-import { computeBaseCharacter } from "@/lib/helper"
+import { computeBaseCharacter, computeCharacterSkills } from "@/lib/helper"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -48,6 +48,20 @@ function App() {
         return acc
       },
       {} as Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
+    )
+  }, [team])
+
+  const computedSkills = useMemo(() => {
+    return team.reduce(
+      (acc, slot) => {
+        if (!slot.character || !slot.settings) return acc
+
+        const result = computeCharacterSkills(slot.character)
+        acc[slot.character.id] = result
+
+        return acc
+      },
+      {} as Record<CHARACTER_KEY, Record<string, Skill[]>>,
     )
   }, [team])
 
@@ -116,8 +130,6 @@ function App() {
           newSetting.echo = value as ECHO_KEY
       }
 
-      console.log("newSetting", newSetting)
-
       newTeam[index] = {
         ...slot,
         settings: newSetting,
@@ -145,10 +157,11 @@ function App() {
   }
 
   const handleCalculate = (
-    characters: Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
+    characterData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
+    skillList: Record<CHARACTER_KEY, Record<string, Skill[]>>,
     actionList: ActionListItem[],
   ) => {
-    const result = calculate(characters, actionList, totalBuffMap)
+    const result = calculate(characterData, skillList, actionList, totalBuffMap)
     setResult(result)
   }
 
@@ -181,6 +194,7 @@ function App() {
           <div className="absolute bottom-4 right-6">
             <CalculateButton
               charData={computedChars}
+              skillData={computedSkills}
               sequence={sequence}
               handleCalculate={handleCalculate}
             />
@@ -190,6 +204,7 @@ function App() {
         <SkillSidebar
           team={team}
           sequence={sequence}
+          skillData={computedSkills}
           onAddSkill={handleAddSkill}
         />
       </div>

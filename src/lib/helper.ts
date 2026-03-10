@@ -1,7 +1,10 @@
+import { echoData } from "@/constants/echoes"
+import skillData from "@/constants/skills"
 import type {
   ActiveBuffObject,
   Character,
   CharSettings,
+  Skill,
 } from "@/constants/types"
 
 export function computeBaseCharacter(char: Character, settings: CharSettings) {
@@ -36,6 +39,41 @@ export function computeBaseCharacter(char: Character, settings: CharSettings) {
   }
 
   return newCharacter
+}
+
+export function computeCharacterSkills(character: Character) {
+  const { set, ...echoSkill } = echoData[character.echo]
+
+  const echoSkills: Skill[] = [echoSkill]
+  if (echoSkill.variations) {
+    Object.entries(echoSkill.variations).forEach(([variationKey, variation]) =>
+      echoSkills.push({
+        ...echoSkill,
+        name: `${echoSkill.name} (${variationKey})`,
+        ...variation,
+      }),
+    )
+  }
+
+  const characterSkills: Skill[] = []
+
+  Object.values(skillData[character.id]).forEach((category) => {
+    Object.values(category).forEach((skill) => {
+      if (skill) {
+        characterSkills.push(skill) // main skill
+        if (skill.variations) {
+          Object.entries(skill.variations).forEach(
+            ([variationKey, variation]) => {
+              const name = `${skill.name} (${variationKey})`
+              characterSkills.push({ ...skill, name, ...variation }) // variation
+            },
+          )
+        }
+      }
+    })
+  })
+
+  return {echoSkills, characterSkills}
 }
 
 export function hasSwapped(prevChar: string, currentChar: string) {

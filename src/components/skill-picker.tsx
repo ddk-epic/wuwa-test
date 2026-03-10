@@ -6,12 +6,11 @@ import { SelectSeparator } from "./ui/select"
 import type { Skill, ActionListItem, TeamSlot } from "@/constants/types"
 import { type CHARACTER_KEY } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
-import { echoData } from "@/constants/echoes"
-import skills from "@/constants/skills"
 
 interface SkillSidebarProps {
   team: TeamSlot[]
   sequence: ActionListItem[]
+  skillData: Record<CHARACTER_KEY, Record<string, Skill[]>>
   onAddSkill: (
     characterId: Exclude<CHARACTER_KEY, "__none__">,
     skill: Skill,
@@ -19,7 +18,7 @@ interface SkillSidebarProps {
   ) => void
 }
 
-function SkillSidebar({ team, sequence, onAddSkill }: SkillSidebarProps) {
+function SkillSidebar({ team, sequence, skillData, onAddSkill }: SkillSidebarProps) {
   const [activeTab, setActiveTab] = useState<number>(() => {
     const index = team.findIndex((c) => c !== null)
     return index === -1 ? 0 : index
@@ -71,62 +70,62 @@ function SkillSidebar({ team, sequence, onAddSkill }: SkillSidebarProps) {
 
   function CharacterSkills() {
     if (!activeChar) return null
-    const { set, ...echoSkill } = echoData[activeChar.echo]
     const element = activeChar.element || "default"
+    const {echoSkills, characterSkills} = skillData[activeChar.id]
 
     return (
       <div className="flex flex-col gap-1">
         {/* Echo skill */}
-        <button
-          key={echoSkill.name}
-          onClick={() => onAddSkill(activeChar.id, echoSkill, sequence)}
-          className={cn(
-            "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
-          )}
-        >
-          <span className="w-11.5 shrink-0 px-1.5 pt-0.5 rounded text-[13px] font-mono font-semibold uppercase tracking-wider">
-            {echoSkill.category}
-          </span>
-          <span className="flex-1 text-sm text-foreground truncate">
-            {echoSkill.name}
-          </span>
-          <span className="shrink-0 text-xs font-mono text-muted-foreground">
-            {(echoSkill.frames / 60).toFixed(2)}
-          </span>
-        </button>
+        {echoSkills.map((echoSkill) => (
+          <button
+            key={echoSkill.name}
+            onClick={() => onAddSkill(activeChar.id, echoSkill, sequence)}
+            className={cn(
+              "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
+            )}
+          >
+            <span className="w-11.5 shrink-0 px-1.5 pt-0.5 rounded text-[13px] font-mono font-semibold uppercase tracking-wider">
+              {echoSkill.category}
+            </span>
+            <span className="flex-1 text-sm text-foreground truncate">
+              {echoSkill.name}
+            </span>
+            <span className="shrink-0 text-xs font-mono text-muted-foreground">
+              {(echoSkill.frames / 60).toFixed(2)}
+            </span>
+          </button>
+        ))}
         <SelectSeparator className="ml-4 mr-3 my-px" />
         {/* Character skills */}
-        {Object.values(skills[activeChar.id] ?? {}).map((skillSequence) => {
-          return Object.values(skillSequence).map((skill) => {
-            if (!skill) return
+        {characterSkills.map((skill) => {
+          if (!skill) return
 
-            return (
-              <button
-                key={skill.name}
-                onClick={() => onAddSkill(activeChar.id, skill, sequence)}
+          return (
+            <button
+              key={skill.name}
+              onClick={() => onAddSkill(activeChar.id, skill, sequence)}
+              className={cn(
+                "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
+              )}
+            >
+              <span className="w-11.5 shrink-0 px-1.5 pt-0.5 rounded text-[13px] font-mono font-semibold uppercase tracking-wider">
+                {skill.category.slice(0, 5)}
+              </span>
+              <span
                 className={cn(
-                  "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
+                  "flex-1 text-sm text-foreground truncate",
+                  skill.category === "liberation"
+                    ? ELEMENT_COLORS[element]?.text
+                    : "",
                 )}
               >
-                <span className="w-11.5 shrink-0 px-1.5 pt-0.5 rounded text-[13px] font-mono font-semibold uppercase tracking-wider">
-                  {skill.category.slice(0, 5)}
-                </span>
-                <span
-                  className={cn(
-                    "flex-1 text-sm text-foreground truncate",
-                    skill.category === "liberation"
-                      ? ELEMENT_COLORS[element]?.text
-                      : "",
-                  )}
-                >
-                  {skill.name}
-                </span>
-                <span className="shrink-0 text-xs font-mono text-muted-foreground">
-                  {(skill.frames / 60).toFixed(2)}
-                </span>
-              </button>
-            )
-          })
+                {skill.name}
+              </span>
+              <span className="shrink-0 text-xs font-mono text-muted-foreground">
+                {(skill.frames / 60).toFixed(2)}
+              </span>
+            </button>
+          )
         })}
       </div>
     )

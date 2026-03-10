@@ -12,6 +12,11 @@ export const echoData: Record<string, Echo> = {
     hits: 1,
     concerto: 0,
     resonance: 0,
+    variations: {
+      swap: {
+        frames: 15,
+      },
+    }
   },
   "Inferno Rider": {
     name: "Inferno Rider",
@@ -24,6 +29,16 @@ export const echoData: Record<string, Echo> = {
     hits: 1,
     concerto: 0,
     resonance: 0,
+    variations: {
+      cancel: {
+        frames: 108,
+        hits: 3,
+      },
+      swap: {
+        frames: 62,
+        hits: 8,
+      },
+    },
   },
 }
 
