@@ -450,7 +450,7 @@ function getContext(
 }
 
 function calculate(
-  characters: Record<CHARACTER_KEY, Character>,
+  characters: Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
   actionList: ActionList,
   baseBuffMap: BuffMap,
 ): Result[] {

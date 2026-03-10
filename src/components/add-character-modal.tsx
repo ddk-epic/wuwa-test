@@ -26,7 +26,7 @@ import { weaponData } from "@/constants/weapons"
 
 interface AddCharacterModalProps {
   team: TeamSlot[]
-  charData: Record<CHARACTER_KEY, Character>
+  charData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>
   updateCharSettings: (
     index: number,
     label: SETTINGS_KEYS,
@@ -70,16 +70,16 @@ function AddCharacterModal({
           <div className="flex gap-2">
             {team.map((slot, i) => {
               const character = slot.character
+              const usedChars = team.filter(slot => !!slot.character).map(slot => slot.character.id)
               const availableCharacters = CHARACTERS.filter(
-                (char) =>
-                  !character?.id.includes(char) || character?.id === char,
+                (char) => char === "__none__" || !usedChars.includes(char) || character?.id === char,
               )
               return (
                 <div key={i} className="w-full space-y-4">
                   {/* Character selection */}
                   <div className="flex gap-1.5">
                     <Select
-                      value={character?.name ?? placeholder[i]}
+                      value={character?.id ?? placeholder[i]}
                       onValueChange={(value) =>
                         onCharacterChange(i, value as CHARACTER_KEY)
                       }
@@ -168,7 +168,7 @@ function AddCharacterModal({
                               label="Weapon..."
                               array={weapons}
                               value={
-                                charData[character.id].weapon.name ?? "Weapon"
+                                charData[character.id].weapon.name
                               }
                               getValue={(w) => w.name}
                               getLabel={(w) => w.name}
@@ -187,7 +187,7 @@ function AddCharacterModal({
                             <Choose
                               label="Echo..."
                               array={echoes}
-                              value={`[${charData[character.id]?.echo ?? "Echo"}`}
+                              value={`${charData[character.id].echo}`}
                               onSelect={(value) =>
                                 updateCharSettings(i, "echo", value)
                               }

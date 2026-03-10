@@ -4,9 +4,9 @@ import type { ActionListItem, Character } from "@/constants/types"
 import type { CHARACTER_KEY } from "@/constants/characters"
 
 interface CalculateButtonProps {
-  charData: Record<CHARACTER_KEY, Character>
+  charData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>
   sequence: ActionListItem[]
-  handleCalculate: (characters: Record<CHARACTER_KEY, Character>, actionList: ActionListItem[]) => void
+  handleCalculate: (characters: Record<Exclude<CHARACTER_KEY, "__none__">, Character>, actionList: ActionListItem[]) => void
 }
 
 function CalculateButton({

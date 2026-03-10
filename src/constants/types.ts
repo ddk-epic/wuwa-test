@@ -132,7 +132,7 @@ export interface CharacterSkills {
 }
 
 export type ActionItem = {
-  char: CHARACTER_KEY
+  char: Exclude<CHARACTER_KEY, "__none__">
   skill: Skill
 }
 

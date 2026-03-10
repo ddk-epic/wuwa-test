@@ -47,7 +47,7 @@ function App() {
 
         return acc
       },
-      {} as Record<CHARACTER_KEY, Character>,
+      {} as Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
     )
   }, [team])
 
@@ -116,6 +116,8 @@ function App() {
           newSetting.echo = value as ECHO_KEY
       }
 
+      console.log("newSetting", newSetting)
+
       newTeam[index] = {
         ...slot,
         settings: newSetting,
@@ -126,7 +128,7 @@ function App() {
   }
 
   const handleAddSkill = (
-    char: CHARACTER_KEY,
+    char: Exclude<CHARACTER_KEY, "__none__">,
     skill: Skill,
     sequence: ActionListItem[],
   ) => {
@@ -143,7 +145,7 @@ function App() {
   }
 
   const handleCalculate = (
-    characters: Record<CHARACTER_KEY, Character>,
+    characters: Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
     actionList: ActionListItem[],
   ) => {
     const result = calculate(characters, actionList, totalBuffMap)

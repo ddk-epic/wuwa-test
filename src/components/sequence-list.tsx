@@ -9,7 +9,7 @@ import type {
 import type { CHARACTER_KEY } from "@/constants/characters"
 
 interface SequenceListProps {
-  charData: Record<CHARACTER_KEY, Character>
+  charData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>
   sequence: ActionListItem[]
   result: Result[]
   onRemoveSkill: (index: number) => void

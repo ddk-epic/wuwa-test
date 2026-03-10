@@ -15,7 +15,7 @@ import AddCharacterModal from "./add-character-modal"
 
 interface HeaderBarProps {
   team: TeamSlot[]
-  charData: Record<CHARACTER_KEY, Character>
+  charData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>
   sequence: ActionListItem[]
   result: Result[]
   updateCharSettings: (

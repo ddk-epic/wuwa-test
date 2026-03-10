@@ -13,7 +13,7 @@ interface SkillSidebarProps {
   team: TeamSlot[]
   sequence: ActionListItem[]
   onAddSkill: (
-    char: CHARACTER_KEY,
+    characterId: Exclude<CHARACTER_KEY, "__none__">,
     skill: Skill,
     sequence: ActionListItem[],
   ) => void

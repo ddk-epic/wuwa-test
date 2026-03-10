@@ -15,7 +15,7 @@ import { type CHARACTER_KEY } from "@/constants/characters"
 
 interface SequenceEntryProps {
   index: number
-  charData: Record<CHARACTER_KEY, Character>
+  charData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>
   entry: ActionListItem
   res: Result[]
   onRemove: () => void
