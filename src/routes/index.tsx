@@ -1,7 +1,8 @@
+import { useMemo } from "react"
 import { createFileRoute } from "@tanstack/react-router"
+import { usePersistedState } from "@/hooks/use-persisted-state"
 
 import calculate from "@/lib/calculations"
-import { usePersistedState } from "@/hooks/use-persisted-state"
 
 import CalculateButton from "@/components/calculate-button"
 import HeaderBar from "@/components/header"
@@ -13,26 +14,108 @@ import type {
   Character,
   Result,
   Skill,
+  TeamSlot,
 } from "@/constants/types"
 import characterTemplate, { type CHARACTER_KEY } from "@/constants/characters"
 import { totalBuffMap } from "@/constants/maps"
-import { weaponData } from "@/constants/weapons"
+import { weaponData, type WEAPON_KEY } from "@/constants/weapons"
+import type { ECHO_SET_KEY } from "@/constants/echoes"
+import { computeBaseCharacter } from "@/lib/helper"
 
 export const Route = createFileRoute("/")({ component: App })
 
 function App() {
-  const [characters, setCharacters] = usePersistedState<
-    (CHARACTER_KEY | null)[]
-  >("characters", [null, null, null])
-  const [charData, setCharData] = usePersistedState<(Character | null)[]>(
-    "charData",
-    [null, null, null],
-  )
+  const [team, setTeam] = usePersistedState<TeamSlot[]>("team", [
+    { character: null, settings: null },
+    { character: null, settings: null },
+    { character: null, settings: null },
+  ])
   const [sequence, setSequence] = usePersistedState<ActionListItem[]>(
     "sequence",
     [],
   )
   const [result, setResult] = usePersistedState<Result[]>("result", [])
+
+  const handleCharacterChange = (index: number, value: CHARACTER_KEY) => {
+    const oldChar = team[index].character
+    // if (!oldChar) return null
+
+    const newChar = value === "__none__" ? null : value
+    if (!newChar) return
+
+    setTeam((prev) => {
+      const newTeam = [...prev]
+      newTeam[index] = {
+        character: characterTemplate[newChar],
+        settings: {
+          sequence: 0,
+          weapon: characterTemplate[newChar].weapon,
+          echoSet: [...characterTemplate[newChar].echoSet],
+        },
+      }
+      return newTeam
+    })
+
+    setSequence((prev) =>
+      oldChar ? prev.filter((s) => s.char !== oldChar.name) : prev,
+    )
+  }
+
+  const updateCharSettings = (
+    index: number,
+    label: "sequence" | "weapon" | "echoSet",
+    value: string,
+  ) => {
+    if (!team[index].settings) return
+
+    setTeam((prev) => {
+      const newTeam = [...prev]
+      const slot = newTeam[index]
+      if (!slot.character || !slot.settings) return prev
+
+      const newSetting = { ...slot.settings }
+
+      switch (label) {
+        case "sequence":
+          newSetting.sequence = Number(value)
+          break
+
+        case "weapon":
+          newSetting.weapon = weaponData[value as WEAPON_KEY]
+          break
+
+        case "echoSet":
+          if (newSetting.echoSet.length >= 2) {
+            console.error("Cannot add more echo sets")
+            return prev
+          }
+          // TODO: fix echo set update
+          newSetting.echoSet = [...newSetting.echoSet, value as ECHO_SET_KEY]
+          break
+      }
+
+      newTeam[index] = {
+        ...slot,
+        settings: newSetting,
+      }
+
+      return newTeam
+    })
+  }
+
+  const computedChars = useMemo(() => {
+    return team.reduce(
+      (acc, slot) => {
+        if (!slot.character || !slot.settings) return acc
+
+        const char = computeBaseCharacter(slot.character, slot.settings)
+        acc[char.id] = char
+
+        return acc
+      },
+      {} as Record<CHARACTER_KEY, Character>,
+    )
+  }, [team])
 
   const handleAddSkill = (
     char: CHARACTER_KEY,
@@ -51,64 +134,7 @@ function App() {
     setSequence((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleCharacterChange = (index: number, value: CHARACTER_KEY) => {
-    const oldChar = characters[index]
-    const newChar = value === "__none__" ? null : value
-
-    setCharacters((prev) => {
-      const updated = [...prev]
-      updated[index] = newChar
-      return updated
-    })
-
-    setCharData((prev) => {
-      const updatedCharData = [...prev]
-      // processCharacterData()
-      updatedCharData[index] = newChar ? characterTemplate[newChar] : null
-      return updatedCharData
-    })
-
-    setSequence((prev) =>
-      oldChar ? prev.filter((s) => s.char !== oldChar) : prev,
-    )
-  }
-
-  const updateCharData = (
-    index: number,
-    label: "sequence" | "weapon" | "echoSet",
-    value: CHARACTER_KEY,
-  ) =>
-    setCharData((prev) => {
-      const updatedCharData = [...prev]
-
-      if (!updatedCharData[index]) return prev
-
-      const updatedChar = { ...updatedCharData[index] }
-
-      if (label === "sequence") {
-        updatedChar.sequence = Number(value)
-      }
-
-      if (label === "weapon") {
-        updatedChar.weapon = weaponData[value]
-      }
-
-      if (label === "echoSet") {
-        if (updatedChar.echoSet.length < 2) {
-          updatedChar.echoSet = [...updatedChar.echoSet, value]
-        } else {
-          console.log("ERROR:", "Cannot add more echo sets")
-        }
-      }
-
-      updatedCharData[index] = updatedChar
-      return updatedCharData
-    })
-
-  const handleCalculate = (
-    characters: (CHARACTER_KEY | null)[],
-    actionList: ActionListItem[],
-  ) => {
+  const handleCalculate = (characters: Record<CHARACTER_KEY, Character>, actionList: ActionListItem[]) => {
     const result = calculate(characters, actionList, totalBuffMap)
     setResult(result)
   }
@@ -121,18 +147,19 @@ function App() {
   return (
     <div className="min-w-270 h-screen flex flex-col">
       <HeaderBar
-        characters={characters}
+        team={team}
         sequence={sequence}
         result={result}
-        charData={charData}
+        charData={computedChars}
         onCharacterChange={handleCharacterChange}
-        updateCharData={updateCharData}
+        updateCharSettings={updateCharSettings}
         onReset={handleReset}
       />
       {/* Main section */}
       <div className="h-[90vh] flex flex-1 overflow-hidden">
         <main className="relative flex flex-col flex-1">
           <SequenceList
+            charData={computedChars}
             sequence={sequence}
             result={result}
             onRemoveSkill={handleRemoveSkill}
@@ -140,7 +167,7 @@ function App() {
           {/* Calculate button */}
           <div className="absolute bottom-4 right-6">
             <CalculateButton
-              characters={characters}
+              charData={computedChars}
               sequence={sequence}
               handleCalculate={handleCalculate}
             />
@@ -148,7 +175,7 @@ function App() {
         </main>
         {/* Side section */}
         <SkillSidebar
-          characters={characters}
+          team={team}
           sequence={sequence}
           onAddSkill={handleAddSkill}
         />

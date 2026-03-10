@@ -5,21 +5,32 @@ import { Button } from "./ui/button"
 import { TableCell, TableRow } from "./ui/table"
 import Hint from "./hint"
 
-import type { ActionListItem, Result } from "@/constants/types"
-import characterTemplate from "@/constants/characters"
+import type {
+  ActionListItem,
+  Character,
+  Result,
+} from "@/constants/types"
 import { ELEMENT_COLORS } from "@/constants/colors"
+import { type CHARACTER_KEY } from "@/constants/characters"
 
 interface SequenceEntryProps {
   index: number
+  charData: Record<CHARACTER_KEY, Character>
   entry: ActionListItem
   res: Result[]
   onRemove: () => void
 }
 
-function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
+function SequenceEntry({
+  index,
+  charData,
+  entry,
+  res,
+  onRemove,
+}: SequenceEntryProps) {
   const placeholder = "--"
   const skill = entry.skill
-  const element = characterTemplate[entry.char].element
+  const element = charData[entry.char].element
   const result = res[index]
 
   const activeBuffString =
@@ -81,7 +92,8 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
         )}
       >
         {!!result && result.damage !== 0
-          ? Math.round(result.damage).toLocaleString("en-US") : placeholder}
+          ? Math.round(result.damage).toLocaleString("en-US")
+          : placeholder}
       </TableCell>
       <TableCell className="px-3 w-10 text-xs font-mono text-right">
         {!!result ? Math.round(result.procc.damage) : placeholder}

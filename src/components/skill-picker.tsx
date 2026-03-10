@@ -3,39 +3,46 @@ import { cn } from "@/lib/utils"
 
 import { SelectSeparator } from "./ui/select"
 
-import type { Skill, ActionListItem } from "@/constants/types"
-import characterTemplate, { type CHARACTER_KEY } from "@/constants/characters"
+import type { Skill, ActionListItem, TeamSlot } from "@/constants/types"
+import { type CHARACTER_KEY } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 import { echoData } from "@/constants/echoes"
 import skills from "@/constants/skills"
 
 interface SkillSidebarProps {
-  characters: (CHARACTER_KEY | null)[]
+  team: TeamSlot[]
   sequence: ActionListItem[]
-  onAddSkill: (char: CHARACTER_KEY, skill: Skill, sequence: ActionListItem[]) => void
+  onAddSkill: (
+    char: CHARACTER_KEY,
+    skill: Skill,
+    sequence: ActionListItem[],
+  ) => void
 }
 
-function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
+function SkillSidebar({ team, sequence, onAddSkill }: SkillSidebarProps) {
   const [activeTab, setActiveTab] = useState<number>(() => {
-    const index = characters.findIndex((c) => c !== null)
+    const index = team.findIndex((c) => c !== null)
     return index === -1 ? 0 : index
   })
 
   useEffect(() => {
     const oldIndex = activeTab
-    const newIndex = characters.findIndex((c) => c !== null)
-    if (!characters[oldIndex]) setActiveTab(newIndex)
-  }, [characters])
+    const newIndex = team.findIndex((c) => c.character !== null)
+    if (!team[oldIndex]) {
+      setActiveTab(newIndex)
+    }
+  }, [team])
 
-  const activeChar = characters[activeTab] ?? null
+  const activeChar = team[activeTab].character ?? null
 
   function CharacterTab() {
     if (!activeChar) return null
     return (
       <div className="flex border-b">
-        {characters.map((character, i) => {
-          if (!character || !characterTemplate[character]) return null
-          const element = characterTemplate[character].element || "default"
+        {team.map((slot, i) => {
+          const character = slot.character
+          if (!character) return null
+          const element = character.element || "default"
 
           return (
             <button
@@ -52,7 +59,7 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
               )}
             >
               <span className={cn("block", ELEMENT_COLORS[element]?.text)}>
-                {character.capitalize()}
+                {character.name}
               </span>
               <span className="text-[12px] font-mono uppercase">{element}</span>
             </button>
@@ -64,16 +71,15 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
 
   function CharacterSkills() {
     if (!activeChar) return null
-    const { set, ...echoSkill } = echoData[characterTemplate[activeChar].echo]
-
-    const element = characterTemplate[activeChar].element || "default"
+    const { set, ...echoSkill } = echoData[activeChar.echo]
+    const element = activeChar.element || "default"
 
     return (
       <div className="flex flex-col gap-1">
         {/* Echo skill */}
         <button
           key={echoSkill.name}
-          onClick={() => onAddSkill(activeChar, echoSkill, sequence)}
+          onClick={() => onAddSkill(activeChar.id, echoSkill, sequence)}
           className={cn(
             "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
           )}
@@ -90,14 +96,14 @@ function SkillSidebar({ characters, sequence, onAddSkill }: SkillSidebarProps) {
         </button>
         <SelectSeparator className="ml-4 mr-3 my-px" />
         {/* Character skills */}
-        {Object.values(skills[activeChar] ?? {}).map((skillSequence) => {
+        {Object.values(skills[activeChar.id] ?? {}).map((skillSequence) => {
           return Object.values(skillSequence).map((skill) => {
             if (!skill) return
 
             return (
               <button
                 key={skill.name}
-                onClick={() => onAddSkill(activeChar, skill, sequence)}
+                onClick={() => onAddSkill(activeChar.id, skill, sequence)}
                 className={cn(
                   "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
                 )}

@@ -1,3 +1,5 @@
+import type { CHARACTER_KEY } from "./characters"
+import type { ECHO_SET_KEY } from "./echoes"
 import type { WEAPON_STAT } from "./weapons"
 
 export type Element =
@@ -130,7 +132,7 @@ export interface CharacterSkills {
 }
 
 export type ActionItem = {
-  char: string
+  char: CHARACTER_KEY
   skill: Skill
 }
 
@@ -188,12 +190,13 @@ export interface Weapon {
 }
 
 export interface Character {
+  id: Exclude<CHARACTER_KEY, "__none__">
   name: string
   sequence: number
   weaponType: string
   weapon: Weapon
   echo: string
-  echoSet: string[]
+  echoSet: ECHO_SET_KEY[]
   build: string
   element: Element
   maxForte: number
@@ -207,6 +210,22 @@ export interface Character {
   bonusStats: BonusStats
   dCond: Record<DCondKeys, number>
 }
+
+export interface CharSettings {
+  sequence: number
+  weapon: Weapon
+  echoSet: ECHO_SET_KEY[]
+}
+
+export type TeamSlot =
+  | {
+      character: null
+      settings: null
+    }
+  | {
+      character: Character
+      settings: CharSettings
+    }
 
 export type BuffMap = Record<BuffType, number>
 

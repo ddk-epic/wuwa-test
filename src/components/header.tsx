@@ -4,29 +4,34 @@ import { Button } from "./ui/button"
 import DpsSummary from "./dps-summary"
 
 import type { CHARACTER_KEY } from "@/constants/characters"
-import type { ActionListItem, Character, Result } from "@/constants/types"
+import type {
+  ActionListItem,
+  Character,
+  Result,
+  TeamSlot,
+} from "@/constants/types"
 import AddCharacterModal from "./add-character-modal"
 
 interface HeaderBarProps {
-  characters: (CHARACTER_KEY | null)[]
+  team: TeamSlot[]
+  charData: Record<CHARACTER_KEY, Character>
   sequence: ActionListItem[]
   result: Result[]
-  charData: (Character | null)[]
-  updateCharData: (
+  updateCharSettings: (
     index: number,
     label: "sequence" | "weapon" | "echoSet",
-    value: CHARACTER_KEY,
+    value: string,
   ) => void
   onCharacterChange: (index: number, value: CHARACTER_KEY) => void
   onReset: () => void
 }
 
 function HeaderBar({
-  characters,
+  team,
+  charData,
   sequence,
   result,
-  charData,
-  updateCharData,
+  updateCharSettings,
   onCharacterChange,
   onReset,
 }: HeaderBarProps) {
@@ -44,9 +49,9 @@ function HeaderBar({
         {/* Character selectors */}
         <div className="flex items-center gap-2">
           <AddCharacterModal
-            characters={characters}
+            team={team}
             charData={charData}
-            updateCharData={updateCharData}
+            updateCharSettings={updateCharSettings}
             onCharacterChange={onCharacterChange}
           />
         </div>

@@ -1,6 +1,6 @@
 import type { Weapon } from "./types"
 
-export const weaponData: Record<string, Weapon> = {
+export const weaponData: Record<WEAPON_KEY, Weapon> = {
   "Emerald of Genesis": {
     name: "Emerald of Genesis",
     type: "Sword",
@@ -22,7 +22,7 @@ export const weaponData: Record<string, Weapon> = {
     type: "Rectifier",
     rank: 1,
     atk: 33,
-    mainStat: "crit",
+    mainStat: "er",
     mainStatAmount: 0.1712,
   },
 }

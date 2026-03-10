@@ -27,5 +27,7 @@ export const echoData: Record<string, Echo> = {
   },
 }
 
-export const ECHOES = Object.keys(echoData)
-export const ECHO_SETS = Object.values(echoData).map((echo) => echo.set)
+export const ECHO = ["Impermanence Heron", "Inferno Rider"] as const
+export const ECHO_SET = ["Molten Rift", "Moonlit Clouds"] as const
+export type ECHO_KEY = (typeof ECHO)[number]
+export type ECHO_SET_KEY = (typeof ECHO_SET)[number]

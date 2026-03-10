@@ -14,7 +14,6 @@ import type {
 
 import { hasSwapped, removeBuffByName } from "./helper"
 
-import characterTemplate from "@/constants/characters"
 import { echoData } from "@/constants/echoes"
 import skills from "@/constants/skills"
 
@@ -23,6 +22,7 @@ import { echoBuffs } from "./effects/echo-buffs"
 import { setBuffs } from "./effects/set-buffs"
 import { weaponBuffs } from "./effects/weapon-buffs"
 import { roundBuffMapToPercentStrings } from "./utils"
+import type { CHARACTER_KEY } from "@/constants/characters"
 
 function removeExpiredBuffs(ctx: Context) {
   const activeCharacter = ctx.activeCharacter
@@ -138,7 +138,7 @@ function evaluateDCond(ctx: Context, skill: Skill) {
 
 function calculateDamage(ctx: Context, skill: Skill) {
   const activeCharacter = ctx.activeCharacter
-  const char = characterTemplate[activeCharacter]
+  const char = ctx.characters[activeCharacter]
   const weapon = char.weapon
   const levelMultiplier = 12.5
   const enemyDefenseMultiplier = 0.52
@@ -450,17 +450,11 @@ function getContext(
 }
 
 function calculate(
-  characterIds: (string | null)[],
+  characters: Record<CHARACTER_KEY, Character>,
   actionList: ActionList,
   baseBuffMap: BuffMap,
 ): Result[] {
   const resultList: Result[] = []
-
-  const characters: Record<string, Character> = Object.fromEntries(
-  characterIds
-    .filter((id) => id != null)
-    .map((id) => [id, characterTemplate[id]])
-)
 
   // get Data
   const skillData = getSkillData(characters)

@@ -1,7 +1,6 @@
 import { UserPenIcon } from "lucide-react"
 
 import { Button } from "./ui/button"
-import Choose from "./choose"
 import {
   Dialog,
   DialogContent,
@@ -17,37 +16,35 @@ import {
   SelectValue,
 } from "./ui/select"
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group"
+import Choose from "./choose"
 
-import type { Character } from "@/constants/types"
-import characterTemplate, {
-  CHARACTERS,
-  type CHARACTER_KEY,
-} from "@/constants/characters"
+import type { Character, TeamSlot } from "@/constants/types"
+import { CHARACTERS, type CHARACTER_KEY } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
-import { ECHO_SETS } from "@/constants/echoes"
+import { echoData } from "@/constants/echoes"
 import { weaponData } from "@/constants/weapons"
 
 interface AddCharacterModalProps {
-  characters: (CHARACTER_KEY | null)[]
-  charData: (Character | null)[]
-  updateCharData: (
+  team: TeamSlot[]
+  charData: Record<CHARACTER_KEY, Character>
+  updateCharSettings: (
     index: number,
     label: "sequence" | "weapon" | "echoSet",
-    value: CHARACTER_KEY,
+    value: string,
   ) => void
   onCharacterChange: (index: number, value: CHARACTER_KEY) => void
 }
 
 function AddCharacterModal({
-  characters,
+  team,
   charData,
-  updateCharData,
+  updateCharSettings,
   onCharacterChange,
 }: AddCharacterModalProps) {
   const placeholder = ["Character 1", "Character 2", "Character 3"]
-  const hasCharacter = characters.some((character) => character !== null)
-  const characterString = characters
-    .map((character) => (character ? character.capitalize() : null))
+  const hasCharacter = team.some((slot) => slot.character !== null)
+  const characterString = team
+    .map((slot) => (slot.character ? slot.character.name : null))
     .filter(Boolean)
     .join(" / ")
 
@@ -71,28 +68,30 @@ function AddCharacterModal({
         </DialogHeader>
         <div>
           <div className="flex gap-2">
-            {characters.map((character, i) => {
+            {team.map((slot, i) => {
+              const character = slot.character
               const availableCharacters = CHARACTERS.filter(
-                (char) => !characters.includes(char) || character === char,
+                (char) =>
+                  !character?.id.includes(char) || character?.id === char,
               )
               return (
                 <div key={i} className="w-full space-y-4">
                   {/* Character selection */}
                   <div className="flex gap-1.5">
                     <Select
-                      value={character ?? placeholder[i]}
+                      value={character?.name ?? placeholder[i]}
                       onValueChange={(value) =>
                         onCharacterChange(i, value as CHARACTER_KEY)
                       }
                     >
                       <SelectTrigger className="flex-1">
                         <SelectValue placeholder={placeholder[i]}>
-                          {character?.capitalize() ?? placeholder[i]}
+                          {character?.name ?? placeholder[i]}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent position="popper">
                         {availableCharacters.map((char, idx) => (
-                          <SelectItem key={idx + 1} value={char}>
+                          <SelectItem key={idx} value={char}>
                             {char === "__none__"
                               ? "Character..."
                               : char.capitalize()}
@@ -104,56 +103,56 @@ function AddCharacterModal({
                   {/* Character settings */}
                   {character &&
                     (() => {
-                      const char = characterTemplate[character]
                       const weapons = Object.values(weaponData).filter(
-                        (w) => w.type === char.weaponType,
+                        (w) => w.type === character.weaponType,
                       )
+                      const echoes = Object.keys(echoData)
                       return (
                         <div className="space-y-2 px-px">
                           {/* Character Image */}
                           <div className="aspect-4/3 border"></div>
                           {/* Character Stats */}
                           <div className="space-x-2">
-                            <span className="uppercase">{character}</span>
+                            <span>{character.name}</span>
                             <span className="text-xs column-header">
-                              {char.element}
+                              {character.element}
                             </span>
                           </div>
                           <ToggleGroup
                             type="single"
-                            value={charData[i]?.sequence.toString() || "0"}
+                            value={charData[character.id].sequence.toString() || "0"}
                             onValueChange={(value) => {
-                              updateCharData(
-                                i,
-                                "sequence",
-                                value as CHARACTER_KEY,
-                              )
+                              updateCharSettings(i, "sequence", value)
                             }}
                           >
                             {Array.from({ length: 7 }, (_, num) => (
                               <ToggleGroupItem
                                 key={num}
                                 value={num.toString()}
-                                className={`p-2.25 border rounded ${ELEMENT_COLORS[char.element].state}`}
+                                className={`p-2.25 border rounded ${ELEMENT_COLORS[character.element].state}`}
                               >
                                 {num}
                               </ToggleGroupItem>
                             ))}
                           </ToggleGroup>
+                          {/* Char stats */}
                           <div className="space-x-4 my-4">
-                            {charData[i] && (
+                            {charData[character.id] && (
                               <>
-                                <span>ATK: {charData[i].atk}</span>
+                                <span>ATK: {charData[character.id].atk}</span>
                                 <span>
                                   Crit:{" "}
                                   {Math.round(
-                                    (charData[i].crit * 100 + Number.EPSILON) *
+                                    (charData[character.id].crit * 100 + Number.EPSILON) *
                                       10,
                                   ) / 10}
-                                  % | {Math.round(
-                                    (charData[i].critDmg * 100 + Number.EPSILON) *
+                                  % |{" "}
+                                  {Math.round(
+                                    (charData[character.id].critDmg * 100 +
+                                      Number.EPSILON) *
                                       10,
-                                  ) / 10}%
+                                  ) / 10}
+                                  %
                                 </span>
                               </>
                             )}
@@ -162,27 +161,19 @@ function AddCharacterModal({
                             <Choose
                               label="Weapon..."
                               array={weapons}
-                              value={charData[i]?.weapon.name ?? "Weapon"}
+                              value={charData[character.id].weapon.name ?? "Weapon"}
                               getValue={(w) => w.name}
                               getLabel={(w) => w.name}
                               onSelect={(value) =>
-                                updateCharData(
-                                  i,
-                                  "weapon",
-                                  value as CHARACTER_KEY,
-                                )
+                                updateCharSettings(i, "weapon", value)
                               }
                             />
                             <Choose
                               label="Echo set..."
-                              array={ECHO_SETS}
-                              value={`[${charData[i]?.echoSet.join(", ")}]`}
+                              array={echoes}
+                              value={`[${charData[character.id]?.echoSet.join(", ")}]`}
                               onSelect={(value) =>
-                                updateCharData(
-                                  i,
-                                  "echoSet",
-                                  value as CHARACTER_KEY,
-                                )
+                                updateCharSettings(i, "echoSet", value)
                               }
                             />
                             {/* <Choose label="Set config..." array={} /> */}

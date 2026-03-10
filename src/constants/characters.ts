@@ -25,8 +25,12 @@ const bonusStats: BonusStats = {
   spectro: 0,
 }
 
-const characterTemplate: Record<string, Character> = {
+const characterTemplate: Record<
+  Exclude<CHARACTER_KEY, "__none__">,
+  Character
+> = {
   encore: {
+    id: "encore",
     name: "Encore",
     sequence: 0,
     weaponType: "Rectifier",
@@ -52,6 +56,7 @@ const characterTemplate: Record<string, Character> = {
     },
   },
   sanhua: {
+    id: "sanhua",
     name: "Sanhua",
     sequence: 0,
     weaponType: "Sword",
@@ -98,6 +103,7 @@ const characterTemplate: Record<string, Character> = {
     },
   },
   shorekeeper: {
+    id: "shorekeeper",
     name: "Shorekeeper",
     sequence: 0,
     weaponType: "Rectifier",

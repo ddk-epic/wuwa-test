@@ -1,25 +1,22 @@
 import { cn } from "@/lib/utils"
 
-import type { ActionListItem } from "@/constants/types"
+import type { ActionListItem, Character } from "@/constants/types"
 import type { CHARACTER_KEY } from "@/constants/characters"
 
 interface CalculateButtonProps {
-  characters: (CHARACTER_KEY | null)[]
+  charData: Record<CHARACTER_KEY, Character>
   sequence: ActionListItem[]
-  handleCalculate: (
-    characters: (CHARACTER_KEY | null)[],
-    actionList: ActionListItem[],
-  ) => void
+  handleCalculate: (characters: Record<CHARACTER_KEY, Character>, actionList: ActionListItem[]) => void
 }
 
 function CalculateButton({
-  characters,
+  charData,
   sequence,
   handleCalculate,
 }: CalculateButtonProps) {
   return (
     <button
-      onClick={() => handleCalculate(characters, sequence)}
+      onClick={() => handleCalculate(charData, sequence)}
       className={cn(
         "flex items-center gap-2 rounded-lg px-4 py-2.5 z-10 text-sm font-semibold brightness-90 shadow-lg transition-all",
         sequence.length === 0
