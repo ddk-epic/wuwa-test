@@ -10,7 +10,7 @@ export type Element =
   | "havoc"
   | "spectro"
 
-type SkillBaseType =
+export type SkillBaseType =
   | "basic"
   | "forte"
   | "intro"
@@ -55,7 +55,7 @@ export type BuffType =
   | "resonance"
   | "none"
 
-type BuffCategory =
+export type BuffCategory =
   | "Buff"
   | "BuffBonus"
   | "BuffConsume"
@@ -104,6 +104,14 @@ export type ActiveBuffObject = {
   endTime: number
 } & BuffObject
 
+type SkillVariation = {
+  mv?: number
+  frames?: number
+  hits?: number
+  concerto?: number
+  resonance?: number
+}
+
 export type Skill = {
   name: string
   category: SkillBaseType | "echo"
@@ -117,6 +125,7 @@ export type Skill = {
   forte2?: number
   concerto: number
   resonance: number
+  variations?: Record<string, SkillVariation>
 }
 
 export type Echo = { set: string } & Skill

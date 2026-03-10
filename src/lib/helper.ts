@@ -42,16 +42,18 @@ export function computeBaseCharacter(char: Character, settings: CharSettings) {
 }
 
 export function computeCharacterSkills(character: Character) {
-  const { set, ...echoSkill } = echoData[character.echo]
+  const { variations, set, ...echoSkill } = echoData[character.echo]
 
   const echoSkills: Skill[] = [echoSkill]
-  if (echoSkill.variations) {
-    Object.entries(echoSkill.variations).forEach(([variationKey, variation]) =>
-      echoSkills.push({
-        ...echoSkill,
-        name: `${echoSkill.name} (${variationKey})`,
-        ...variation,
-      }),
+  if (variations) {
+    Object.entries(variations).forEach(
+      ([variationKey, variation]) => {
+        echoSkills.push({
+          ...echoSkill,
+          name: `${echoSkill.name} (${variationKey})`,
+          ...variation,
+        })
+      },
     )
   }
 
@@ -60,20 +62,19 @@ export function computeCharacterSkills(character: Character) {
   Object.values(skillData[character.id]).forEach((category) => {
     Object.values(category).forEach((skill) => {
       if (skill) {
-        characterSkills.push(skill) // main skill
-        if (skill.variations) {
-          Object.entries(skill.variations).forEach(
-            ([variationKey, variation]) => {
-              const name = `${skill.name} (${variationKey})`
-              characterSkills.push({ ...skill, name, ...variation }) // variation
-            },
-          )
+        const { variations, ...rest } = skill
+        characterSkills.push({ ...rest }) // main skill
+        if (variations) {
+          Object.entries(variations).forEach(([variationKey, variation]) => {
+            const name = `${skill.name} (${variationKey})`
+            characterSkills.push({ ...rest, ...variation, name }) // variation
+          })
         }
       }
     })
   })
 
-  return {echoSkills, characterSkills}
+  return { echoSkills, characterSkills }
 }
 
 export function hasSwapped(prevChar: string, currentChar: string) {

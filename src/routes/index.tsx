@@ -90,7 +90,7 @@ function App() {
     })
 
     setSequence((prev) =>
-      oldChar ? prev.filter((s) => s.char !== oldChar.name) : prev,
+      oldChar ? prev.filter((s) => s.char !== oldChar.id) : prev,
     )
   }
 
