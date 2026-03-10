@@ -25,7 +25,9 @@ export function computeBaseCharacter(char: Character, settings: CharSettings) {
   const newCharacter: Character = {
     ...base,
     sequence: settings.sequence,
-    atk: base.atk * levelMultiplier,
+    echo: settings.echo,
+    echoSet: settings.echoSet,
+    atk: (base.atk + base.weapon.atk) * levelMultiplier,
     hp: base.hp * levelMultiplier,
     def: base.def * levelMultiplier,
     crit: base.crit + bonusStats.crit,
