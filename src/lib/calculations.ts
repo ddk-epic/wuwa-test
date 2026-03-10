@@ -18,7 +18,7 @@ import { buffs } from "./effects/buffs"
 import { echoBuffs } from "./effects/echo-buffs"
 import { setBuffs } from "./effects/set-buffs"
 import { weaponBuffs } from "./effects/weapon-buffs"
-import { roundBuffMapToPercentStrings } from "./utils"
+import { getBaseSkillName, roundBuffMapToPercentStrings } from "./utils"
 import type { CHARACTER_KEY } from "@/constants/characters"
 
 function removeExpiredBuffs(ctx: Context) {
@@ -72,6 +72,8 @@ function addTriggeredBuffs(ctx: Context, skill: Skill) {
   const activeCharacter = ctx.activeCharacter
   const currentTime = ctx.time
 
+  const baseName = getBaseSkillName(skill.name)
+
   for (const buff of ctx.allBuffs) {
     const isAlreadyActive = ctx.activeBuffs[activeCharacter].some(
       (b) => b.name === buff.name,
@@ -80,7 +82,7 @@ function addTriggeredBuffs(ctx: Context, skill: Skill) {
     if (buff.owner !== activeCharacter) continue
 
     // add buff triggered by Skill or SkillType
-    const hasNameMatch = buff.createdBy.includes(skill.name)
+    const hasNameMatch = buff.createdBy.includes(baseName)
     const hasTriggerMatch = !!buff.triggeredBy?.includes(skill.category)
 
     if (!isAlreadyActive && (hasNameMatch || hasTriggerMatch)) {
@@ -104,9 +106,9 @@ function addTriggeredBuffs(ctx: Context, skill: Skill) {
       }
 
       ctx.activeBuffs[activeCharacter].push(activeBuffObject)
-      console.log(
-        `add ${activeBuffObject.name} to activeBuffs[${activeCharacter}]`,
-      )
+      // console.log(
+      //   `add ${activeBuffObject.name} to activeBuffs[${activeCharacter}]`,
+      // )
     }
   }
 }
@@ -136,15 +138,10 @@ function evaluateDCond(ctx: Context, skill: Skill) {
 function calculateDamage(ctx: Context, skill: Skill) {
   const activeCharacter = ctx.activeCharacter
   const char = ctx.characters[activeCharacter]
-  const weapon = char.weapon
-  const levelMultiplier = 12.5
   const enemyDefenseMultiplier = 0.52
 
   const attack =
-    (char.atk + weapon.atk) *
-      levelMultiplier *
-      (1 + char.bonusStats.atk + ctx.buffMap[activeCharacter].atk) +
-    char.bonusStats.atkFlat
+    char.atk * (1 + ctx.buffMap[activeCharacter].atk) + char.bonusStats.atkFlat
   const damage =
     attack * skill.mv * (1 + ctx.buffMap[activeCharacter].multiplier)
   const crit = Math.min(char.crit + ctx.buffMap[activeCharacter].crit, 1)
@@ -160,6 +157,8 @@ function evaluateBuffs(ctx: Context, skill: Skill) {
   const activeCharacter = ctx.activeCharacter
   const buffs = ctx.activeBuffs[activeCharacter]
 
+  const baseName = getBaseSkillName(skill.name)
+
   if (buffs.length === 0) return
 
   for (const buff of buffs) {
@@ -171,7 +170,7 @@ function evaluateBuffs(ctx: Context, skill: Skill) {
 
       case "Damage":
         for (const buff of [...ctx.buffDeferred]) {
-          if (buff.consumedBy && buff.consumedBy.includes(skill.name)) {
+          if (buff.consumedBy && buff.consumedBy.includes(baseName)) {
             const damageProcc: Skill = {
               name: `${buff.name} Procc`,
               category: skill.category,
