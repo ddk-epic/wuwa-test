@@ -1,26 +1,15 @@
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "./ui/table"
 import SequenceEntry from "./sequence-entry"
 
-import type {
-  ActionListItem,
-  Character,
-  Result,
-} from "@/constants/types"
-import type { CHARACTER_KEY } from "@/constants/characters"
+import type { ActionListItem, Result } from "@/constants/types"
 
 interface SequenceListProps {
-  charData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>
   sequence: ActionListItem[]
   result: Result[]
   onRemoveSkill: (index: number) => void
 }
 
-function SequenceList({
-  charData,
-  sequence,
-  result,
-  onRemoveSkill,
-}: SequenceListProps) {
+function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
   return (
     <div className="flex pl-7 pr-3 overflow-auto [scrollbar-gutter:stable]">
       <div className="flex-1">
@@ -73,7 +62,6 @@ function SequenceList({
                 <SequenceEntry
                   key={`${action.skill.name}-${i}`}
                   index={i}
-                  charData={charData}
                   entry={action}
                   res={result}
                   onRemove={() => onRemoveSkill(i)}

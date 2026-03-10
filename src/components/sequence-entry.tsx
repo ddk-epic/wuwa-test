@@ -5,17 +5,12 @@ import { Button } from "./ui/button"
 import { TableCell, TableRow } from "./ui/table"
 import Hint from "./hint"
 
-import type {
-  ActionListItem,
-  Character,
-  Result,
-} from "@/constants/types"
+import type { ActionListItem, Result } from "@/constants/types"
 import { ELEMENT_COLORS } from "@/constants/colors"
-import { type CHARACTER_KEY } from "@/constants/characters"
+import characterTemplate from "@/constants/characters"
 
 interface SequenceEntryProps {
   index: number
-  charData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>
   entry: ActionListItem
   res: Result[]
   onRemove: () => void
@@ -23,14 +18,15 @@ interface SequenceEntryProps {
 
 function SequenceEntry({
   index,
-  charData,
   entry,
   res,
   onRemove,
 }: SequenceEntryProps) {
   const placeholder = "--"
   const skill = entry.skill
-  const element = charData[entry.char].element
+  const character = characterTemplate[entry.char]
+  const element = character.element
+  const elementColorText = ELEMENT_COLORS[element].text
   const result = res[index]
 
   const activeBuffString =
@@ -60,7 +56,7 @@ function SequenceEntry({
       <TableCell
         className={cn(
           "px-3 w-18 font-mono text-xs uppercase tracking-wide",
-          ELEMENT_COLORS[element].text ?? "",
+          elementColorText,
         )}
       >
         {entry.char}
@@ -71,7 +67,7 @@ function SequenceEntry({
       <TableCell
         className={cn(
           "pr-3 max-w-32 text-start text-sm text-foreground truncate",
-          skill.category === "liberation" ? ELEMENT_COLORS[element]?.text : "",
+          skill.category === "liberation" ? elementColorText : "",
         )}
       >
         {skill.name}
@@ -88,7 +84,7 @@ function SequenceEntry({
       <TableCell
         className={cn(
           "px-3 w-10 text-right text-sm",
-          !!result && result.damage !== 0 ? ELEMENT_COLORS[element].text : "",
+          !!result && result.damage !== 0 ? elementColorText : "",
         )}
       >
         {!!result && result.damage !== 0

@@ -185,7 +185,6 @@ function App() {
       <div className="h-[90vh] flex flex-1 overflow-hidden">
         <main className="relative flex flex-col flex-1">
           <SequenceList
-            charData={computedChars}
             sequence={sequence}
             result={result}
             onRemoveSkill={handleRemoveSkill}
