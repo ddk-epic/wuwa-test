@@ -8,6 +8,7 @@ import type {
   ActionListItem,
   Character,
   Result,
+  SETTINGS_KEYS,
   TeamSlot,
 } from "@/constants/types"
 import AddCharacterModal from "./add-character-modal"
@@ -19,7 +20,7 @@ interface HeaderBarProps {
   result: Result[]
   updateCharSettings: (
     index: number,
-    label: "sequence" | "weapon" | "echoSet",
+    label: SETTINGS_KEYS,
     value: string,
   ) => void
   onCharacterChange: (index: number, value: CHARACTER_KEY) => void

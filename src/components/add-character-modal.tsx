@@ -18,7 +18,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group"
 import Choose from "./choose"
 
-import type { Character, TeamSlot } from "@/constants/types"
+import type { Character, SETTINGS_KEYS, TeamSlot } from "@/constants/types"
 import { CHARACTERS, type CHARACTER_KEY } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 import { echoData } from "@/constants/echoes"
@@ -29,7 +29,7 @@ interface AddCharacterModalProps {
   charData: Record<CHARACTER_KEY, Character>
   updateCharSettings: (
     index: number,
-    label: "sequence" | "weapon" | "echoSet",
+    label: SETTINGS_KEYS,
     value: string,
   ) => void
   onCharacterChange: (index: number, value: CHARACTER_KEY) => void
@@ -106,6 +106,9 @@ function AddCharacterModal({
                       const weapons = Object.values(weaponData).filter(
                         (w) => w.type === character.weaponType,
                       )
+                      const echoSets = Object.values(echoData).map(
+                        (echo) => echo.set,
+                      )
                       const echoes = Object.keys(echoData)
                       return (
                         <div className="space-y-2 px-px">
@@ -120,7 +123,9 @@ function AddCharacterModal({
                           </div>
                           <ToggleGroup
                             type="single"
-                            value={charData[character.id].sequence.toString() || "0"}
+                            value={
+                              charData[character.id].sequence.toString() || "0"
+                            }
                             onValueChange={(value) => {
                               updateCharSettings(i, "sequence", value)
                             }}
@@ -138,12 +143,13 @@ function AddCharacterModal({
                           {/* Char stats */}
                           <div className="space-x-4 my-4">
                             {charData[character.id] && (
-                              <>
+                              <div className="flex flex-col">
                                 <span>ATK: {charData[character.id].atk}</span>
                                 <span>
                                   Crit:{" "}
                                   {Math.round(
-                                    (charData[character.id].crit * 100 + Number.EPSILON) *
+                                    (charData[character.id].crit * 100 +
+                                      Number.EPSILON) *
                                       10,
                                   ) / 10}
                                   % |{" "}
@@ -154,14 +160,16 @@ function AddCharacterModal({
                                   ) / 10}
                                   %
                                 </span>
-                              </>
+                              </div>
                             )}
                           </div>
                           <div className="space-y-2">
                             <Choose
                               label="Weapon..."
                               array={weapons}
-                              value={charData[character.id].weapon.name ?? "Weapon"}
+                              value={
+                                charData[character.id].weapon.name ?? "Weapon"
+                              }
                               getValue={(w) => w.name}
                               getLabel={(w) => w.name}
                               onSelect={(value) =>
@@ -170,10 +178,18 @@ function AddCharacterModal({
                             />
                             <Choose
                               label="Echo set..."
-                              array={echoes}
+                              array={echoSets}
                               value={`[${charData[character.id]?.echoSet.join(", ")}]`}
                               onSelect={(value) =>
                                 updateCharSettings(i, "echoSet", value)
+                              }
+                            />
+                            <Choose
+                              label="Echo..."
+                              array={echoes}
+                              value={`[${charData[character.id]?.echo ?? "Echo"}`}
+                              onSelect={(value) =>
+                                updateCharSettings(i, "echo", value)
                               }
                             />
                             {/* <Choose label="Set config..." array={} /> */}

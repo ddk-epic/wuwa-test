@@ -1,5 +1,5 @@
 import type { CHARACTER_KEY } from "./characters"
-import type { ECHO_SET_KEY } from "./echoes"
+import type { ECHO_KEY, ECHO_SET_KEY } from "./echoes"
 import type { WEAPON_STAT } from "./weapons"
 
 export type Element =
@@ -195,7 +195,7 @@ export interface Character {
   sequence: number
   weaponType: string
   weapon: Weapon
-  echo: string
+  echo: ECHO_KEY
   echoSet: ECHO_SET_KEY[]
   build: string
   element: Element
@@ -215,7 +215,10 @@ export interface CharSettings {
   sequence: number
   weapon: Weapon
   echoSet: ECHO_SET_KEY[]
+  echo: ECHO_KEY
 }
+
+export type SETTINGS_KEYS = "sequence" | "weapon" | "echoSet" | "echo"
 
 export type TeamSlot =
   | {

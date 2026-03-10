@@ -13,13 +13,14 @@ import type {
   ActionListItem,
   Character,
   Result,
+  SETTINGS_KEYS,
   Skill,
   TeamSlot,
 } from "@/constants/types"
 import characterTemplate, { type CHARACTER_KEY } from "@/constants/characters"
 import { totalBuffMap } from "@/constants/maps"
 import { weaponData, type WEAPON_KEY } from "@/constants/weapons"
-import type { ECHO_SET_KEY } from "@/constants/echoes"
+import type { ECHO_KEY, ECHO_SET_KEY } from "@/constants/echoes"
 import { computeBaseCharacter } from "@/lib/helper"
 
 export const Route = createFileRoute("/")({ component: App })
@@ -36,22 +37,40 @@ function App() {
   )
   const [result, setResult] = usePersistedState<Result[]>("result", [])
 
+  const computedChars = useMemo(() => {
+    return team.reduce(
+      (acc, slot) => {
+        if (!slot.character || !slot.settings) return acc
+
+        const char = computeBaseCharacter(slot.character, slot.settings)
+        acc[char.id] = char
+
+        return acc
+      },
+      {} as Record<CHARACTER_KEY, Character>,
+    )
+  }, [team])
+
   const handleCharacterChange = (index: number, value: CHARACTER_KEY) => {
     const oldChar = team[index].character
-    // if (!oldChar) return null
-
     const newChar = value === "__none__" ? null : value
-    if (!newChar) return
 
     setTeam((prev) => {
       const newTeam = [...prev]
-      newTeam[index] = {
-        character: characterTemplate[newChar],
-        settings: {
-          sequence: 0,
-          weapon: characterTemplate[newChar].weapon,
-          echoSet: [...characterTemplate[newChar].echoSet],
-        },
+
+      if (!newChar) {
+        newTeam[index].character = null
+        newTeam[index].settings = null
+      } else {
+        newTeam[index] = {
+          character: characterTemplate[newChar],
+          settings: {
+            sequence: 0,
+            weapon: characterTemplate[newChar].weapon,
+            echoSet: [...characterTemplate[newChar].echoSet],
+            echo: characterTemplate[newChar].echo,
+          },
+        }
       }
       return newTeam
     })
@@ -63,7 +82,7 @@ function App() {
 
   const updateCharSettings = (
     index: number,
-    label: "sequence" | "weapon" | "echoSet",
+    label: SETTINGS_KEYS,
     value: string,
   ) => {
     if (!team[index].settings) return
@@ -92,6 +111,9 @@ function App() {
           // TODO: fix echo set update
           newSetting.echoSet = [...newSetting.echoSet, value as ECHO_SET_KEY]
           break
+
+        case "echo":
+          newSetting.echo = value as ECHO_KEY
       }
 
       newTeam[index] = {
@@ -102,20 +124,6 @@ function App() {
       return newTeam
     })
   }
-
-  const computedChars = useMemo(() => {
-    return team.reduce(
-      (acc, slot) => {
-        if (!slot.character || !slot.settings) return acc
-
-        const char = computeBaseCharacter(slot.character, slot.settings)
-        acc[char.id] = char
-
-        return acc
-      },
-      {} as Record<CHARACTER_KEY, Character>,
-    )
-  }, [team])
 
   const handleAddSkill = (
     char: CHARACTER_KEY,
@@ -134,7 +142,10 @@ function App() {
     setSequence((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleCalculate = (characters: Record<CHARACTER_KEY, Character>, actionList: ActionListItem[]) => {
+  const handleCalculate = (
+    characters: Record<CHARACTER_KEY, Character>,
+    actionList: ActionListItem[],
+  ) => {
     const result = calculate(characters, actionList, totalBuffMap)
     setResult(result)
   }
