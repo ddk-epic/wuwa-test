@@ -79,10 +79,10 @@ function addTriggeredBuffs(ctx: Context, skill: Skill) {
       (b) => b.name === buff.name,
     )
     // check ownership
-    if (buff.owner !== activeCharacter) continue
+    if (buff.source !== activeCharacter) continue
 
     // add buff triggered by Skill or SkillType
-    const hasNameMatch = buff.createdBy.includes(baseName)
+    const hasNameMatch = buff.triggeredBy?.includes(baseName)
     const hasTriggerMatch = !!buff.triggeredBy?.includes(skill.category)
 
     if (!isAlreadyActive && (hasNameMatch || hasTriggerMatch)) {
@@ -270,8 +270,9 @@ function getBuffData(characters: Record<string, Character>) {
 
   const weaponBuffData: BuffObject[] = team
     .map((charName) => {
-      const sequence = characters[charName].sequence
-      const getWeaponBuffs = weaponBuffs[characters[charName].weapon.name]
+      const character = characters[charName]
+      const sequence = character.sequence
+      const getWeaponBuffs = weaponBuffs[character.weapon.name]
 
       // update WeaponBuffObject
       if (!getWeaponBuffs) return []
@@ -281,7 +282,7 @@ function getBuffData(characters: Record<string, Character>) {
         const returnObj = {
           ...buff,
           appliesTo: charName,
-          owner: charName,
+          source: charName,
           value,
         }
         return returnObj
@@ -311,8 +312,8 @@ function getBuffData(characters: Record<string, Character>) {
           appliesTo,
         }
 
-        if ("owner" in buff) {
-          buffObj.owner = charName
+        if ("source" in buff) {
+          buffObj.source = charName
         }
 
         return buffObj
@@ -457,4 +458,18 @@ function calculate(
   return resultList
 }
 
-export default calculate
+export {
+  removeExpiredBuffs,
+  addOnSwapBuffs,
+  addTriggeredBuffs,
+  handleEnergyShare,
+  evaluateDCond,
+  calculateDamage,
+  evaluateBuffs,
+  processAction,
+  getBuffData,
+  getBuffMap,
+  preparePassiveBuffs,
+  getContext,
+  calculate,
+}

@@ -5,8 +5,7 @@ export const setBuffs: Record<string, BuffObject[]> = {
     {
       name: "Molten Rift 2pc",
       type: "Buff",
-      owner: "Self",
-      createdBy: ["Self"],
+      source: "Self",
       appliesTo: "Self",
       modifier: ["fusion"],
       value: 0.1,
@@ -15,8 +14,7 @@ export const setBuffs: Record<string, BuffObject[]> = {
     {
       name: "Molten Rift 5pc",
       type: "Buff",
-      owner: "Self",
-      createdBy: ["Self"],
+      source: "Self",
       triggeredBy: ["skill"],
       appliesTo: "Self",
       modifier: ["fusion"],
@@ -28,8 +26,7 @@ export const setBuffs: Record<string, BuffObject[]> = {
     {
       name: "Moonlit Clouds 2pc",
       type: "Buff",
-      owner: "Self",
-      createdBy: ["Self"],
+      source: "Self",
       appliesTo: "Self",
       modifier: ["er"],
       value: 0.1,
@@ -38,8 +35,7 @@ export const setBuffs: Record<string, BuffObject[]> = {
     {
       name: "Moonlit Clouds 5pc",
       type: "BuffNext",
-      owner: "Self",
-      createdBy: ["Self"],
+      source: "Self",
       triggeredBy: ["outro"],
       appliesTo: "Next",
       modifier: ["atk"],

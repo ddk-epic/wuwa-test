@@ -5,8 +5,7 @@ export const echoBuffs: Record<string, BuffObject[]> = {
     {
       name: "Inferno Rider (Fusion/Basic)",
       type: "Buff",
-      owner: "Self",
-      createdBy: ["Self"],
+      source: "Self",
       triggeredBy: ["Inferno Rider"],
       appliesTo: "Self",
       modifier: ["fusion", "basic"],
@@ -18,8 +17,7 @@ export const echoBuffs: Record<string, BuffObject[]> = {
     {
       name: "Impermanence Heron (Energy)",
       type: "BuffEnergy",
-      owner: "Self",
-      createdBy: ["Self"],
+      source: "Self",
       triggeredBy: ["Impermanence Heron"],
       appliesTo: "Self",
       modifier: ["resonance"],
@@ -29,8 +27,7 @@ export const echoBuffs: Record<string, BuffObject[]> = {
     {
       name: "Impermanence Heron (Dormant)",
       type: "Buff",
-      owner: "Self",
-      createdBy: ["Self"],
+      source: "Self",
       triggeredBy: ["Impermanence Heron"],
       appliesTo: "Self",
       modifier: ["none"],
@@ -41,8 +38,7 @@ export const echoBuffs: Record<string, BuffObject[]> = {
     {
       name: "Impermanence Heron",
       type: "BuffNext",
-      owner: "Self",
-      createdBy: ["Self"],
+      source: "Self",
       triggeredBy: ["outro"],
       appliesTo: "Next",
       modifier: ["none"],

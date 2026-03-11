@@ -6,7 +6,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
     {
       name: "Blazing Brilliance (ATK)",
       type: "Buff",
-      owner: "Self",
+      source: "Self",
       createdBy: ["Blazing Brilliance"],
       appliesTo: "Self",
       modifier: ["atk"],
@@ -16,7 +16,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
     {
       name: "Blazing Brilliance (Skill)",
       type: "BuffStacking",
-      owner: "Self",
+      source: "Self",
       createdBy: ["Blazing Brilliance"],
       triggeredBy: ["hit"],
       appliesTo: "Self",
@@ -29,7 +29,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
     {
       name: "Blazing Brilliance (MAX)",
       type: "BuffConsume",
-      owner: "Self",
+      source: "Self",
       createdBy: ["Blazing Brilliance"],
       triggeredBy: ["Blazing Brilliance (Skill)"],
       appliesTo: "Self",
@@ -42,7 +42,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
     {
       name: "Emerald of Genesis (ER)",
       type: "Buff",
-      owner: "Self",
+      source: "Self",
       createdBy: ["Emerald of Genesis"],
       appliesTo: "Self",
       modifier: ["er"],
@@ -52,7 +52,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
     {
       name: "Emerald of Genesis (ATK)",
       type: "BuffStacking",
-      owner: "Self",
+      source: "Self",
       createdBy: ["Emerald of Genesis"],
       triggeredBy: ["skill"],
       appliesTo: "Self",
@@ -67,7 +67,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
     {
       name: "Stringmaster (Ele)",
       type: "Buff",
-      owner: "Self",
+      source: "Self",
       createdBy: ["Stringmaster"],
       appliesTo: "Self",
       modifier: ["allEle"],
@@ -77,7 +77,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
     {
       name: "Stringmaster (ATK)",
       type: "BuffStacking",
-      owner: "Self",
+      source: "Self",
       createdBy: ["Stringmaster"],
       triggeredBy: ["skill"],
       appliesTo: "Self",
@@ -90,7 +90,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
     {
       name: "Stringmaster (Off-field)",
       type: "BuffStacking",
-      owner: "Self",
+      source: "Self",
       createdBy: ["Stringmaster"],
       triggeredBy: ["skill"],
       appliesTo: "Self",
