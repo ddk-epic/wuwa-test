@@ -2,7 +2,8 @@ import { useMemo } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { usePersistedState } from "@/hooks/use-persisted-state"
 
-import calculate from "@/lib/calculations"
+import { computeBaseCharacter, computeCharacterSkills } from "@/lib/helper"
+import { calculate } from "@/lib/calculations"
 
 import CalculateButton from "@/components/calculate-button"
 import HeaderBar from "@/components/header"
@@ -21,7 +22,6 @@ import characterTemplate, { type CHARACTER_KEY } from "@/constants/characters"
 import { totalBuffMap } from "@/constants/maps"
 import { weaponData, type WEAPON_KEY } from "@/constants/weapons"
 import type { ECHO_KEY, ECHO_SET_KEY } from "@/constants/echoes"
-import { computeBaseCharacter, computeCharacterSkills } from "@/lib/helper"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -56,8 +56,7 @@ function App() {
       (acc, slot) => {
         if (!slot.character || !slot.settings) return acc
 
-        const result = computeCharacterSkills(slot.character)
-        acc[slot.character.id] = result
+        acc[slot.character.id] = computeCharacterSkills(slot.character)
 
         return acc
       },
@@ -158,10 +157,9 @@ function App() {
 
   const handleCalculate = (
     characterData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
-    skillList: Record<CHARACTER_KEY, Record<string, Skill[]>>,
     actionList: ActionListItem[],
   ) => {
-    const result = calculate(characterData, skillList, actionList, totalBuffMap)
+    const result = calculate(characterData, actionList, totalBuffMap)
     setResult(result)
   }
 
@@ -193,7 +191,6 @@ function App() {
           <div className="absolute bottom-4 right-6">
             <CalculateButton
               charData={computedChars}
-              skillData={computedSkills}
               sequence={sequence}
               handleCalculate={handleCalculate}
             />

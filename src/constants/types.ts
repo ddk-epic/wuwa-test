@@ -232,7 +232,6 @@ export type Context = {
   activeBuffs: Record<string, ActiveBuffObject[]>
   activeCharacter: string
   allBuffs: BuffObject[]
-  allSkills: Skill[]
   buffMap: Record<string, BuffMap>
   buffNext: ActiveBuffObject[]
   buffDeferred: ActiveBuffObject[]

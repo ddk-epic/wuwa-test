@@ -396,7 +396,6 @@ function preparePassiveBuffs(
 function getContext(
   characterData: Record<string, Character>,
   baseBuffMap: Record<string, BuffMap>,
-  allSkills: Skill[],
   allBuffs: BuffObject[],
   initialActiveBuffs: Record<string, ActiveBuffObject[]>,
 ): Context {
@@ -408,7 +407,6 @@ function getContext(
     activeBuffs,
     activeCharacter: "",
     allBuffs,
-    allSkills,
     buffMap: baseBuffMap,
     buffDeferred: [],
     buffNext: [],
@@ -423,16 +421,12 @@ function getContext(
 
 function calculate(
   characters: Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
-  skillList: Record<CHARACTER_KEY, Record<string, Skill[]>>,
   actionList: ActionList,
   baseBuffMap: BuffMap,
 ): Result[] {
   const resultList: Result[] = []
 
   // get Data
-  const skillData = Object.values(skillList).flatMap((categories) =>
-    Object.values(categories).flat(),
-  )
   const buffData = getBuffData(characters)
 
   // process character stats
@@ -445,7 +439,6 @@ function calculate(
   const ctx: Context = getContext(
     characters,
     initialBuffMap,
-    skillData,
     buffData,
     initialActiveBuffs,
   )
