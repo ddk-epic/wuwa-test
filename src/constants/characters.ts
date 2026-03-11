@@ -39,6 +39,8 @@ const characterTemplate: Record<
     echoSet: ["Molten Rift"],
     build: "43311 Ele/Ele",
     element: "fusion",
+    bonus1: "atk",
+    bonus2: "fusion",
     maxForte: 100,
     maxForte2: 0,
     /* stats */
@@ -65,6 +67,8 @@ const characterTemplate: Record<
     echoSet: ["Moonlit Clouds"],
     build: "43311 Ele/Ele",
     element: "glacio",
+    bonus1: "atk",
+    bonus2: "glacio",
     maxForte: 100,
     maxForte2: 0,
     /* stats */
@@ -112,6 +116,8 @@ const characterTemplate: Record<
     echoSet: ["Moonlit Clouds"],
     build: "43311 Ele/Ele",
     element: "spectro",
+    bonus1: "hp",
+    bonus2: "heal",
     maxForte: 5,
     maxForte2: 0,
     /* stats */
@@ -158,5 +164,28 @@ export const CHARACTERS = [
   "shorekeeper",
 ] as const
 export type CHARACTER_KEY = (typeof CHARACTERS)[number]
+
+export const bonusStatKeys = [
+  "atkFlat",
+  "hpFlat",
+  "defFlat",
+  "atk",
+  "hp",
+  "def",
+  "er",
+  "crit",
+  "critDmg",
+  "basic",
+  "heavy",
+  "skill",
+  "liberation",
+  "aero",
+  "electro",
+  "fusion",
+  "glacio",
+  "havoc",
+  "spectro"
+] as const;
+export type BONUS_STAT_KEY = (typeof bonusStatKeys)[number]
 
 export default characterTemplate

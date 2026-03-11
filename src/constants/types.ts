@@ -1,4 +1,4 @@
-import type { CHARACTER_KEY } from "./characters"
+import type { BONUS_STAT_KEY, CHARACTER_KEY } from "./characters"
 import type { ECHO_KEY, ECHO_SET_KEY } from "./echoes"
 import type { WEAPON_STAT } from "./weapons"
 
@@ -49,6 +49,7 @@ export type BuffType =
   | "defIgnore"
   | "erMulti"
   | "foMulti"
+  | "heal"
   | "physical"
   | "allEle"
   | "concerto"
@@ -164,28 +165,7 @@ export type Result = {
   buffMap: string[]
 }
 
-export interface BonusStats {
-  atkFlat: number
-  hpFlat: number
-  defFlat: number
-  atk: number
-  hp: number
-  def: number
-  er: number
-  crit: number
-  critDmg: number
-  basic: number
-  heavy: number
-  skill: number
-  liberation: number
-  /* Element */
-  aero: number
-  electro: number
-  fusion: number
-  glacio: number
-  havoc: number
-  spectro: number
-}
+export type BonusStats = Record<BONUS_STAT_KEY, number>
 
 type DCondKeys = "Forte" | "Forte2" | "Concerto" | "Resonance"
 
@@ -208,6 +188,8 @@ export interface Character {
   echoSet: ECHO_SET_KEY[]
   build: string
   element: Element
+  bonus1: BONUS_STAT_KEY
+  bonus2: BONUS_STAT_KEY | "heal"
   maxForte: number
   maxForte2: number
   /* stats */

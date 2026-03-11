@@ -25,6 +25,15 @@ export function computeBaseCharacter(char: Character, settings: CharSettings) {
     bonusStats[mainStat] += settings.weapon.mainStatAmount * weaponMultiplier
   }
 
+  // apply minor bonuses
+  const bonusMultiplier =
+    base.bonus2 === "crit" ? 2 / 3 : base.bonus2 === "critDmg" ? 4 / 3 : 1
+  bonusStats[base.bonus1] += 0.12
+  // TODO: implement healing bonus
+  if (base.bonus2 !== "heal") {
+    bonusStats[base.bonus2] += 0.12 * bonusMultiplier
+  }
+
   const newCharacter: Character = {
     ...base,
     sequence: settings.sequence,
@@ -46,15 +55,13 @@ export function computeCharacterSkills(character: Character) {
 
   const echoSkills: Skill[] = [echoSkill]
   if (variations) {
-    Object.entries(variations).forEach(
-      ([variationKey, variation]) => {
-        echoSkills.push({
-          ...echoSkill,
-          name: `${echoSkill.name} (${variationKey})`,
-          ...variation,
-        })
-      },
-    )
+    Object.entries(variations).forEach(([variationKey, variation]) => {
+      echoSkills.push({
+        ...echoSkill,
+        name: `${echoSkill.name} (${variationKey})`,
+        ...variation,
+      })
+    })
   }
 
   const characterSkills: Skill[] = []
