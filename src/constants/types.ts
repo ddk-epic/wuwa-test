@@ -1,6 +1,6 @@
 import type { BONUS_STAT_KEY, CHARACTER_KEY } from "./characters"
 import type { ECHO_KEY, ECHO_SET_KEY } from "./echoes"
-import type { WEAPON_STAT } from "./weapons"
+import type { WEAPON_KEY, WEAPON_STAT } from "./weapons"
 
 export type Element =
   | "aero"
@@ -170,7 +170,7 @@ export type BonusStats = Record<BONUS_STAT_KEY, number>
 type DCondKeys = "Forte" | "Forte2" | "Concerto" | "Resonance"
 
 export interface Weapon {
-  name: string
+  name: WEAPON_KEY
   type: string
   rank: number
   atk: number

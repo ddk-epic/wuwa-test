@@ -62,7 +62,7 @@ const characterTemplate: Record<
     name: "Sanhua",
     sequence: 0,
     weaponType: "Sword",
-    weapon: weaponData["Emerald of Genesis"],
+    weapon: weaponData["Blazing Brilliance"],
     echo: "Impermanence Heron",
     echoSet: ["Moonlit Clouds"],
     build: "43311 Ele/Ele",

@@ -1,6 +1,14 @@
 import type { Weapon } from "./types"
 
 export const weaponData: Record<WEAPON_KEY, Weapon> = {
+    "Blazing Brilliance": {
+    name: "Blazing Brilliance",
+    type: "Sword",
+    rank: 1,
+    atk: 47,
+    mainStat: "critDmg",
+    mainStatAmount: 0.108,
+  },
   "Emerald of Genesis": {
     name: "Emerald of Genesis",
     type: "Sword",
@@ -28,6 +36,7 @@ export const weaponData: Record<WEAPON_KEY, Weapon> = {
 }
 
 export const WEAPONS = [
+  "Blazing Brilliance",
   "Emerald of Genesis",
   "Stringmaster",
   "Stellar Symphony",

@@ -116,6 +116,11 @@ const skillData: CharacterSkills = {
         hits: 3,
         concerto: 8.58,
         resonance: 4.29,
+        variations: {
+          cancel: {
+            frames: 15,
+          },
+        },
       },
     },
     heavy: {

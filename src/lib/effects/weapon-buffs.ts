@@ -1,6 +1,68 @@
 import type { WeaponBuffObject } from "@/constants/types"
+import type { WEAPON_KEY } from "@/constants/weapons"
 
-export const weaponBuffs: Record<string, WeaponBuffObject[]> = {
+export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
+  "Blazing Brilliance": [
+    {
+      name: "Blazing Brilliance (ATK)",
+      type: "Buff",
+      owner: "Self",
+      createdBy: ["Blazing Brilliance"],
+      appliesTo: "Self",
+      modifier: ["atk"],
+      value: [0.12, 0.15, 0.18, 0.21, 0.24],
+      duration: 99999,
+    },
+    {
+      name: "Blazing Brilliance (Skill)",
+      type: "BuffStacking",
+      owner: "Self",
+      createdBy: ["Blazing Brilliance"],
+      triggeredBy: ["hit"],
+      appliesTo: "Self",
+      modifier: ["skill"],
+      stackLimit: 14,
+      stackInterval: 0.5,
+      value: [0.04, 0.05, 0.06, 0.07, 0.08],
+      duration: 10,
+    },
+    {
+      name: "Blazing Brilliance (MAX)",
+      type: "BuffConsume",
+      owner: "Self",
+      createdBy: ["Blazing Brilliance"],
+      triggeredBy: ["Blazing Brilliance (Skill)"],
+      appliesTo: "Self",
+      modifier: ["skill"],
+      value: [0.04 * 14, 0.05 * 14, 0.06 * 14, 0.07 * 14, 0.08 * 14],
+      duration: 10,
+    },
+  ],
+  "Emerald of Genesis": [
+    {
+      name: "Emerald of Genesis (ER)",
+      type: "Buff",
+      owner: "Self",
+      createdBy: ["Emerald of Genesis"],
+      appliesTo: "Self",
+      modifier: ["er"],
+      value: [0.128, 0.16, 0.192, 0.224, 0.256],
+      duration: 99999,
+    },
+    {
+      name: "Emerald of Genesis (ATK)",
+      type: "BuffStacking",
+      owner: "Self",
+      createdBy: ["Emerald of Genesis"],
+      triggeredBy: ["skill"],
+      appliesTo: "Self",
+      modifier: ["atk"],
+      stackLimit: 2,
+      stackInterval: 0,
+      value: [0.06, 0.075, 0.09, 0.105, 0.12],
+      duration: 10,
+    },
+  ],
   Stringmaster: [
     {
       name: "Stringmaster (Ele)",
@@ -37,31 +99,6 @@ export const weaponBuffs: Record<string, WeaponBuffObject[]> = {
       stackInterval: 0,
       value: [0.12, 0.15, 0.18, 0.21, 0.24],
       duration: 1,
-    },
-  ],
-  "Emerald of Genesis": [
-    {
-      name: "Emerald of Genesis (ER)",
-      type: "Buff",
-      owner: "Self",
-      createdBy: ["Emerald of Genesis"],
-      appliesTo: "Self",
-      modifier: ["er"],
-      value: [0.128, 0.16, 0.192, 0.224, 0.256],
-      duration: 99999,
-    },
-    {
-      name: "Emerald of Genesis (ATK)",
-      type: "BuffStacking",
-      owner: "Self",
-      createdBy: ["Emerald of Genesis"],
-      triggeredBy: ["skill"],
-      appliesTo: "Self",
-      modifier: ["atk"],
-      stackLimit: 2,
-      stackInterval: 0,
-      value: [0.06, 0.075, 0.09, 0.105, 0.12],
-      duration: 10,
     },
   ],
 }
