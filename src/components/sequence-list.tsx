@@ -13,44 +13,44 @@ function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
   return (
     <div className="flex pl-7 pr-3 overflow-auto [scrollbar-gutter:stable]">
       <div className="flex-1">
-        <Table>
+        <Table className="table-fixed w-full">
           {/* Sequence header */}
           <TableHeader className="top-0 sticky z-10 border bg-card">
             <TableRow>
-              <TableHead className="w-12 px-3 py-2 text-right text-xs column-header">
+              <TableHead className="px-3 py-2 text-right text-xs column-header">
                 #
               </TableHead>
-              <TableHead className="px-3 py-2 text-xs column-header">
+              <TableHead className="w-3/36 px-3 py-2 text-xs column-header">
                 Character
               </TableHead>
-              <TableHead className="px-3 py-2 text-xs column-header">
+              <TableHead className="w-2/36 px-3 py-2 text-xs column-header">
                 {/* Skill */}
               </TableHead>
-              <TableHead className="pr-3 py-2 text-start text-xs column-header">
+              <TableHead className="w-7/36 pr-3 py-2 text-start text-xs column-header">
                 Skill
               </TableHead>
-              <TableHead className="px-3 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/36 px-3 py-2 text-right text-xs column-header">
                 Time
               </TableHead>
-              <TableHead className="px-3 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/36 px-3 py-2 text-right text-xs column-header">
                 Con.
               </TableHead>
-              <TableHead className="px-3 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/36 px-3 py-2 text-right text-xs column-header">
                 Res.
               </TableHead>
-              <TableHead className="px-3 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/36 px-3 py-2 text-right text-xs column-header">
                 Damage
               </TableHead>
-              <TableHead className="px-3 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/36 px-3 py-2 text-right text-xs column-header">
                 Procc
               </TableHead>
-              <TableHead className="px-3 py-2 text-start text-xs column-header">
+              <TableHead className="w-6/36 px-3 py-2 text-start text-xs column-header">
                 Buffs
               </TableHead>
-              <TableHead className="px-3 py-2 text-start text-xs column-header">
+              <TableHead className="w-6/36 px-3 py-2 text-start text-xs column-header">
                 BuffMap
               </TableHead>
-              <TableHead className="px-3 py-2 text-xs column-header">
+              <TableHead className="w-4 px-3 py-2 text-xs column-header">
                 {/* Button */}
               </TableHead>
             </TableRow>

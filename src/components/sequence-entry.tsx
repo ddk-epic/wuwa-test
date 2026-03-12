@@ -46,7 +46,7 @@ function SequenceEntry({
     <TableRow
       key={index}
       className={cn(
-        "group w-full",
+        "group",
         index % 2 === 0 ? "bg-secondary/90" : "bg-secondary/70",
       )}
     >
@@ -55,18 +55,18 @@ function SequenceEntry({
       </TableCell>
       <TableCell
         className={cn(
-          "px-3 w-18 font-mono text-xs uppercase tracking-wide",
+          "px-3 font-mono text-xs uppercase tracking-wide",
           elementColorText,
         )}
       >
         {entry.char}
       </TableCell>
-      <TableCell className="w-5 pl-3 text-[13px] text-right font-mono text-muted-foreground font-semibold uppercase tracking-wider">
+      <TableCell className="pl-3 text-[13px] text-right font-mono text-muted-foreground font-semibold uppercase tracking-wider">
         {skill.category.slice(0, 5)}
       </TableCell>
       <TableCell
         className={cn(
-          "pr-3 max-w-32 text-start text-sm text-foreground truncate",
+          "pr-3 text-start text-sm text-foreground truncate",
           skill.category === "liberation" ? elementColorText : "",
         )}
       >
@@ -75,15 +75,15 @@ function SequenceEntry({
       <TableCell className="px-3 text-xs font-mono text-right">
         {entry.time.toFixed(2)}
       </TableCell>
-      <TableCell className="px-3 w-8 text-xs font-mono text-right">
+      <TableCell className="px-3 text-xs font-mono text-right">
         {!!result ? result.concerto.toFixed(1) : placeholder}
       </TableCell>
-      <TableCell className="px-3 w-14 text-xs font-mono text-right">
+      <TableCell className="px-3 text-xs font-mono text-right">
         {!!result ? result.resonance.toFixed(1) : placeholder}
       </TableCell>
       <TableCell
         className={cn(
-          "px-3 w-10 text-right text-sm",
+          "px-3 text-right text-sm",
           !!result && result.damage !== 0 ? elementColorText : "",
         )}
       >
@@ -91,10 +91,10 @@ function SequenceEntry({
           ? Math.round(result.damage).toLocaleString("en-US")
           : placeholder}
       </TableCell>
-      <TableCell className="px-3 w-10 text-xs font-mono text-right">
+      <TableCell className="px-3 text-xs font-mono text-right">
         {!!result ? Math.round(result.procc.damage) : placeholder}
       </TableCell>
-      <TableCell className="max-w-32 grow text-xs truncate">
+      <TableCell className="grow text-xs truncate">
         {!!result && (
           <Hint label={activeBuffString}>
             <span>
@@ -103,7 +103,7 @@ function SequenceEntry({
           </Hint>
         )}
       </TableCell>
-      <TableCell className="max-w-32 text-xs truncate">
+      <TableCell className="text-xs truncate">
         {!!result && (
           <Hint label={finalBuffMap}>
             <span>{finalBuffMap}</span>
