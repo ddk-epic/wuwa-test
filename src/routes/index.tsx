@@ -2,7 +2,11 @@ import { useMemo } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { usePersistedState } from "@/hooks/use-persisted-state"
 
-import { computeBaseCharacter, computeCharacterSkills } from "@/lib/helper"
+import {
+  computeBaseCharacter,
+  computeCharacterSkills,
+  computeTimeline,
+} from "@/lib/helper"
 import { calculate } from "@/lib/calculations"
 
 import CalculateButton from "@/components/calculate-button"
@@ -141,18 +145,20 @@ function App() {
   const handleAddSkill = (
     char: Exclude<CHARACTER_KEY, "__none__">,
     skill: Skill,
-    sequence: ActionListItem[],
   ) => {
     setResult([])
-    const time =
-      sequence.reduce((acc, entry) => acc + entry.skill.frames, 0) / 60
-    const actionObj: ActionListItem = { char, skill, time }
-    setSequence((prev) => [...prev, actionObj])
+    setSequence((prev) => {
+      const newSequence: ActionListItem[] = [...prev, { char, skill, time: 0 }]
+      return computeTimeline(newSequence)
+    })
   }
 
   const handleRemoveSkill = (index: number) => {
     setResult([])
-    setSequence((prev) => prev.filter((_, i) => i !== index))
+    setSequence((prev) => {
+      const newSequence = prev.filter((_, i) => i !== index)
+      return computeTimeline(newSequence)
+    })
   }
 
   const handleCalculate = (
@@ -199,7 +205,6 @@ function App() {
         {/* Side section */}
         <SkillSidebar
           team={team}
-          sequence={sequence}
           skillData={computedSkills}
           onAddSkill={handleAddSkill}
         />

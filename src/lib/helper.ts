@@ -1,6 +1,8 @@
+import type { CHARACTER_KEY } from "@/constants/characters"
 import { echoData } from "@/constants/echoes"
 import skillData from "@/constants/skills"
 import type {
+  ActionListItem,
   ActiveBuffObject,
   Character,
   CharSettings,
@@ -82,6 +84,42 @@ export function computeCharacterSkills(character: Character) {
   })
 
   return { echoSkills, characterSkills }
+}
+
+export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
+  const lastActionEnd = {} as Record<Exclude<CHARACTER_KEY, "__none__">, number>
+  const SWITCH_CD = 60 // in frames
+  // const SWAP_FRAMES = 15
+
+  let currentTime = 0 // in frames
+  let previousChar: string | null = null
+
+  return sequence.map((entry) => {
+    let start = currentTime
+    const hasSwapped = previousChar && previousChar !== entry.char
+
+    // add swap time
+    // if (hasSwapped) {
+    //   start += SWAP_FRAMES
+    // }
+
+    const last = lastActionEnd[entry.char]
+    if (hasSwapped && last) {
+      start = Math.max(start, last + SWITCH_CD)
+    }
+
+    const duration = entry.skill.frames
+    const end = start + duration
+
+    lastActionEnd[entry.char] = end
+    currentTime = end
+    previousChar = entry.char
+
+    return {
+      ...entry,
+      time: start / 60,
+    }
+  })
 }
 
 export function hasSwapped(prevChar: string, currentChar: string) {

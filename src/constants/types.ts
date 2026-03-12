@@ -140,16 +140,11 @@ export interface CharacterSkills {
   [char: string]: SkillCategory
 }
 
-export type ActionItem = {
+export type ActionListItem = {
   char: Exclude<CHARACTER_KEY, "__none__">
   skill: Skill
-}
-
-export type ActionListItem = {
   time: number
-} & ActionItem
-
-export type ActionList = ActionListItem[]
+}
 
 export type Result = {
   row: number

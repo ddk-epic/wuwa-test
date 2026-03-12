@@ -3,22 +3,20 @@ import { cn } from "@/lib/utils"
 
 import { SelectSeparator } from "./ui/select"
 
-import type { Skill, ActionListItem, TeamSlot } from "@/constants/types"
+import type { Skill, TeamSlot } from "@/constants/types"
 import { type CHARACTER_KEY } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 
 interface SkillSidebarProps {
   team: TeamSlot[]
-  sequence: ActionListItem[]
   skillData: Record<CHARACTER_KEY, Record<string, Skill[]>>
   onAddSkill: (
     characterId: Exclude<CHARACTER_KEY, "__none__">,
     skill: Skill,
-    sequence: ActionListItem[],
   ) => void
 }
 
-function SkillSidebar({ team, sequence, skillData, onAddSkill }: SkillSidebarProps) {
+function SkillSidebar({ team, skillData, onAddSkill }: SkillSidebarProps) {
   const [activeTab, setActiveTab] = useState<number>(() => {
     const index = team.findIndex((c) => c !== null)
     return index === -1 ? 0 : index
@@ -79,7 +77,7 @@ function SkillSidebar({ team, sequence, skillData, onAddSkill }: SkillSidebarPro
         {echoSkills.map((echoSkill) => (
           <button
             key={echoSkill.name}
-            onClick={() => onAddSkill(activeChar.id, echoSkill, sequence)}
+            onClick={() => onAddSkill(activeChar.id, echoSkill)}
             className={cn(
               "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
             )}
@@ -103,7 +101,7 @@ function SkillSidebar({ team, sequence, skillData, onAddSkill }: SkillSidebarPro
           return (
             <button
               key={skill.name}
-              onClick={() => onAddSkill(activeChar.id, skill, sequence)}
+              onClick={() => onAddSkill(activeChar.id, skill)}
               className={cn(
                 "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
               )}

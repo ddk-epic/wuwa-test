@@ -1,5 +1,4 @@
 import type {
-  ActionList,
   ActionListItem,
   ActiveBuffObject,
   BonusStats,
@@ -12,14 +11,15 @@ import type {
   Skill,
 } from "@/constants/types"
 
+import { getBaseSkillName, roundBuffMapToPercentStrings } from "./utils"
+
 import { hasSwapped, removeBuffByName } from "./helper"
 
+import type { CHARACTER_KEY } from "@/constants/characters"
 import { buffs } from "./effects/buffs"
 import { echoBuffs } from "./effects/echo-buffs"
 import { setBuffs } from "./effects/set-buffs"
 import { weaponBuffs } from "./effects/weapon-buffs"
-import { getBaseSkillName, roundBuffMapToPercentStrings } from "./utils"
-import type { CHARACTER_KEY } from "@/constants/characters"
 
 function removeExpiredBuffs(ctx: Context) {
   const activeCharacter = ctx.activeCharacter
@@ -421,7 +421,7 @@ function getContext(
 
 function calculate(
   characters: Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
-  actionList: ActionList,
+  actionList: ActionListItem[],
   baseBuffMap: BuffMap,
 ): Result[] {
   const resultList: Result[] = []
