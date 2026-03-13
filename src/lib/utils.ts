@@ -15,7 +15,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function frameToSecond(number: number, digits: number) {
+export function frameToSecond(number: number, digits: number = 2) {
   return Number(number / 60).toFixed(digits)
 }
 

@@ -5,38 +5,36 @@ export const echoData: Record<string, Echo> = {
     name: "Impermanence Heron",
     category: "echo",
     classifications: ["havoc", "echo"],
-    mv: 3.1056,
+    mv: [3.1056],
     frames: 90,
     cooldown: 20,
     set: "Moonlit Clouds",
-    hits: 1,
+    hits: [60],
     concerto: 0,
     resonance: 0,
     variations: {
       swap: {
         frames: 15,
       },
-    }
+    },
   },
   "Inferno Rider": {
     name: "Inferno Rider",
     category: "echo",
     classifications: ["fusion", "echo"],
-    mv: 8.08,
+    mv: [2.424, 2.828, 2.828],
     frames: 168,
     cooldown: 20,
     set: "Molten Rift",
-    hits: 1,
+    hits: [30, 60, 90],
     concerto: 0,
     resonance: 0,
     variations: {
       cancel: {
         frames: 108,
-        hits: 3,
       },
       swap: {
         frames: 62,
-        hits: 8,
       },
     },
   },

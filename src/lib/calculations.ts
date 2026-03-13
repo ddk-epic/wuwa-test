@@ -1,5 +1,4 @@
 import type {
-  ActionListItem,
   ActiveBuffObject,
   BonusStats,
   BuffMap,
@@ -9,6 +8,7 @@ import type {
   Context,
   Result,
   Skill,
+  TimelineItem,
 } from "@/constants/types"
 
 import { getBaseSkillName, roundBuffMapToPercentStrings } from "./utils"
@@ -21,13 +21,13 @@ import { echoBuffs } from "./effects/echo-buffs"
 import { setBuffs } from "./effects/set-buffs"
 import { weaponBuffs } from "./effects/weapon-buffs"
 
-function removeExpiredBuffs(ctx: Context) {
-  const activeCharacter = ctx.activeCharacter
+function removeExpiredBuffs(ctx: Context, action: TimelineItem) {
+  const character = action.char
   const currentTime = ctx.time
   const buffsToRemove = new Set<ActiveBuffObject>()
 
   // filter by endtime
-  for (const buff of ctx.activeBuffs[ctx.activeCharacter]) {
+  for (const buff of ctx.activeBuffs[character]) {
     if (buff.endTime * 60 <= currentTime) {
       // frame time
       buffsToRemove.add(buff)
@@ -37,21 +37,20 @@ function removeExpiredBuffs(ctx: Context) {
   // other filter rules
 
   // remove buffs
-  ctx.activeBuffs[activeCharacter] = ctx.activeBuffs[activeCharacter].filter(
+  ctx.activeBuffs[character] = ctx.activeBuffs[character].filter(
     (buff) => !buffsToRemove.has(buff),
   )
 }
 
-function addOnSwapBuffs(ctx: Context) {
-  const activeCharacter = ctx.activeCharacter
+function addOnSwapBuffs(ctx: Context, action: TimelineItem) {
+  const character = action.char
   const currentTime = ctx.time
   const buffNext = ctx.buffNext
 
-  if (!hasSwapped(ctx.prevChar, activeCharacter) || buffNext.length === 0)
-    return
+  if (!hasSwapped(ctx.prevChar, character) || buffNext.length === 0) return
 
   for (const buff of buffNext) {
-    const isAlreadyActive = ctx.activeBuffs[activeCharacter].some(
+    const isAlreadyActive = ctx.activeBuffs[character].some(
       (b) => b.name === buff.name,
     )
 
@@ -60,28 +59,29 @@ function addOnSwapBuffs(ctx: Context) {
       const endTime = (currentTime + buff.duration * 60) / 60 // frame time
       const activeBuffObject = { ...buff, endTime }
 
-      ctx.activeBuffs[activeCharacter].push(activeBuffObject)
+      ctx.activeBuffs[character].push(activeBuffObject)
       // console.log(
-      //   `add ${activeBuffObject.name} to activeBuffs[${activeCharacter}]`,
+      //   `add ${activeBuffObject.name} to activeBuffs[${character}]`,
       // )
     }
   }
 }
 
-function addTriggeredBuffs(ctx: Context, skill: Skill) {
-  const activeCharacter = ctx.activeCharacter
+function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
+  const character = action.char
+  const skill = action.skill
   const currentTime = ctx.time
 
-  const baseName = getBaseSkillName(skill.name)
+  const baseName = getBaseSkillName(action.skill.name)
 
   for (const buff of ctx.allBuffs) {
-    const isAlreadyActive = ctx.activeBuffs[activeCharacter].some(
+    const isAlreadyActive = ctx.activeBuffs[character].some(
       (b) => b.name === buff.name,
     )
     // check ownership
-    if (buff.source !== activeCharacter) continue
+    if (buff.source !== character) continue
 
-    // add buff triggered by Skill or SkillType
+    // add buff triggered by Skill or Skill
     const hasNameMatch = buff.triggeredBy?.includes(baseName)
     const hasTriggerMatch = !!buff.triggeredBy?.includes(skill.category)
 
@@ -105,7 +105,7 @@ function addTriggeredBuffs(ctx: Context, skill: Skill) {
         continue
       }
 
-      ctx.activeBuffs[activeCharacter].push(activeBuffObject)
+      ctx.activeBuffs[character].push(activeBuffObject)
       // console.log(
       //   `add ${activeBuffObject.name} to activeBuffs[${activeCharacter}]`,
       // )
@@ -135,17 +135,19 @@ function evaluateDCond(ctx: Context, skill: Skill) {
   character.dCond.Concerto += skill.concerto
 }
 
-function calculateDamage(ctx: Context, skill: Skill) {
-  const activeCharacter = ctx.activeCharacter
-  const char = ctx.characters[activeCharacter]
+function calculateDamage(ctx: Context, action: TimelineItem) {
+  const characterId = action.char
+  const char = ctx.characters[characterId]
   const enemyDefenseMultiplier = 0.52
 
+  if (action.type === "parent") return 0
+
   const attack =
-    char.atk * (1 + ctx.buffMap[activeCharacter].atk) + char.bonusStats.atkFlat
+    char.atk * (1 + ctx.buffMap[characterId].atk) + char.bonusStats.atkFlat
   const damage =
-    attack * skill.mv * (1 + ctx.buffMap[activeCharacter].multiplier)
-  const crit = Math.min(char.crit + ctx.buffMap[activeCharacter].crit, 1)
-  const critDmg = char.critDmg + ctx.buffMap[activeCharacter].critDmg
+    attack * action.skill.mv * (1 + ctx.buffMap[characterId].multiplier)
+  const crit = Math.min(char.crit + ctx.buffMap[characterId].crit, 1)
+  const critDmg = char.critDmg + ctx.buffMap[characterId].critDmg
   const critMultiplier = critDmg - crit + crit * critDmg
 
   const totalDamage = damage * critMultiplier * enemyDefenseMultiplier
@@ -153,9 +155,10 @@ function calculateDamage(ctx: Context, skill: Skill) {
   return totalDamage
 }
 
-function evaluateBuffs(ctx: Context, skill: Skill) {
-  const activeCharacter = ctx.activeCharacter
-  const buffs = ctx.activeBuffs[activeCharacter]
+function evaluateBuffs(ctx: Context, action: TimelineItem) {
+  const character = action.char
+  const skill = action.skill
+  const buffs = ctx.activeBuffs[character]
 
   const baseName = getBaseSkillName(skill.name)
 
@@ -183,9 +186,15 @@ function evaluateBuffs(ctx: Context, skill: Skill) {
               concerto: buff?.concerto ?? 0,
               resonance: buff?.resonance ?? 0,
             }
-            ctx.procc.damage = calculateDamage(ctx, damageProcc)
+            const damageAction: TimelineItem = {
+              char: character,
+              type: "hit",
+              skill: damageProcc,
+              time: 0,
+            }
+            ctx.procc.damage = calculateDamage(ctx, damageAction)
             evaluateDCond(ctx, damageProcc)
-            removeBuffByName(ctx.activeBuffs[activeCharacter], buff.name)
+            removeBuffByName(ctx.activeBuffs[character], buff.name)
             removeBuffByName(ctx.buffDeferred, buff.name)
             // console.log(
             //   `${damageProcc.name} successfully procced for`,
@@ -197,9 +206,9 @@ function evaluateBuffs(ctx: Context, skill: Skill) {
 
       default:
         for (const modifier of buff.modifier) {
-          ctx.buffMap[activeCharacter][modifier] += buff.value
+          ctx.buffMap[character][modifier] += buff.value
           // console.log(
-          //   `(${ctx.row}) buffMap[${buff.modifier}]: ${ctx.buffMap[activeCharacter][modifier]}`,
+          //   `(${ctx.row}) buffMap[${buff.modifier}]: ${ctx.buffMap[character][modifier]}`,
           // )
         }
     }
@@ -208,49 +217,51 @@ function evaluateBuffs(ctx: Context, skill: Skill) {
 
 function processAction(
   ctx: Context,
-  action: ActionListItem,
+  action: TimelineItem,
   initialBuffMap: Record<string, BuffMap>,
 ) {
   // update ctx
-  ctx.activeCharacter = action.char
+  ctx.activeCharacter =
+    action.type === "parent" ? action.char : ctx.activeCharacter
   ctx.time = action.time
   ctx.buffMap = structuredClone(initialBuffMap)
 
-  const activeCharacter = ctx.activeCharacter
+  const character = action.char
   const skill = action.skill
 
   // remove expired buffs
-  removeExpiredBuffs(ctx)
+  removeExpiredBuffs(ctx, action)
 
   // add outro buffs
-  addOnSwapBuffs(ctx)
+  addOnSwapBuffs(ctx, action)
 
   // add triggered buffs
-  addTriggeredBuffs(ctx, skill)
+  addTriggeredBuffs(ctx, action)
 
   // evaluate buffs
-  evaluateBuffs(ctx, skill)
+  evaluateBuffs(ctx, action)
 
   // handle team buff
 
   // evaluate dynamic conditions (concerto, resonance)
   evaluateDCond(ctx, skill)
-  const damage = calculateDamage(ctx, skill)
+  const damage = calculateDamage(ctx, action)
 
   const roundedBuffMap: Record<keyof BuffMap, string> =
-    roundBuffMapToPercentStrings(ctx.buffMap[activeCharacter])
+    roundBuffMapToPercentStrings(ctx.buffMap[character])
   const buffMapValues = Object.values(roundedBuffMap).slice(0, 32)
 
   const resultObject: Result = {
     row: ctx.row,
-    char: ctx.activeCharacter,
+    char: character,
+    type: action.type,
     skill: skill,
     time: ctx.time,
-    concerto: ctx.characters[ctx.activeCharacter].dCond.Concerto,
-    resonance: ctx.characters[ctx.activeCharacter].dCond.Resonance,
+    concerto: ctx.characters[character].dCond.Concerto,
+    resonance: ctx.characters[character].dCond.Resonance,
     damage,
     procc: { ...ctx.procc },
-    buffs: [...ctx.activeBuffs[activeCharacter]],
+    buffs: [...ctx.activeBuffs[character]],
     buffMap: buffMapValues,
   }
 
@@ -421,7 +432,7 @@ function getContext(
 
 function calculate(
   characters: Record<CHARACTER_KEY, Character>,
-  actionList: ActionListItem[],
+  actionList: TimelineItem[],
   baseBuffMap: BuffMap,
 ): Result[] {
   const resultList: Result[] = []

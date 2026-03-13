@@ -1,14 +1,14 @@
 import { cn } from "@/lib/utils"
 
-import type { ActionListItem, Character } from "@/constants/types"
+import type { Character, TimelineItem } from "@/constants/types"
 import type { CHARACTER_KEY } from "@/constants/characters"
 
 interface CalculateButtonProps {
   charData: Record<CHARACTER_KEY, Character>
-  sequence: ActionListItem[]
+  sequence: TimelineItem[]
   handleCalculate: (
     characters: Record<CHARACTER_KEY, Character>,
-    actionList: ActionListItem[],
+    actionList: TimelineItem[],
   ) => void
 }
 

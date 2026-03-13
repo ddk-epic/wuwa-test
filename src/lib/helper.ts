@@ -1,13 +1,16 @@
-import type { CHARACTER_KEY } from "@/constants/characters"
-import { echoData } from "@/constants/echoes"
-import skillData from "@/constants/skills"
+import { getBaseSkillName } from "./utils"
+
 import type {
   ActionListItem,
   ActiveBuffObject,
   Character,
   CharSettings,
-  Skill,
+  SKILL,
+  TimelineItem,
 } from "@/constants/types"
+import type { CHARACTER_KEY } from "@/constants/characters"
+import { echoData } from "@/constants/echoes"
+import skillData from "@/constants/skills"
 
 export function computeBaseCharacter(char: Character, settings: CharSettings) {
   const levelMultiplier = 12.5
@@ -55,7 +58,7 @@ export function computeBaseCharacter(char: Character, settings: CharSettings) {
 export function computeCharacterSkills(character: Character) {
   const { variations, set, ...echoSkill } = echoData[character.echo]
 
-  const echoSkills: Skill[] = [echoSkill]
+  const echoSkills: SKILL[] = [echoSkill]
   if (variations) {
     Object.entries(variations).forEach(([variationKey, variation]) => {
       echoSkills.push({
@@ -66,7 +69,7 @@ export function computeCharacterSkills(character: Character) {
     })
   }
 
-  const characterSkills: Skill[] = []
+  const characterSkills: SKILL[] = []
 
   Object.values(skillData[character.id]).forEach((category) => {
     Object.values(category).forEach((skill) => {
@@ -119,9 +122,53 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
 
     return {
       ...entry,
-      time: start / 60,
+      time: start,
     }
   })
+}
+
+export function computeEventTimeline(
+  sequence: ActionListItem[],
+): TimelineItem[] {
+  const timeline: TimelineItem[] = []
+
+  for (const action of sequence) {
+    // main timeline entry
+    const { variations, ...actionSkill } = action.skill
+    const baseName = getBaseSkillName(action.skill.name)
+    const parentId = `${action.time}-${baseName}`
+
+    const parentItem: TimelineItem = {
+      char: action.char,
+      type: "parent",
+      skill: { ...actionSkill, mv: 0, hits: 0 },
+      time: action.time,
+    }
+
+    timeline.push(parentItem)
+
+    const { mv, hits } = action.skill
+
+    for (let i = 0; i < mv.length; i++) {
+      const hitFrame = hits[i] ?? 0
+
+      const hitItem: TimelineItem = {
+        char: action.char,
+        type: "hit",
+        skill: {
+          ...actionSkill,
+          mv: mv[i],
+          hits: hitFrame,
+        },
+        time: action.time + hitFrame,
+        parent: parentId,
+      }
+
+      timeline.push(hitItem)
+    }
+  }
+
+  return timeline.sort((a, b) => a.time - b.time)
 }
 
 export function hasSwapped(prevChar: string, currentChar: string) {

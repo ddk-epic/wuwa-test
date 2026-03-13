@@ -1,5 +1,5 @@
 import { X } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, frameToSecond } from "@/lib/utils"
 
 import { Button } from "./ui/button"
 import { TableCell, TableRow } from "./ui/table"
@@ -16,12 +16,7 @@ interface SequenceEntryProps {
   onRemove: () => void
 }
 
-function SequenceEntry({
-  index,
-  entry,
-  res,
-  onRemove,
-}: SequenceEntryProps) {
+function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
   const placeholder = "--"
   const skill = entry.skill
   const character = characterTemplate[entry.char]
@@ -73,7 +68,7 @@ function SequenceEntry({
         {skill.name}
       </TableCell>
       <TableCell className="px-3 text-xs font-mono text-right">
-        {entry.time.toFixed(2)}
+        {frameToSecond(entry.time)}
       </TableCell>
       <TableCell className="px-3 text-xs font-mono text-right">
         {!!result ? result.concerto.toFixed(1) : placeholder}

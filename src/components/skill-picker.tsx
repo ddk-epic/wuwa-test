@@ -3,14 +3,14 @@ import { cn } from "@/lib/utils"
 
 import { SelectSeparator } from "./ui/select"
 
-import type { Skill, TeamSlot } from "@/constants/types"
+import type { SKILL, TeamSlot } from "@/constants/types"
 import { type CHARACTER_KEY } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 
 interface SkillSidebarProps {
   team: TeamSlot[]
-  skillData: Record<CHARACTER_KEY, Record<string, Skill[]>>
-  onAddSkill: (characterId: CHARACTER_KEY, skill: Skill) => void
+  skillData: Record<CHARACTER_KEY, Record<string, SKILL[]>>
+  onAddSkill: (characterId: CHARACTER_KEY, skill: SKILL) => void
 }
 
 function SkillSidebar({ team, skillData, onAddSkill }: SkillSidebarProps) {

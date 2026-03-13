@@ -105,22 +105,22 @@ export type ActiveBuffObject = {
 } & BuffObject
 
 type SkillVariation = {
-  mv?: number
-  frames?: number
-  hits?: number
+  mv?: number[]
+  frames?: number // in frames
+  hits?: number[]
   concerto?: number
   resonance?: number
 }
 
-export type Skill = {
+export type SKILL = {
   name: string
   category: SkillBaseType | "echo"
   classifications: (Element | SkillBaseType | "echo")[]
-  mv: number
-  frames: number
+  mv: number[]
+  frames: number // in frames
   freezetime?: number
   cooldown?: number
-  hits: number
+  hits: number[]
   forte?: number
   forte2?: number
   concerto: number
@@ -128,11 +128,16 @@ export type Skill = {
   variations?: Record<string, SkillVariation>
 }
 
-export type Echo = { set: string } & Skill
+export type Skill = Omit<SKILL, "mv" | "hits" | "variations"> & {
+  mv: number
+  hits: number
+}
+
+export type Echo = SKILL & { set: string }
 
 type SkillSequence = {
-  1: Skill | null
-} & Record<number, Skill | null>
+  1: SKILL | null
+} & Record<number, SKILL | null>
 
 type SkillCategory = Record<SkillBaseType, SkillSequence>
 
@@ -142,13 +147,22 @@ export interface CharacterSkills {
 
 export type ActionListItem = {
   char: CHARACTER_KEY
+  skill: SKILL
+  time: number
+}
+
+export type TimelineItem = {
+  char: CHARACTER_KEY
+  type: "parent" | "hit"
   skill: Skill
   time: number
+  parent?: string
 }
 
 export type Result = {
   row: number
   char: string
+  type: "parent" | "hit"
   skill: Skill
   time: number
   concerto: number

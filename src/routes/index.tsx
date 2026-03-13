@@ -5,6 +5,7 @@ import { usePersistedState } from "@/hooks/use-persisted-state"
 import {
   computeBaseCharacter,
   computeCharacterSkills,
+  computeEventTimeline,
   computeTimeline,
 } from "@/lib/helper"
 import { calculate } from "@/lib/calculations"
@@ -19,8 +20,9 @@ import type {
   Character,
   Result,
   SETTINGS_KEY,
-  Skill,
+  SKILL,
   TeamSlot,
+  TimelineItem,
 } from "@/constants/types"
 import characterTemplate, {
   type CHARACTER_KEY,
@@ -29,6 +31,7 @@ import characterTemplate, {
 import { totalBuffMap } from "@/constants/maps"
 import { weaponData, type WEAPON_KEY } from "@/constants/weapons"
 import type { ECHO_KEY, ECHO_SET_KEY } from "@/constants/echoes"
+import EventTableModal from "@/components/event-table-modal"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -67,9 +70,13 @@ function App() {
 
         return acc
       },
-      {} as Record<CHARACTER_KEY, Record<string, Skill[]>>,
+      {} as Record<CHARACTER_KEY, Record<string, SKILL[]>>,
     )
   }, [team])
+
+  const computedEventTimeline = useMemo(() => {
+    return computeEventTimeline(sequence)
+  }, [sequence])
 
   const handleCharacterChange = (
     index: number,
@@ -148,7 +155,7 @@ function App() {
     })
   }
 
-  const handleAddSkill = (char: CHARACTER_KEY, skill: Skill) => {
+  const handleAddSkill = (char: CHARACTER_KEY, skill: SKILL) => {
     setResult([])
     setSequence((prev) => {
       const newSequence: ActionListItem[] = [...prev, { char, skill, time: 0 }]
@@ -166,7 +173,7 @@ function App() {
 
   const handleCalculate = (
     characterData: Record<CHARACTER_KEY, Character>,
-    actionList: ActionListItem[],
+    actionList: TimelineItem[],
   ) => {
     const result = calculate(characterData, actionList, totalBuffMap)
     setResult(result)
@@ -197,10 +204,14 @@ function App() {
             onRemoveSkill={handleRemoveSkill}
           />
           {/* Calculate button */}
-          <div className="absolute bottom-4 right-6">
+          <div className="absolute bottom-4 right-6 flex gap-2">
+            <EventTableModal
+              preComputeTimeline={computedEventTimeline}
+              resultTimeline={result}
+            />
             <CalculateButton
               charData={computedChars}
-              sequence={sequence}
+              sequence={computedEventTimeline}
               handleCalculate={handleCalculate}
             />
           </div>
