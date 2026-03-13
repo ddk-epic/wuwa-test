@@ -10,10 +10,7 @@ import { ELEMENT_COLORS } from "@/constants/colors"
 interface SkillSidebarProps {
   team: TeamSlot[]
   skillData: Record<CHARACTER_KEY, Record<string, Skill[]>>
-  onAddSkill: (
-    characterId: Exclude<CHARACTER_KEY, "__none__">,
-    skill: Skill,
-  ) => void
+  onAddSkill: (characterId: CHARACTER_KEY, skill: Skill) => void
 }
 
 function SkillSidebar({ team, skillData, onAddSkill }: SkillSidebarProps) {
@@ -69,7 +66,7 @@ function SkillSidebar({ team, skillData, onAddSkill }: SkillSidebarProps) {
   function CharacterSkills() {
     if (!activeChar) return null
     const element = activeChar.element || "default"
-    const {echoSkills, characterSkills} = skillData[activeChar.id]
+    const { echoSkills, characterSkills } = skillData[activeChar.id]
 
     return (
       <div className="flex flex-col gap-1">

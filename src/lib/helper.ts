@@ -87,7 +87,7 @@ export function computeCharacterSkills(character: Character) {
 }
 
 export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
-  const lastActionEnd = {} as Record<Exclude<CHARACTER_KEY, "__none__">, number>
+  const lastActionEnd = {} as Record<CHARACTER_KEY, number>
   const SWITCH_CD = 60 // in frames
   // const SWAP_FRAMES = 15
 
@@ -114,6 +114,8 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
     lastActionEnd[entry.char] = end
     currentTime = end
     previousChar = entry.char
+
+    // TODO: implement skill cooldowns
 
     return {
       ...entry,

@@ -35,6 +35,7 @@ export const totalBuffMap: BuffMap = {
   defIgnore: 0,
   erMulti: 0,
   foMulti: 0,
+  heal: 0,
   physical: 0,
   allEle: 0,
   concerto: 0,

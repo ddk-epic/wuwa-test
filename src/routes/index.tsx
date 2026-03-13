@@ -18,11 +18,14 @@ import type {
   ActionListItem,
   Character,
   Result,
-  SETTINGS_KEYS,
+  SETTINGS_KEY,
   Skill,
   TeamSlot,
 } from "@/constants/types"
-import characterTemplate, { type CHARACTER_KEY } from "@/constants/characters"
+import characterTemplate, {
+  type CHARACTER_KEY,
+  type CHARACTER_SELECTION_KEY,
+} from "@/constants/characters"
 import { totalBuffMap } from "@/constants/maps"
 import { weaponData, type WEAPON_KEY } from "@/constants/weapons"
 import type { ECHO_KEY, ECHO_SET_KEY } from "@/constants/echoes"
@@ -51,7 +54,7 @@ function App() {
 
         return acc
       },
-      {} as Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
+      {} as Record<CHARACTER_KEY, Character>,
     )
   }, [team])
 
@@ -68,7 +71,10 @@ function App() {
     )
   }, [team])
 
-  const handleCharacterChange = (index: number, value: CHARACTER_KEY) => {
+  const handleCharacterChange = (
+    index: number,
+    value: CHARACTER_SELECTION_KEY,
+  ) => {
     const oldChar = team[index].character
     const newChar = value === "__none__" ? null : value
 
@@ -99,7 +105,7 @@ function App() {
 
   const updateCharSettings = (
     index: number,
-    label: SETTINGS_KEYS,
+    label: SETTINGS_KEY,
     value: string,
   ) => {
     if (!team[index].settings) return
@@ -142,10 +148,7 @@ function App() {
     })
   }
 
-  const handleAddSkill = (
-    char: Exclude<CHARACTER_KEY, "__none__">,
-    skill: Skill,
-  ) => {
+  const handleAddSkill = (char: CHARACTER_KEY, skill: Skill) => {
     setResult([])
     setSequence((prev) => {
       const newSequence: ActionListItem[] = [...prev, { char, skill, time: 0 }]
@@ -162,7 +165,7 @@ function App() {
   }
 
   const handleCalculate = (
-    characterData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>,
+    characterData: Record<CHARACTER_KEY, Character>,
     actionList: ActionListItem[],
   ) => {
     const result = calculate(characterData, actionList, totalBuffMap)

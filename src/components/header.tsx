@@ -3,27 +3,30 @@ import { RotateCcw } from "lucide-react"
 import { Button } from "./ui/button"
 import DpsSummary from "./dps-summary"
 
-import type { CHARACTER_KEY } from "@/constants/characters"
+import type {
+  CHARACTER_KEY,
+  CHARACTER_SELECTION_KEY,
+} from "@/constants/characters"
 import type {
   ActionListItem,
   Character,
   Result,
-  SETTINGS_KEYS,
+  SETTINGS_KEY,
   TeamSlot,
 } from "@/constants/types"
 import AddCharacterModal from "./add-character-modal"
 
 interface HeaderBarProps {
   team: TeamSlot[]
-  charData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>
+  charData: Record<CHARACTER_KEY, Character>
   sequence: ActionListItem[]
   result: Result[]
   updateCharSettings: (
     index: number,
-    label: SETTINGS_KEYS,
+    label: SETTINGS_KEY,
     value: string,
   ) => void
-  onCharacterChange: (index: number, value: CHARACTER_KEY) => void
+  onCharacterChange: (index: number, value: CHARACTER_SELECTION_KEY) => void
   onReset: () => void
 }
 

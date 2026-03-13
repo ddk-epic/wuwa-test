@@ -157,13 +157,11 @@ const characterTemplate: Record<
   },
 }
 
-export const CHARACTERS = [
-  "__none__",
-  "encore",
-  "sanhua",
-  "shorekeeper",
-] as const
+export const CHARACTERS = ["encore", "sanhua", "shorekeeper"] as const
 export type CHARACTER_KEY = (typeof CHARACTERS)[number]
+
+export const CHARACTER_SELECTION = ["__none__", ...CHARACTERS] as const
+export type CHARACTER_SELECTION_KEY = (typeof CHARACTER_SELECTION)[number]
 
 export const bonusStatKeys = [
   "atkFlat",
@@ -184,8 +182,8 @@ export const bonusStatKeys = [
   "fusion",
   "glacio",
   "havoc",
-  "spectro"
-] as const;
+  "spectro",
+] as const
 export type BONUS_STAT_KEY = (typeof bonusStatKeys)[number]
 
 export default characterTemplate

@@ -141,7 +141,7 @@ export interface CharacterSkills {
 }
 
 export type ActionListItem = {
-  char: Exclude<CHARACTER_KEY, "__none__">
+  char: CHARACTER_KEY
   skill: Skill
   time: number
 }
@@ -173,7 +173,7 @@ export interface Weapon {
 }
 
 export interface Character {
-  id: Exclude<CHARACTER_KEY, "__none__">
+  id: CHARACTER_KEY
   name: string
   sequence: number
   weaponType: string
@@ -203,7 +203,7 @@ export interface CharSettings {
   echo: ECHO_KEY
 }
 
-export type SETTINGS_KEYS = "sequence" | "weapon" | "echoSet" | "echo"
+export type SETTINGS_KEY = "sequence" | "weapon" | "echoSet" | "echo"
 
 export type TeamSlot =
   | {

@@ -18,21 +18,25 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group"
 import Choose from "./choose"
 
-import type { Character, SETTINGS_KEYS, TeamSlot } from "@/constants/types"
-import { CHARACTERS, type CHARACTER_KEY } from "@/constants/characters"
+import type { Character, SETTINGS_KEY, TeamSlot } from "@/constants/types"
+import {
+  type CHARACTER_KEY,
+  CHARACTER_SELECTION,
+  type CHARACTER_SELECTION_KEY,
+} from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 import { echoData } from "@/constants/echoes"
 import { weaponData } from "@/constants/weapons"
 
 interface AddCharacterModalProps {
   team: TeamSlot[]
-  charData: Record<Exclude<CHARACTER_KEY, "__none__">, Character>
+  charData: Record<CHARACTER_KEY, Character>
   updateCharSettings: (
     index: number,
-    label: SETTINGS_KEYS,
+    label: SETTINGS_KEY,
     value: string,
   ) => void
-  onCharacterChange: (index: number, value: CHARACTER_KEY) => void
+  onCharacterChange: (index: number, value: CHARACTER_SELECTION_KEY) => void
 }
 
 function AddCharacterModal({
@@ -70,9 +74,14 @@ function AddCharacterModal({
           <div className="flex gap-2">
             {team.map((slot, i) => {
               const character = slot.character
-              const usedChars = team.filter(slot => !!slot.character).map(slot => slot.character.id)
-              const availableCharacters = CHARACTERS.filter(
-                (char) => char === "__none__" || !usedChars.includes(char) || character?.id === char,
+              const usedChars = team
+                .filter((slot) => !!slot.character)
+                .map((slot) => slot.character.id)
+              const availableCharacters = CHARACTER_SELECTION.filter(
+                (char) =>
+                  char === "__none__" ||
+                  !usedChars.includes(char) ||
+                  character?.id === char,
               )
               return (
                 <div key={i} className="w-full space-y-4">
@@ -81,7 +90,7 @@ function AddCharacterModal({
                     <Select
                       value={character?.id ?? placeholder[i]}
                       onValueChange={(value) =>
-                        onCharacterChange(i, value as CHARACTER_KEY)
+                        onCharacterChange(i, value as CHARACTER_SELECTION_KEY)
                       }
                     >
                       <SelectTrigger className="flex-1">
@@ -167,9 +176,7 @@ function AddCharacterModal({
                             <Choose
                               label="Weapon..."
                               array={weapons}
-                              value={
-                                charData[character.id].weapon.name
-                              }
+                              value={charData[character.id].weapon.name}
                               getValue={(w) => w.name}
                               getLabel={(w) => w.name}
                               onSelect={(value) =>
