@@ -122,8 +122,9 @@ function handleEnergyShare(ctx: Context, value: number) {
   }
 }
 
-function evaluateDCond(ctx: Context, skill: Skill) {
-  const character = ctx.characters[ctx.activeCharacter]
+function evaluateDCond(ctx: Context, action: TimelineItem) {
+  const character = ctx.characters[action.char]
+  const skill = action.skill
 
   // handle resonance energy
   if (skill.classifications.includes("liberation")) {
@@ -193,7 +194,7 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
               time: 0,
             }
             ctx.procc.damage = calculateDamage(ctx, damageAction)
-            evaluateDCond(ctx, damageProcc)
+            evaluateDCond(ctx, damageAction)
             removeBuffByName(ctx.activeBuffs[character], buff.name)
             removeBuffByName(ctx.buffDeferred, buff.name)
             // console.log(
@@ -244,7 +245,7 @@ function processAction(
   // handle team buff
 
   // evaluate dynamic conditions (concerto, resonance)
-  evaluateDCond(ctx, skill)
+  evaluateDCond(ctx, action)
   const damage = calculateDamage(ctx, action)
 
   const roundedBuffMap: Record<keyof BuffMap, string> =
