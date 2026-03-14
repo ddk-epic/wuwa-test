@@ -5,13 +5,10 @@ export const echoData: Record<string, Echo> = {
     name: "Impermanence Heron",
     category: "echo",
     classifications: ["havoc", "echo"],
-    mv: [3.1056],
+    set: "Moonlit Clouds",
     frames: 90,
     cooldown: 20,
-    set: "Moonlit Clouds",
-    hits: [60],
-    concerto: 0,
-    resonance: 0,
+    hits: [{ frame: 60, mv: 3.1056, resonance: 10 + 4.85 }],
     variations: {
       swap: {
         frames: 15,
@@ -22,13 +19,14 @@ export const echoData: Record<string, Echo> = {
     name: "Inferno Rider",
     category: "echo",
     classifications: ["fusion", "echo"],
-    mv: [2.424, 2.828, 2.828],
+    set: "Molten Rift",
     frames: 168,
     cooldown: 20,
-    set: "Molten Rift",
-    hits: [30, 60, 90],
-    concerto: 0,
-    resonance: 0,
+    hits: [
+      { frame: 30, mv: 2.424, resonance: 3.78 },
+      { frame: 60, mv: 2.828, resonance: 4.41 },
+      { frame: 90, mv: 2.828, resonance: 4.41 },
+    ],
     variations: {
       cancel: {
         frames: 108,

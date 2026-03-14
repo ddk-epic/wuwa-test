@@ -167,7 +167,7 @@ const skillData: CharacterSkills = {
         onCast: {
           concerto: 5,
         },
-        hits: [{ frame: 30, mv: 1.706, concerto: 6.51, resonance: 0.75 }],
+        hits: [{ frame: 30, mv: 1.706, concerto: 1.51, resonance: 0.75 }],
       },
       3: {
         name: "Cosmos Rampage",

@@ -13,7 +13,7 @@ function ResultTimeline({
   return (
     <div className="text-xs">
       <div className="mb-8">
-        <h1 className="font-bold">Pre-Compute</h1>
+        <h1 className="font-bold">Pre-compute table</h1>
         {preComputeTimeline.map((action, i) => {
           return (
             <table className="w-120 table-fixed border-b">
@@ -22,6 +22,9 @@ function ResultTimeline({
                 <td className="w-3/16 px-2">{action.char}</td>
                 <td className="w-6/16 px-2">{action.skill.name}</td>
                 <td className="w-2/16 px-2">{action.time}</td>
+                <td className="w-2/16 px-2">{action.skill.concerto}</td>
+                <td className="w-2/16 px-2">{action.skill.resonance}</td>
+                <td className="w-2/16 px-2">{action.skill.mv}</td>
                 <td className="w-4/16 px-2">{action?.parent}</td>
               </tr>
             </table>
@@ -29,7 +32,7 @@ function ResultTimeline({
         })}
       </div>
       <div>
-        <h1 className="font-bold">Result</h1>
+        <h1 className="font-bold">Result (raw)</h1>
         {resultTimeline.map((result) => {
           const activeBuffString =
             result?.buffs?.map((buff) => buff.name).join(", ") ?? ""
