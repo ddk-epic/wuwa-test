@@ -214,8 +214,8 @@ export function aggregateResult(eventTimeline: Result[]): Result[] {
       if (!parent) continue
 
       parent.damage += row.damage ?? 0
-      parent.concerto += row.concerto ?? 0
-      parent.resonance += row.resonance ?? 0
+      parent.concerto = row.concerto ?? 0
+      parent.resonance = row.resonance ?? 0
     }
   }
 
