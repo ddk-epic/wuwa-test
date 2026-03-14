@@ -169,6 +169,7 @@ export type Result = {
   resonance: number
   damage: number
   procc: Procc
+  parent?: string
   buffs?: ActiveBuffObject[]
   buffMap: string[]
 }

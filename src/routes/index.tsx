@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { usePersistedState } from "@/hooks/use-persisted-state"
 
 import {
+  aggregateResult,
   computeBaseCharacter,
   computeCharacterSkills,
   computeEventTimeline,
@@ -176,7 +177,8 @@ function App() {
     actionList: TimelineItem[],
   ) => {
     const result = calculate(characterData, actionList, totalBuffMap)
-    setResult(result)
+    const aggregatedResult = aggregateResult(result)
+    setResult(aggregatedResult)
   }
 
   const handleReset = () => {

@@ -262,6 +262,7 @@ function processAction(
     resonance: ctx.characters[character].dCond.Resonance,
     damage,
     procc: { ...ctx.procc },
+    parent: action?.parent,
     buffs: [...ctx.activeBuffs[character]],
     buffMap: buffMapValues,
   }

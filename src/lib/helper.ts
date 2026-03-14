@@ -5,6 +5,7 @@ import type {
   ActiveBuffObject,
   Character,
   CharSettings,
+  Result,
   SKILL,
   TimelineItem,
 } from "@/constants/types"
@@ -111,7 +112,11 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
       start = Math.max(start, last + SWITCH_CD)
     }
 
-    const duration = entry.skill.frames
+    let duration = entry.skill.frames
+    const freezetime = entry.skill.freezetime
+    if (freezetime) {
+      duration = duration - freezetime
+    }
     const end = start + duration
 
     lastActionEnd[entry.char] = end
@@ -136,7 +141,7 @@ export function computeEventTimeline(
     // main timeline entry
     const { variations, ...actionSkill } = action.skill
     const baseName = getBaseSkillName(action.skill.name)
-    const parentId = `${action.time}-${baseName}`
+    const parentId = String(action.time)
 
     const parentItem: TimelineItem = {
       char: action.char,
@@ -157,6 +162,7 @@ export function computeEventTimeline(
         type: "hit",
         skill: {
           ...actionSkill,
+          name: baseName,
           mv: mv[i],
           hits: hitFrame,
         },
@@ -169,6 +175,38 @@ export function computeEventTimeline(
   }
 
   return timeline.sort((a, b) => a.time - b.time)
+}
+
+export function aggregateResult(eventTimeline: Result[]): Result[] {
+  // time is used to index
+  const parentMap: Record<string,Result> = {}
+  const result: Result[] = []
+
+  for (let i = 0; i < eventTimeline.length; i++) {
+    const row = eventTimeline[i]
+    if (row.type === "parent") {
+      const parent: Result = {
+        ...row,
+        row: i + 1,
+        concerto: 0,
+        resonance: 0,
+        damage: 0,
+      }
+      parentMap[String(row.time)] = parent
+      result.push(parent)
+    }
+
+    if (row.type === "hit" && row.parent) {
+      const parent = parentMap[row.parent]
+      if (!parent) continue
+
+      parent.damage += row.damage ?? 0
+      parent.concerto += row.concerto ?? 0
+      parent.resonance += row.resonance ?? 0
+    }
+  }
+
+  return result
 }
 
 export function hasSwapped(prevChar: string, currentChar: string) {
