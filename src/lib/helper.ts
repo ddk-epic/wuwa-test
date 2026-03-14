@@ -143,19 +143,28 @@ export function computeEventTimeline(
     const baseName = getBaseSkillName(action.skill.name)
     const parentId = String(action.time)
 
+    const onCast = action.skill.onCast
     const parentItem: TimelineItem = {
       char: action.char,
       type: "parent",
-      skill: { ...actionSkill, mv: 0, hits: 0 },
+      skill: {
+        ...actionSkill,
+        mv: 0,
+        hits: 0,
+        forte: onCast?.forte ?? 0,
+        forte2: onCast?.forte2 ?? 0,
+        concerto: onCast?.concerto ?? 0,
+        resonance: onCast?.resonance ?? 0,
+      },
       time: action.time,
     }
 
     timeline.push(parentItem)
 
-    const { mv, hits } = action.skill
-
-    for (let i = 0; i < mv.length; i++) {
-      const hitFrame = hits[i] ?? 0
+    const hits = action.skill.hits
+    for (const hit of hits) {
+      const { frame, mv, forte, forte2, concerto, resonance } = hit
+      const hitFrame = frame ?? 0
 
       const hitItem: TimelineItem = {
         char: action.char,
@@ -163,8 +172,12 @@ export function computeEventTimeline(
         skill: {
           ...actionSkill,
           name: baseName,
-          mv: mv[i],
+          mv: mv ?? 0,
           hits: hitFrame,
+          forte: forte ?? 0,
+          forte2: forte2 ?? 0,
+          concerto: concerto ?? 0,
+          resonance: resonance ?? 0,
         },
         time: action.time + hitFrame,
         parent: parentId,
@@ -179,7 +192,7 @@ export function computeEventTimeline(
 
 export function aggregateResult(eventTimeline: Result[]): Result[] {
   // time is used to index
-  const parentMap: Record<string,Result> = {}
+  const parentMap: Record<string, Result> = {}
   const result: Result[] = []
 
   for (let i = 0; i < eventTimeline.length; i++) {

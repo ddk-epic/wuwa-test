@@ -104,33 +104,39 @@ export type ActiveBuffObject = {
   endTime: number
 } & BuffObject
 
+type EventValues = {
+  frame: number
+  mv: number
+  forte: number
+  forte2: number
+  concerto: number
+  resonance: number
+}
+
 type SkillVariation = {
-  mv?: number[]
   frames?: number // in frames
-  hits?: number[]
-  concerto?: number
-  resonance?: number
+  hits?: Partial<EventValues>[]
 }
 
 export type SKILL = {
   name: string
   category: SkillBaseType | "echo"
   classifications: (Element | SkillBaseType | "echo")[]
-  mv: number[]
   frames: number // in frames
   freezetime?: number
   cooldown?: number
-  hits: number[]
-  forte?: number
-  forte2?: number
-  concerto: number
-  resonance: number
+  onCast?: Partial<EventValues>
+  hits: Partial<EventValues>[]
   variations?: Record<string, SkillVariation>
 }
 
-export type Skill = Omit<SKILL, "mv" | "hits" | "variations"> & {
+export type Skill = Omit<SKILL, "hits" | "variations"> & {
   mv: number
   hits: number
+  forte: number
+  forte2: number
+  concerto: number
+  resonance: number
 }
 
 export type Echo = SKILL & { set: string }
