@@ -46,6 +46,7 @@ function App() {
     "sequence",
     [],
   )
+  const [rawResult, setRawResult] = usePersistedState<Result[]>("raw", [])
   const [result, setResult] = usePersistedState<Result[]>("result", [])
 
   const computedChars = useMemo(() => {
@@ -176,9 +177,10 @@ function App() {
     characterData: Record<CHARACTER_KEY, Character>,
     actionList: TimelineItem[],
   ) => {
-    const result = calculate(characterData, actionList, totalBuffMap)
-    const aggregatedResult = aggregateResult(result)
-    setResult(aggregatedResult)
+    const rawResult = calculate(characterData, actionList, totalBuffMap)
+    setRawResult(rawResult)
+    const finalResult = aggregateResult(rawResult)
+    setResult(finalResult)
   }
 
   const handleReset = () => {
@@ -209,7 +211,7 @@ function App() {
           <div className="absolute bottom-4 right-6 flex gap-2">
             <EventTableModal
               preComputeTimeline={computedEventTimeline}
-              resultTimeline={result}
+              resultTimeline={rawResult}
             />
             <CalculateButton
               charData={computedChars}
