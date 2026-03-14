@@ -113,12 +113,12 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
   }
 }
 
-function handleEnergyShare(ctx: Context, value: number) {
+function handleEnergyShare(ctx: Context, action: TimelineItem) {
+  const value = action.skill.resonance
   for (const character of Object.values(ctx.characters)) {
-    const activeMultiplier = character.name === ctx.activeCharacter ? 1 : 0.5
-    if (character) {
-      character.dCond.Resonance += value * activeMultiplier
-    }
+    const activeMultiplier = character.id === action.char ? 1 : 0.5
+
+    character.dCond.Resonance += value * activeMultiplier
   }
 }
 
@@ -130,7 +130,7 @@ function evaluateDCond(ctx: Context, action: TimelineItem) {
   if (skill.classifications.includes("liberation")) {
     character.dCond.Resonance = 0
   }
-  handleEnergyShare(ctx, skill.resonance)
+  handleEnergyShare(ctx, action)
 
   // handle concerto
   character.dCond.Concerto += skill.concerto

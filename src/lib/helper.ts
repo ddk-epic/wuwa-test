@@ -201,8 +201,6 @@ export function aggregateResult(eventTimeline: Result[]): Result[] {
       const parent: Result = {
         ...row,
         row: i + 1,
-        concerto: 0,
-        resonance: 0,
         damage: 0,
       }
       parentMap[String(row.time)] = parent

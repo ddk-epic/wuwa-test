@@ -62,7 +62,7 @@ function ResultTimeline({
                   {result.skill.name}
                 </td>
                 <td className="w-1/36 px-2">{result.time}</td>
-                <td className="w-1/36 px-2">{result.concerto}</td>
+                <td className="w-1/36 px-2">{result.concerto.toFixed(1)}</td>
                 <td className="w-1/36 px-2">{result.resonance.toFixed(1)}</td>
                 <td className="w-2/36 px-2">
                   {result.damage > 0 ? Math.round(result.damage) : "--"}
