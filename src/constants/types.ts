@@ -2,22 +2,26 @@ import type { BONUS_STAT_KEY, CHARACTER_KEY } from "./characters"
 import type { ECHO_KEY, ECHO_SET_KEY } from "./echoes"
 import type { WEAPON_KEY, WEAPON_STAT } from "./weapons"
 
-export type Element =
-  | "aero"
-  | "electro"
-  | "fusion"
-  | "glacio"
-  | "havoc"
-  | "spectro"
+export const ELEMENT = [
+  "aero",
+  "electro",
+  "fusion",
+  "glacio",
+  "havoc",
+  "spectro",
+] as const
+export type ELEMENT_KEY = (typeof ELEMENT)[number]
 
-export type SkillBaseType =
-  | "basic"
-  | "forte"
-  | "intro"
-  | "heavy"
-  | "liberation"
-  | "outro"
-  | "skill"
+export const SKILL_CATEGORY = [
+  "basic",
+  "forte",
+  "intro",
+  "heavy",
+  "liberation",
+  "outro",
+  "skill",
+] as const
+export type SKILL_CATEGORY_KEY = (typeof SKILL_CATEGORY)[number]
 
 export type BuffType =
   | "atk"
@@ -65,42 +69,39 @@ export type BuffCategory =
   | "BuffStacking"
   | "BuffOffField"
   | "Damage"
+  | "Mode"
+
+type ModifierValue = {
+  class: BuffType
+  value: number
+  newValue?: number
+}
 
 export type BuffObject = {
   name: string
   type: BuffCategory
-  source: string
+  source: CHARACTER_KEY | "Self"
   // classifications?: (Element | BuffType)[]
-  triggeredBy?: (string | SkillBaseType | "echo")[]
-  appliesTo: string
-  modifier: BuffType[]
+  triggeredBy?: (string | SKILL_CATEGORY_KEY | "echo")[]
+  appliesTo: CHARACTER_KEY | "Self" | "Next"
+  modifiers: ModifierValue[]
   consumedBy?: string[]
   stackLimit?: number
   stackInterval?: number
   sequenceReq?: number
-  value: number
   duration: number
   forte?: number
   forte2?: number
   concerto?: number
   resonance?: number
 }
-
-export type WeaponBuffObject = {
-  name: string
-  type: BuffCategory
-  source: string
-  createdBy: string[]
-  triggeredBy?: (string | SkillBaseType | "echo")[]
-  appliesTo: string
-  modifier: BuffType[]
-  stackLimit?: number
-  stackInterval?: number
-  value: number[]
-  duration: number
-}
+export type WeaponBuffObject = Omit<
+  BuffObject,
+  "consumedBy" | "sequenceReq" | "forte" | "forte2" | "concerto" | "resonance"
+>
 
 export type ActiveBuffObject = {
+  stackCount?: number
   endTime: number
 } & BuffObject
 
@@ -120,8 +121,8 @@ type SkillVariation = {
 
 export type SKILL = {
   name: string
-  category: SkillBaseType | "echo"
-  classifications: (Element | SkillBaseType | "echo")[]
+  category: SKILL_CATEGORY_KEY | "echo"
+  classifications: (ELEMENT_KEY | SKILL_CATEGORY_KEY | "echo")[]
   frames: number // in frames
   freezetime?: number
   cooldown?: number
@@ -145,7 +146,7 @@ type SkillSequence = {
   1: SKILL | null
 } & Record<number, SKILL | null>
 
-type SkillCategory = Record<SkillBaseType, SkillSequence>
+type SkillCategory = Record<SKILL_CATEGORY_KEY, SkillSequence>
 
 export interface CharacterSkills {
   [char: string]: SkillCategory
@@ -176,7 +177,7 @@ export type Result = {
   damage: number
   procc: Procc
   parent?: string
-  buffs?: ActiveBuffObject[]
+  buffs: string[]
   buffMap: string[]
 }
 
@@ -202,7 +203,7 @@ export interface Character {
   echo: ECHO_KEY
   echoSet: ECHO_SET_KEY[]
   build: string
-  element: Element
+  element: ELEMENT_KEY
   bonus1: BONUS_STAT_KEY
   bonus2: BONUS_STAT_KEY | "heal"
   maxForte: number

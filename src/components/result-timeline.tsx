@@ -35,12 +35,12 @@ function ResultTimeline({
         <h1 className="font-bold">Result (raw)</h1>
         {resultTimeline.map((result) => {
           const activeBuffString =
-            result?.buffs?.map((buff) => buff.name).join(", ") ?? ""
+            result?.buffs.join(", ")
           const finalBuffMap = (() => {
             let idx = 0
             return [6, 5, 5, 6, 5]
               .map((size) => {
-                const group = result?.buffMap?.slice(idx, idx + size) ?? []
+                const group = result?.buffMap.slice(idx, idx + size) ?? []
                 idx += size
                 return `[${group.join(" ")}]`
               })

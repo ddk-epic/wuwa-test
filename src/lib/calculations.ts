@@ -1,19 +1,24 @@
-import type {
-  ActiveBuffObject,
-  BonusStats,
-  BuffMap,
-  BuffObject,
-  BuffType,
-  Character,
-  Context,
-  Result,
-  Skill,
-  TimelineItem,
+import {
+  ELEMENT,
+  type ActiveBuffObject,
+  type BonusStats,
+  type BuffMap,
+  type BuffObject,
+  type BuffType,
+  type Character,
+  type Context,
+  type Result,
+  type Skill,
+  type TimelineItem,
 } from "@/constants/types"
 
-import { getBaseSkillName, roundBuffMapToPercentStrings } from "./utils"
+import {
+  getBaseBuffName,
+  getBaseSkillName,
+  roundBuffMapToPercentStrings,
+} from "./utils"
 
-import { hasSwapped, removeBuffByName } from "./helper"
+import { buffHandler, hasSwapped, isMatch, removeBuffByName } from "./helper"
 
 import type { CHARACTER_KEY } from "@/constants/characters"
 import { buffs } from "./effects/buffs"
@@ -25,6 +30,9 @@ function removeExpiredBuffs(ctx: Context, action: TimelineItem) {
   const character = action.char
   const currentTime = ctx.time
   const buffsToRemove = new Set<ActiveBuffObject>()
+  const buffs = ctx.activeBuffs[character]
+
+  if (!buffs) return
 
   // filter by endtime
   for (const buff of ctx.activeBuffs[character]) {
@@ -51,7 +59,7 @@ function addOnSwapBuffs(ctx: Context, action: TimelineItem) {
 
   for (const buff of buffNext) {
     const isAlreadyActive = ctx.activeBuffs[character].some(
-      (b) => b.name === buff.name,
+      (b) => getBaseBuffName(b.name) === getBaseBuffName(buff.name),
     )
 
     // add end time
@@ -71,45 +79,52 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
   const character = action.char
   const skill = action.skill
   const currentTime = ctx.time
+  const buffs = ctx.activeBuffs[character]
 
-  const baseName = getBaseSkillName(action.skill.name)
+  if (!buffs) return
 
   for (const buff of ctx.allBuffs) {
-    const isAlreadyActive = ctx.activeBuffs[character].some(
-      (b) => b.name === buff.name,
-    )
-    // check ownership
+    //  preliminary checks
     if (buff.source !== character) continue
 
-    // add buff triggered by Skill or Skill
-    const hasNameMatch = buff.triggeredBy?.includes(baseName)
-    const hasTriggerMatch = !!buff.triggeredBy?.includes(skill.category)
+    const isAlreadyActive = ctx.activeBuffs[character].some(
+      (b) => getBaseBuffName(b.name) === getBaseBuffName(buff.name),
+    )
+    if (isAlreadyActive) continue
 
-    if (!isAlreadyActive && (hasNameMatch || hasTriggerMatch)) {
-      // handle end time
-      const endTime =
-        (currentTime + buff.duration * 60 - (skill.freezetime ?? 0)) / 60 // frame time
-      const activeBuffObject = { ...buff, endTime }
+    const sequenceRequirement = buff.sequenceReq ?? 0
+    if (sequenceRequirement > ctx.characters[character].sequence) continue
 
-      // handle damage procc
+    // add buff if match
+    const match = isMatch(buff.triggeredBy, skill)
+    if (!match) continue
 
-      if (buff.type === "Damage" && buff.consumedBy) {
-        ctx.buffDeferred.push(activeBuffObject)
-        // console.log(`add ${activeBuffObject.name} to buffDeferred`)
-      }
+    // handle end time (convert to frame time)
+    const endTime =
+      (currentTime + buff.duration * 60 - (skill.freezetime ?? 0)) / 60
+    const stackCount = 0
+    const activeBuffObject =
+      buff.type !== "BuffStacking"
+        ? { ...buff, endTime }
+        : { ...buff, stackCount, endTime }
 
-      // handle outro
-      if (buff.type === "BuffNext" && buff.appliesTo === "Next") {
-        ctx.buffNext.push(activeBuffObject)
-        // console.log(`add ${activeBuffObject.name} to buffNext`)
-        continue
-      }
-
-      ctx.activeBuffs[character].push(activeBuffObject)
-      // console.log(
-      //   `add ${activeBuffObject.name} to activeBuffs[${activeCharacter}]`,
-      // )
+    // handle outro
+    if (buff.type === "BuffNext" && buff.appliesTo === "Next") {
+      ctx.buffNext.push(activeBuffObject)
+      // console.log(`add ${activeBuffObject.name} to buffNext`)
+      continue
     }
+
+    // handle damage procc
+    if (buff.type === "Damage" && buff.consumedBy) {
+      ctx.buffDeferred.push(activeBuffObject)
+      // console.log(`add ${activeBuffObject.name} to buffDeferred`)
+    }
+
+    ctx.activeBuffs[character].push(activeBuffObject)
+    // console.log(
+    //   `add ${activeBuffObject.name} to activeBuffs[${activeCharacter}]`,
+    // )
   }
 }
 
@@ -159,58 +174,83 @@ function calculateDamage(ctx: Context, action: TimelineItem) {
 function evaluateBuffs(ctx: Context, action: TimelineItem) {
   const character = action.char
   const skill = action.skill
+  const time = action.time
   const buffs = ctx.activeBuffs[character]
 
-  const baseName = getBaseSkillName(skill.name)
-
-  if (buffs.length === 0) return
+  if (!buffs) return
 
   for (const buff of buffs) {
-    if (!buff) continue
-
     switch (buff.type) {
+      case "BuffStacking":
+        if (action.type !== "hit") break
+        const match = isMatch(buff.triggeredBy, skill)
+        if (!match) break
+
+        const handler = buffHandler["BuffStacking"]
+        const modifierDeltas = handler.onTrigger(buff, time)
+
+        if (!modifierDeltas) break
+        for (const modifier of modifierDeltas) {
+          ctx.buffMap[character][modifier.class] += modifier.value
+          // console.log(
+          //   `(${ctx.row}) BuffStacking buffMap[${character}][${modifier.class}]: ${ctx.buffMap[character][modifier.class]}`,
+          // )
+        }
+        break
+
       case "BuffConsume":
         break
 
       case "Damage":
+        const baseName = getBaseSkillName(skill.name)
+
         for (const buff of [...ctx.buffDeferred]) {
-          if (buff.consumedBy && buff.consumedBy.includes(baseName)) {
-            const damageProcc: Skill = {
-              name: `${buff.name} Procc`,
-              category: skill.category,
-              classifications: skill.classifications,
-              mv: buff.value,
-              frames: 0,
-              hits: 1,
-              forte: buff?.forte ?? 0,
-              forte2: buff?.forte2 ?? 0,
-              concerto: buff?.concerto ?? 0,
-              resonance: buff?.resonance ?? 0,
-            }
-            const damageAction: TimelineItem = {
-              char: character,
-              type: "hit",
-              skill: damageProcc,
-              time: 0,
-            }
-            ctx.procc.damage = calculateDamage(ctx, damageAction)
-            evaluateDCond(ctx, damageAction)
-            removeBuffByName(ctx.activeBuffs[character], buff.name)
-            removeBuffByName(ctx.buffDeferred, buff.name)
-            // console.log(
-            //   `${damageProcc.name} successfully procced for`,
-            //   ctx.procc.damage,
-            // )
+          if (!(buff.consumedBy && buff.consumedBy.includes(baseName))) break
+
+          const damageProcc: Skill = {
+            name: `${buff.name} Procc`,
+            category: skill.category,
+            classifications: skill.classifications,
+            mv: buff.modifiers[0].value,
+            frames: 0,
+            hits: 1,
+            forte: buff?.forte ?? 0,
+            forte2: buff?.forte2 ?? 0,
+            concerto: buff?.concerto ?? 0,
+            resonance: buff?.resonance ?? 0,
           }
+          const damageAction: TimelineItem = {
+            char: character,
+            type: "hit",
+            skill: damageProcc,
+            time: 0,
+          }
+          ctx.procc.damage = calculateDamage(ctx, damageAction)
+          evaluateDCond(ctx, damageAction)
+          removeBuffByName(ctx.activeBuffs[character], buff.name)
+          removeBuffByName(ctx.buffDeferred, buff.name)
+          // console.log(
+          //   `${damageProcc.name} successfully procced for`,
+          //   ctx.procc.damage,
+          // )
         }
         break
 
       default:
-        for (const modifier of buff.modifier) {
-          ctx.buffMap[character][modifier] += buff.value
-          // console.log(
-          //   `(${ctx.row}) buffMap[${buff.modifier}]: ${ctx.buffMap[character][modifier]}`,
-          // )
+        for (const modifier of buff.modifiers) {
+          if (modifier.class === "allEle") {
+            for (const element of ELEMENT) {
+              ctx.buffMap[character][element] += modifier.value
+            }
+            // console.log(
+            //   `(${ctx.row}) default (${buff.name}) buffMap[${character}][${modifier.class}]: ${modifier.value}`,
+            // )
+          } else {
+            ctx.buffMap[character][modifier.class] += modifier.value
+            // console.log(
+            //   `(${ctx.row}) default (${buff.name}) buffMap[${character}][${modifier.class}]: ${ctx.buffMap[character][modifier.class]} (+${modifier.value})`,
+            // )
+          }
         }
     }
   }
@@ -220,6 +260,7 @@ function processAction(
   ctx: Context,
   action: TimelineItem,
   initialBuffMap: Record<string, BuffMap>,
+  passiveBuffs: Record<string, ActiveBuffObject[]>,
 ) {
   // update ctx
   ctx.activeCharacter =
@@ -229,6 +270,7 @@ function processAction(
 
   const character = action.char
   const skill = action.skill
+  const buffs = ctx.activeBuffs[character]
 
   // remove expired buffs
   removeExpiredBuffs(ctx, action)
@@ -248,6 +290,9 @@ function processAction(
   evaluateDCond(ctx, action)
   const damage = calculateDamage(ctx, action)
 
+  const buffsPassive = passiveBuffs[character].map((buff) => buff.name)
+  const buffsCharacter = buffs ? buffs.map((buff) => buff.name) : []
+
   const roundedBuffMap: Record<keyof BuffMap, string> =
     roundBuffMapToPercentStrings(ctx.buffMap[character])
   const buffMapValues = Object.values(roundedBuffMap).slice(0, 32)
@@ -263,7 +308,7 @@ function processAction(
     damage,
     procc: { ...ctx.procc },
     parent: action?.parent,
-    buffs: [...ctx.activeBuffs[character]],
+    buffs: [...buffsPassive, ...buffsCharacter],
     buffMap: buffMapValues,
   }
 
@@ -274,8 +319,8 @@ function processAction(
   return resultObject
 }
 
-function getBuffData(characters: Record<string, Character>) {
-  const team = Object.keys(characters)
+function getBuffData(characters: Record<CHARACTER_KEY, Character>) {
+  const team = Object.keys(characters) as CHARACTER_KEY[]
 
   const characterBuffData: BuffObject[] = team
     .map((charName) => buffs[charName] ?? [])
@@ -291,13 +336,12 @@ function getBuffData(characters: Record<string, Character>) {
       if (!getWeaponBuffs) return []
 
       return getWeaponBuffs.map((buff) => {
-        const value = buff.value[Math.max(0, sequence - 1)]
         const returnObj = {
           ...buff,
+          modifiers: [buff.modifiers[Math.max(0, sequence - 1)]],
           appliesTo: charName,
           source: charName,
-          value,
-        }
+        } as BuffObject
         return returnObj
       })
     })
@@ -305,29 +349,17 @@ function getBuffData(characters: Record<string, Character>) {
 
   const setBuffData: BuffObject[] = team
     .map((charName) => {
-      const echoSets = characters[charName].echoSet
-      const getEchoBuffs = echoSets.flatMap((echoName) => {
-        // if only 1 set, return 2pc and 5pc
-        if (echoSets.length === 1) {
-          return setBuffs[echoName]
-        } else {
-          // TODO: proper handling for 3pc
-          return setBuffs[echoName][0]
-        }
-      })
-      // console.log(echoBuffs)
+      // TODO: proper handling
+      const echoName = characters[charName].echoSet[0]
+      const getSetBuffs = setBuffs[echoName]
 
-      return getEchoBuffs.map((buff) => {
+      return getSetBuffs.map((buff) => {
         const appliesTo = buff.appliesTo === "Self" ? charName : buff.appliesTo
         const buffObj = {
           ...buff,
-          createdBy: [charName],
+          source: charName,
           appliesTo,
-        }
-
-        if ("source" in buff) {
-          buffObj.source = charName
-        }
+        } as BuffObject
 
         return buffObj
       })
@@ -337,7 +369,18 @@ function getBuffData(characters: Record<string, Character>) {
   const echoBuffData: BuffObject[] = team
     .map((charName) => {
       const echoName = characters[charName].echo
-      return echoBuffs[echoName]
+      const getEchoBuffs = echoBuffs[echoName]
+
+      return getEchoBuffs.map((buff) => {
+        const appliesTo = buff.appliesTo === "Self" ? charName : buff.appliesTo
+        const buffObj = {
+          ...buff,
+          source: charName,
+          appliesTo,
+        } as BuffObject
+
+        return buffObj
+      })
     })
     .flat()
 
@@ -347,7 +390,6 @@ function getBuffData(characters: Record<string, Character>) {
     ...setBuffData,
     ...echoBuffData,
   ]
-  // console.log(allBuffs)
 
   return allBuffs
 }
@@ -380,46 +422,48 @@ function getBuffMap(
   return initialBuffMap
 }
 
-function preparePassiveBuffs(
+function prepareBuffs(
   characters: Record<string, Character>,
   allBuffs: BuffObject[],
 ) {
   const team = Object.keys(characters)
 
-  const allPassiveBuffs = Object.values(allBuffs)
-    .flat()
-    .filter((buff) => buff.duration === 99999)
-
-  const activeBuffs: Record<string, ActiveBuffObject[]> = team.reduce(
+  const passiveBuffs = team.reduce(
     (acc, character) => {
       acc[character] = []
       return acc
     },
     {} as Record<string, ActiveBuffObject[]>,
   )
+  const nonPassiveBuffs = [] as BuffObject[]
 
-  allPassiveBuffs.forEach((buff) => {
-    const activeBuff: ActiveBuffObject = { ...buff, endTime: 99999 }
-    activeBuffs[buff.appliesTo].push(activeBuff)
+  allBuffs.forEach((buff) => {
+    if (buff.duration < 999) {
+      nonPassiveBuffs.push(buff)
+    } else {
+      passiveBuffs[buff.source].push({
+        ...buff,
+        endTime: 99999,
+      })
+    }
   })
 
-  return activeBuffs
+  return { passiveBuffs, nonPassiveBuffs }
 }
 
 function getContext(
   characterData: Record<string, Character>,
   baseBuffMap: Record<string, BuffMap>,
-  allBuffs: BuffObject[],
-  initialActiveBuffs: Record<string, ActiveBuffObject[]>,
+  nonPassiveBuffs: BuffObject[],
 ): Context {
   const characters = structuredClone(characterData)
-  const activeBuffs = structuredClone(initialActiveBuffs)
   const procc = { damage: 0, heal: 0, shield: 0 }
+  console.log("nonPassiveBuffs", nonPassiveBuffs)
 
   return {
-    activeBuffs,
+    activeBuffs: {},
     activeCharacter: "",
-    allBuffs,
+    allBuffs: nonPassiveBuffs,
     buffMap: baseBuffMap,
     buffDeferred: [],
     buffNext: [],
@@ -446,19 +490,15 @@ function calculate(
   const initialBuffMap = getBuffMap(characters, baseBuffMap)
 
   // process passive Buffs
-  const initialActiveBuffs = preparePassiveBuffs(characters, buffData)
+  const passiveBuffs = prepareBuffs(characters, buffData).passiveBuffs
+  const nonPassiveBuffs = prepareBuffs(characters, buffData).nonPassiveBuffs
 
   // global mutable context
-  const ctx: Context = getContext(
-    characters,
-    initialBuffMap,
-    buffData,
-    initialActiveBuffs,
-  )
+  const ctx: Context = getContext(characters, initialBuffMap, nonPassiveBuffs)
 
   // calculation loop
   for (const action of actionList) {
-    const result = processAction(ctx, action, initialBuffMap)
+    const result = processAction(ctx, action, initialBuffMap, passiveBuffs)
     resultList.push(result)
   }
   return resultList
@@ -475,7 +515,7 @@ export {
   processAction,
   getBuffData,
   getBuffMap,
-  preparePassiveBuffs,
+  prepareBuffs,
   getContext,
   calculate,
 }

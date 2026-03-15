@@ -52,3 +52,8 @@ export function getBaseSkillName(name: string): string {
   const index = name.indexOf(" (")
   return index === -1 ? name : name.slice(0, index)
 }
+
+export function getBaseBuffName(name: string): string {
+  const index = name.indexOf(" x")
+  return index === -1 ? name : name.slice(0, index)
+}

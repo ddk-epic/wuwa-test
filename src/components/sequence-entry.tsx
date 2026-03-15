@@ -24,8 +24,7 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
   const elementColorText = ELEMENT_COLORS[element].text
   const result = res[index]
 
-  const activeBuffString =
-    result?.buffs?.map((buff) => buff.name).join(", ") ?? ""
+  const activeBuffString = result?.buffs.join(", ")
   const finalBuffMap = (() => {
     let idx = 0
     return [6, 5, 5, 6, 5]
@@ -93,7 +92,7 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
         {!!result && (
           <Hint label={activeBuffString}>
             <span>
-              ({result.buffs?.length || 0}) [{activeBuffString}]
+              ({result.buffs.length || 0}) [{activeBuffString}]
             </span>
           </Hint>
         )}

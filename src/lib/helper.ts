@@ -1,4 +1,4 @@
-import { getBaseSkillName } from "./utils"
+import { getBaseBuffName, getBaseSkillName } from "./utils"
 
 import type {
   ActionListItem,
@@ -6,6 +6,7 @@ import type {
   Character,
   CharSettings,
   Result,
+  Skill,
   SKILL,
   TimelineItem,
 } from "@/constants/types"
@@ -211,9 +212,11 @@ export function aggregateResult(eventTimeline: Result[]): Result[] {
       const parent = parentMap[row.parent]
       if (!parent) continue
 
-      parent.damage += row.damage ?? 0
-      parent.concerto = row.concerto ?? 0
-      parent.resonance = row.resonance ?? 0
+      parent.damage += row.damage
+      parent.concerto = row.concerto
+      parent.resonance = row.resonance
+      parent.buffs = row.buffs
+      parent.buffMap = row.buffMap
     }
   }
 
@@ -229,4 +232,30 @@ export function removeBuffByName(array: ActiveBuffObject[], name: string) {
   if (index !== -1) {
     array.splice(index, 1)
   }
+}
+
+export function isMatch(trigger: string[] | undefined, skill: Skill) {
+  const baseName = getBaseSkillName(skill.name)
+  const hasNameMatch = trigger?.includes(baseName)
+  const hasCategoryMatch = !!trigger?.includes(skill.category)
+  return hasNameMatch || hasCategoryMatch
+}
+
+export const buffHandler = {
+  BuffStacking: {
+    onTrigger: (buff: ActiveBuffObject, time: number) => {
+      if (!buff.stackLimit) return null
+
+      const baseBuffName = getBaseBuffName(buff.name)
+
+      buff.stackCount = Math.min((buff.stackCount ?? 0) + 1, buff.stackLimit)
+      buff.endTime = time + buff.duration
+      buff.name = `${baseBuffName} x${buff.stackCount}`
+
+      return buff.modifiers.map((modifier) => ({
+        ...modifier,
+        newValue: (buff.stackCount ?? 0) * modifier.value,
+      }))
+    },
+  },
 }

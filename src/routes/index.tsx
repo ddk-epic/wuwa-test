@@ -158,6 +158,7 @@ function App() {
   }
 
   const handleAddSkill = (char: CHARACTER_KEY, skill: SKILL) => {
+    setRawResult([])
     setResult([])
     setSequence((prev) => {
       const newSequence: ActionListItem[] = [...prev, { char, skill, time: 0 }]
@@ -166,6 +167,7 @@ function App() {
   }
 
   const handleRemoveSkill = (index: number) => {
+    setRawResult([])
     setResult([])
     setSequence((prev) => {
       const newSequence = prev.filter((_, i) => i !== index)
@@ -185,6 +187,7 @@ function App() {
 
   const handleReset = () => {
     setSequence([])
+    setRawResult([])
     setResult([])
   }
 
