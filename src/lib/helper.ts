@@ -99,7 +99,7 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
   // const SWAP_FRAMES = 15
 
   let currentTime = 0 // in frames
-  let previousChar: string | null = null
+  let previousChar: CHARACTER_KEY | null = null
 
   return sequence.map((entry) => {
     let start = currentTime
@@ -234,9 +234,9 @@ export function hasOffFieldBuff(buff: BuffObject) {
 
 export function isOnField(
   characterId: CHARACTER_KEY,
-  onFieldCharacter: CHARACTER_KEY | "",
+  onFieldChar: CHARACTER_KEY | "",
 ) {
-  return characterId === onFieldCharacter
+  return characterId === onFieldChar
 }
 
 export function removeBuffByName(array: ActiveBuffObject[], id: string) {

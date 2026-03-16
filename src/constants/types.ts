@@ -277,7 +277,7 @@ type Procc = {
 
 export type Context = {
   activeBuffs: Record<string, ActiveBuffObject[]>
-  onFieldCharacter: CHARACTER_KEY | ""
+  onFieldChar: CHARACTER_KEY | ""
   allBuffs: BuffObject[]
   buffMap: Record<string, BuffMap>
   buffNext: ActiveBuffObject[]
