@@ -1,13 +1,15 @@
 import {
   ELEMENT,
   type ActiveBuffObject,
+  type BUFF_TYPE,
   type BuffMap,
   type BuffObject,
-  type BuffType,
   type Character,
   type Context,
+  type ELEMENT_KEY,
   type Result,
   type Skill,
+  type SKILL_CATEGORY_KEY,
   type TimelineItem,
 } from "@/constants/types"
 
@@ -139,21 +141,62 @@ function evaluateDCond(ctx: Context, action: TimelineItem) {
 
 function calculateDamage(ctx: Context, action: TimelineItem) {
   const characterId = action.char
+  const skill = action.skill
   const char = ctx.characters[characterId]
-  const enemyDefenseMultiplier = 0.52
+  const buffMap = ctx.buffMap[characterId]
 
   if (action.type === "parent") return 0
 
-  const attack =
-    char.atk * (1 + ctx.buffMap[characterId].atk) + char.bonusStats.atkFlat
-  const damage =
-    attack * action.skill.mv * (1 + ctx.buffMap[characterId].multiplier)
-  const crit = Math.min(char.crit + ctx.buffMap[characterId].crit, 1)
-  const critDmg = char.critDmg + ctx.buffMap[characterId].critDmg
+  function getBonus(
+    classifications: (ELEMENT_KEY | SKILL_CATEGORY_KEY | "echo")[],
+  ) {
+    let result = 0
+
+    for (const key of classifications) {
+      const sharedKey = key as ELEMENT_KEY & SKILL_CATEGORY_KEY
+      if (buffMap[sharedKey]) {
+        result += buffMap[sharedKey]
+      }
+      console.log(`${ctx.row} buffMap[${sharedKey}]: ${buffMap[sharedKey]}`)
+    }
+
+    return result
+  }
+
+  // function getDeepen() {}
+
+  // character
+  const attack = char.atk * (1 + buffMap.atk) + char.bonusStats.atkFlat
+  const skillMultiplier = action.skill.mv * (1 + buffMap.multiplier)
+  const bonusMultiplier = 1 + getBonus(skill.classifications)
+  const deepenMultiplier = 1
+  const crit = Math.min(char.crit + buffMap.crit, 1)
+  const critDmg = char.critDmg + buffMap.critDmg
   const critMultiplier = critDmg - crit + crit * critDmg
 
-  const totalDamage = damage * critMultiplier * enemyDefenseMultiplier
-  // console.log(skill.name, attack, damage, totalDamage)
+  // enemy
+  const enemyDefense = 0.5
+  const enemyResistance = 0.2
+  const enemyResistances = 0.48 * (1 - enemyDefense + enemyResistance)
+
+  const totalDamage =
+    attack *
+    skillMultiplier *
+    bonusMultiplier *
+    deepenMultiplier *
+    critMultiplier *
+    enemyResistances
+
+  // console.log(
+  //   "character",
+  //   skill.name,
+  //   attack,
+  //   skillMultiplier,
+  //   bonusMultiplier,
+  //   totalDamage,
+  // )
+  // console.log("enemy", enemyResistances)
+
   return totalDamage
 }
 
@@ -426,7 +469,7 @@ function getBuffMap(
       // apply BonusStats
       BONUSSTAT_KEYS.forEach((key) => {
         if (key in personalBuffMap) {
-          const sharedKey = key as BONUSSTAT_KEY & BuffType
+          const sharedKey = key as BONUSSTAT_KEY & BUFF_TYPE
           personalBuffMap[sharedKey] += bonusStats[sharedKey]
         }
       })
