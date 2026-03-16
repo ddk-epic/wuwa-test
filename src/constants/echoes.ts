@@ -2,6 +2,7 @@ import type { Echo } from "./types"
 
 export const echoData: Record<string, Echo> = {
   "Impermanence Heron": {
+    id: "Impermanence Heron",
     name: "Impermanence Heron",
     category: "echo",
     classifications: ["havoc", "echo"],
@@ -16,6 +17,7 @@ export const echoData: Record<string, Echo> = {
     },
   },
   "Inferno Rider": {
+    id: "Inferno Rider",
     name: "Inferno Rider",
     category: "echo",
     classifications: ["fusion", "echo"],
