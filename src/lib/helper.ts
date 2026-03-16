@@ -2,6 +2,7 @@ import type {
   ActionListItem,
   ActiveBuffObject,
   BuffMap,
+  BuffObject,
   Character,
   CharSettings,
   ELEMENT_KEY,
@@ -223,8 +224,19 @@ export function aggregateResult(eventTimeline: Result[]): Result[] {
   return result
 }
 
-export function hasSwapped(prevChar: string, currentChar: string) {
+export function hasSwapped(prevChar: CHARACTER_KEY | "", currentChar: CHARACTER_KEY) {
   return prevChar !== currentChar
+}
+
+export function hasOffFieldBuff(buff: BuffObject) {
+  return !!buff.triggeredBy?.some((trigger) => trigger === "off-field")
+}
+
+export function isOnField(
+  characterId: CHARACTER_KEY,
+  onFieldCharacter: CHARACTER_KEY | "",
+) {
+  return characterId === onFieldCharacter
 }
 
 export function removeBuffByName(array: ActiveBuffObject[], id: string) {

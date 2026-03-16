@@ -277,14 +277,14 @@ type Procc = {
 
 export type Context = {
   activeBuffs: Record<string, ActiveBuffObject[]>
-  onFieldCharacter: string
+  onFieldCharacter: CHARACTER_KEY | ""
   allBuffs: BuffObject[]
   buffMap: Record<string, BuffMap>
   buffNext: ActiveBuffObject[]
   buffDeferred: ActiveBuffObject[]
   characters: Record<string, Character>
   hasSwapped: boolean
-  prevChar: string
+  prevChar: CHARACTER_KEY | ""
   procc: Procc
   row: number
   time: number

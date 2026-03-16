@@ -18,8 +18,10 @@ import {
   getBonus,
   getDefMultiplier,
   getResMultiplier,
+  hasOffFieldBuff,
   hasSwapped,
   isMatch,
+  isOnField,
   removeBuffByName,
 } from "./helper"
 
@@ -40,14 +42,19 @@ function removeExpiredBuffs(ctx: Context, action: TimelineItem) {
   const buffsToRemove = new Set<ActiveBuffObject>()
   const buffs = ctx.activeBuffs[character]
 
-  // filter by endtime
   for (const buff of buffs) {
+    // filter by endtime
     if (buff.endTime <= currentTime) {
       buffsToRemove.add(buff)
     }
-  }
 
-  // other filter rules
+    // filter off-field buffs if character is on-field
+    if (hasOffFieldBuff(buff) && isOnField(character, ctx.onFieldCharacter)) {
+      buffsToRemove.add(buff)
+    }
+
+    // other filter rules
+  }
 
   // remove buffs
   ctx.activeBuffs[character] = buffs.filter((buff) => !buffsToRemove.has(buff))
@@ -87,7 +94,12 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
     //  preliminary checks
     if (buff.source !== character) continue
 
-    const isAlreadyActive = buffs.some((b) => b.id === buff.id)
+    // off-field buff check
+    const offFieldCheck =
+      hasOffFieldBuff(buff) && isOnField(character, ctx.onFieldCharacter)
+    if (offFieldCheck) continue
+
+    const isAlreadyActive = [...buffs].some((b) => b.id === buff.id)
     if (isAlreadyActive) continue
 
     const sequenceRequirement = buff.sequenceReq ?? 0
@@ -211,6 +223,11 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
   for (const buff of buffs) {
     let currentModifiers = buff.modifiers
 
+    // off-field buff check
+    const offFieldCheck =
+      hasOffFieldBuff(buff) && isOnField(character, ctx.onFieldCharacter)
+    if (offFieldCheck) continue
+
     switch (buff.type) {
       case "BuffStacking":
         if (action.type !== "hit") break
@@ -264,9 +281,10 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
         break
 
       default:
-        console.log(`(${ctx.row}) evaluateBuffs: default (${buff.name})`)
+      // console.log(`(${ctx.row}) evaluateBuffs: default (${buff.name})`)
     }
     // switch end
+    if (!buff.type.includes("Buff")) continue
 
     for (const modifier of currentModifiers) {
       const value = modifier.stackValue ? modifier.stackValue : modifier.value
@@ -277,10 +295,10 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
         for (const element of ELEMENT) {
           ctx.buffMap[character][element] += value
         }
-        console.log(
-          `(${ctx.row}) (${buff.name}) buffMap[${character}][${modifier.class}]: ${ctx.buffMap[character][modifier.class]} (+${value})`,
-        )
       }
+      // console.log(
+      //   `(${ctx.row}) (${buff.name}) buffMap[${character}][${modifier.class}]: ${ctx.buffMap[character][modifier.class]} (+${value})`,
+      // )
     }
   }
 }
@@ -503,7 +521,7 @@ function getContext(
   characterData: Record<CHARACTER_KEY, Character>,
   baseBuffMap: Record<CHARACTER_KEY, BuffMap>,
   nonPassiveBuffs: BuffObject[],
-) {
+): Context {
   const team = Object.keys(characterData) as CHARACTER_KEY[]
   const characters = structuredClone(characterData)
   const activeBuffs = team.reduce(
@@ -528,7 +546,7 @@ function getContext(
     procc,
     row: 1,
     time: 0,
-  } satisfies Context
+  }
 }
 
 function calculate(
@@ -548,8 +566,9 @@ function calculate(
   const initialBuffMap = getBuffMap(characters, baseBuffMap, passiveBuffs)
 
   // global mutable context
-  const ctx: Context = getContext(characters, initialBuffMap, nonPassiveBuffs)
+  const ctx = getContext(characters, initialBuffMap, nonPassiveBuffs)
   console.log(nonPassiveBuffs)
+  
   // calculation loop
   for (const action of actionList) {
     const result = processAction(ctx, action, initialBuffMap, passiveBuffs)

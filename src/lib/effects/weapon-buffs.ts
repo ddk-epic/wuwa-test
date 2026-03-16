@@ -127,7 +127,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
       name: "Stringmaster (Off-field)",
       type: "BuffStacking",
       source: "Self",
-      triggeredBy: ["skill"],
+      triggeredBy: ["skill", "off-field"],
       appliesTo: "Self",
       modifiers: [
         { class: "atk", value: 0.12 },
