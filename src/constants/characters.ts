@@ -163,7 +163,7 @@ export type CHARACTER_KEY = (typeof CHARACTERS)[number]
 export const CHARACTER_SELECTION = ["__none__", ...CHARACTERS] as const
 export type CHARACTER_SELECTION_KEY = (typeof CHARACTER_SELECTION)[number]
 
-export const bonusStatKeys = [
+export const BONUSSTAT_KEYS = [
   "atkFlat",
   "hpFlat",
   "defFlat",
@@ -184,6 +184,6 @@ export const bonusStatKeys = [
   "havoc",
   "spectro",
 ] as const
-export type BONUS_STAT_KEY = (typeof bonusStatKeys)[number]
+export type BONUSSTAT_KEY = (typeof BONUSSTAT_KEYS)[number]
 
 export default characterTemplate

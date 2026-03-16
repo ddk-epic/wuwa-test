@@ -1,4 +1,4 @@
-import type { BONUS_STAT_KEY, CHARACTER_KEY } from "./characters"
+import type { BONUSSTAT_KEY, CHARACTER_KEY } from "./characters"
 import type { ECHO_KEY, ECHO_SET_KEY } from "./echoes"
 import type { WEAPON_KEY, WEAPON_STAT } from "./weapons"
 
@@ -74,10 +74,11 @@ export type BuffCategory =
 type ModifierValue = {
   class: BuffType
   value: number
-  newValue?: number
+  stackValue?: number
 }
 
 export type BuffObject = {
+  id: string
   name: string
   type: BuffCategory
   source: CHARACTER_KEY | "Self"
@@ -120,6 +121,7 @@ type SkillVariation = {
 }
 
 export type SKILL = {
+  id: string
   name: string
   category: SKILL_CATEGORY_KEY | "echo"
   classifications: (ELEMENT_KEY | SKILL_CATEGORY_KEY | "echo")[]
@@ -181,7 +183,7 @@ export type Result = {
   buffMap: string[]
 }
 
-export type BonusStats = Record<BONUS_STAT_KEY, number>
+export type BonusStats = Record<BONUSSTAT_KEY, number>
 
 type DCondKeys = "Forte" | "Forte2" | "Concerto" | "Resonance"
 
@@ -204,8 +206,8 @@ export interface Character {
   echoSet: ECHO_SET_KEY[]
   build: string
   element: ELEMENT_KEY
-  bonus1: BONUS_STAT_KEY
-  bonus2: BONUS_STAT_KEY | "heal"
+  bonus1: BONUSSTAT_KEY
+  bonus2: BONUSSTAT_KEY | "heal"
   maxForte: number
   maxForte2: number
   /* stats */

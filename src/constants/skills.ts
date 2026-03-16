@@ -4,6 +4,7 @@ const skillData: CharacterSkills = {
   encore: {
     intro: {
       1: {
+        id: "Woolies Can Help!",
         name: "Woolies Can Help!",
         category: "intro",
         classifications: ["fusion", "intro"],
@@ -16,6 +17,7 @@ const skillData: CharacterSkills = {
     },
     outro: {
       1: {
+        id: "Thermal Field",
         name: "Thermal Field",
         category: "outro",
         classifications: ["fusion", "outro"],
@@ -30,6 +32,7 @@ const skillData: CharacterSkills = {
     },
     basic: {
       1: {
+        id: "Woolies Attack 1",
         name: "Woolies Attack 1",
         category: "basic",
         classifications: ["fusion", "basic"],
@@ -37,6 +40,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 20, mv: 0.28, concerto: 1.4, resonance: 0.7 }],
       },
       2: {
+        id: "Woolies Attack 2",
         name: "Woolies Attack 2",
         category: "basic",
         classifications: ["fusion", "basic"],
@@ -44,6 +48,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 20, mv: 0.333, concerto: 1.66, resonance: 0.83 }],
       },
       3: {
+        id: "Woolies Attack 3",
         name: "Woolies Attack 3",
         category: "basic",
         classifications: ["fusion", "basic"],
@@ -54,6 +59,7 @@ const skillData: CharacterSkills = {
         ],
       },
       4: {
+        id: "Woolies Attack 4",
         name: "Woolies Attack 4",
         category: "basic",
         classifications: ["fusion", "basic"],
@@ -66,6 +72,7 @@ const skillData: CharacterSkills = {
         ],
       },
       5: {
+        id: "Woolies Attack 5",
         name: "Woolies Attack 5",
         category: "basic",
         classifications: ["fusion", "basic"],
@@ -73,6 +80,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 1, mv: 1.2, concerto: 6, resonance: 3 }],
       },
       6: {
+        id: "Cosmos - Frolicking 1",
         name: "Cosmos - Frolicking 1",
         category: "basic",
         classifications: ["fusion", "basic"],
@@ -83,6 +91,7 @@ const skillData: CharacterSkills = {
         ],
       },
       7: {
+        id: "Cosmos - Frolicking 2",
         name: "Cosmos - Frolicking 2",
         category: "basic",
         classifications: ["fusion", "basic"],
@@ -94,6 +103,7 @@ const skillData: CharacterSkills = {
         ],
       },
       8: {
+        id: "Cosmos - Frolicking 3",
         name: "Cosmos - Frolicking 3",
         category: "basic",
         classifications: ["fusion", "basic"],
@@ -106,6 +116,7 @@ const skillData: CharacterSkills = {
         ],
       },
       9: {
+        id: "Cosmos - Frolicking 4",
         name: "Cosmos - Frolicking 4",
         category: "basic",
         classifications: ["fusion", "basic"],
@@ -127,6 +138,7 @@ const skillData: CharacterSkills = {
     },
     skill: {
       1: {
+        id: "Flaming Woolies",
         name: "Flaming Woolies",
         category: "skill",
         classifications: ["fusion", "skill"],
@@ -159,6 +171,7 @@ const skillData: CharacterSkills = {
         },
       },
       2: {
+        id: "Energetic Welcome",
         name: "Energetic Welcome",
         category: "skill",
         classifications: ["fusion", "skill"],
@@ -170,6 +183,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 30, mv: 1.706, concerto: 1.51, resonance: 0.75 }],
       },
       3: {
+        id: "Cosmos Rampage",
         name: "Cosmos Rampage",
         category: "skill",
         classifications: ["fusion", "skill"],
@@ -188,6 +202,7 @@ const skillData: CharacterSkills = {
     },
     liberation: {
       1: {
+        id: "Cosmos Rave",
         name: "Cosmos Rave",
         category: "liberation",
         classifications: ["fusion", "liberation"],
@@ -199,6 +214,7 @@ const skillData: CharacterSkills = {
     },
     forte: {
       1: {
+        id: "Cloudy Frenzy",
         name: "Cloudy Frenzy",
         category: "forte",
         classifications: ["fusion", "liberation"],
@@ -206,6 +222,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 180, mv: 1.68, concerto: 10, resonance: 10 }],
       },
       2: {
+        id: "Cosmos Rupture",
         name: "Cosmos Rupture",
         category: "forte",
         classifications: ["fusion", "liberation"],
@@ -225,6 +242,7 @@ const skillData: CharacterSkills = {
   sanhua: {
     intro: {
       1: {
+        id: "Freezing Thorns",
         name: "Freezing Thorns",
         category: "intro",
         classifications: ["glacio", "intro"],
@@ -237,6 +255,7 @@ const skillData: CharacterSkills = {
     },
     outro: {
       1: {
+        id: "Silversnow",
         name: "Silversnow",
         category: "outro",
         classifications: ["glacio", "outro"],
@@ -246,6 +265,7 @@ const skillData: CharacterSkills = {
     },
     basic: {
       1: {
+        id: "Frigid Light 1",
         name: "Frigid Light 1",
         category: "basic",
         classifications: ["glacio", "basic"],
@@ -253,6 +273,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 10, mv: 0.371, concerto: 2, resonance: 0.87 }],
       },
       2: {
+        id: "Frigid Light 2",
         name: "Frigid Light 2",
         category: "basic",
         classifications: ["glacio", "basic"],
@@ -260,6 +281,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 20, mv: 0.245, concerto: 4, resonance: 1.32 }],
       },
       3: {
+        id: "Frigid Light 3",
         name: "Frigid Light 3",
         category: "basic",
         classifications: ["glacio", "basic"],
@@ -267,6 +289,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 20, mv: 0.434, concerto: 8, resonance: 1.52 }],
       },
       4: {
+        id: "Frigid Light 4",
         name: "Frigid Light 4",
         category: "basic",
         classifications: ["glacio", "basic"],
@@ -277,6 +300,7 @@ const skillData: CharacterSkills = {
         ],
       },
       5: {
+        id: "Frigid Light 5",
         name: "Frigid Light 5",
         category: "basic",
         classifications: ["glacio", "basic"],
@@ -286,6 +310,7 @@ const skillData: CharacterSkills = {
     },
     heavy: {
       1: {
+        id: "Frigid Light",
         name: "Frigid Light",
         category: "heavy",
         classifications: ["glacio", "heavy"],
@@ -295,6 +320,7 @@ const skillData: CharacterSkills = {
     },
     skill: {
       1: {
+        id: "Eternal Frost",
         name: "Eternal Frost",
         category: "skill",
         classifications: ["glacio", "skill"],
@@ -313,6 +339,7 @@ const skillData: CharacterSkills = {
     },
     liberation: {
       1: {
+        id: "Glacial Gaze",
         name: "Glacial Gaze",
         category: "liberation",
         classifications: ["glacio", "liberation"],
@@ -327,6 +354,7 @@ const skillData: CharacterSkills = {
     },
     forte: {
       1: {
+        id: "Detonate",
         name: "Detonate",
         category: "forte",
         classifications: ["glacio", "skill"],
@@ -343,6 +371,7 @@ const skillData: CharacterSkills = {
   shorekeeper: {
     intro: {
       1: {
+        id: "Enlightenment",
         name: "Enlightenment",
         category: "intro",
         classifications: ["spectro", "skill"],
@@ -356,6 +385,7 @@ const skillData: CharacterSkills = {
         ],
       },
       2: {
+        id: "Discernment",
         name: "Discernment",
         category: "intro",
         classifications: ["spectro", "liberation"],
@@ -369,6 +399,7 @@ const skillData: CharacterSkills = {
     },
     outro: {
       1: {
+        id: "Binary Butterfly",
         name: "Binary Butterfly",
         category: "outro",
         classifications: ["spectro", "outro"],
@@ -378,6 +409,7 @@ const skillData: CharacterSkills = {
     },
     basic: {
       1: {
+        id: "Origin Calculus 1",
         name: "Origin Calculus 1",
         category: "basic",
         classifications: ["spectro", "basic"],
@@ -385,6 +417,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 1, mv: 0, concerto: 0, resonance: 0 }],
       },
       2: {
+        id: "Origin Calculus 2",
         name: "Origin Calculus 2",
         category: "basic",
         classifications: ["spectro", "basic"],
@@ -392,6 +425,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 1, mv: 0, concerto: 0, resonance: 0 }],
       },
       3: {
+        id: "Origin Calculus 3",
         name: "Origin Calculus 3",
         category: "basic",
         classifications: ["spectro", "basic"],
@@ -399,6 +433,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 1, mv: 0, concerto: 0, resonance: 0 }],
       },
       4: {
+        id: "Origin Calculus 4",
         name: "Origin Calculus 4",
         category: "basic",
         classifications: ["spectro", "basic"],
@@ -411,6 +446,7 @@ const skillData: CharacterSkills = {
     },
     skill: {
       1: {
+        id: "Chaos Theory",
         name: "Chaos Theory",
         category: "skill",
         classifications: ["spectro", "skill"],
@@ -422,6 +458,7 @@ const skillData: CharacterSkills = {
 
     liberation: {
       1: {
+        id: "End Loop",
         name: "End Loop",
         category: "liberation",
         classifications: ["spectro", "liberation"],
@@ -433,6 +470,7 @@ const skillData: CharacterSkills = {
     },
     forte: {
       1: {
+        id: "Illation",
         name: "Illation",
         category: "forte",
         classifications: ["spectro", "heavy"],
@@ -440,6 +478,7 @@ const skillData: CharacterSkills = {
         hits: [{ frame: 1, mv: 0, concerto: 0, resonance: 0 }],
       },
       2: {
+        id: "Transmutation",
         name: "Transmutation",
         category: "forte",
         classifications: ["spectro", "basic"],

@@ -3,6 +3,7 @@ import type { BuffObject } from "@/constants/types"
 export const buffs: Record<string, BuffObject[]> = {
   encore: [
     {
+      id: "Angry Cosmos",
       name: "Angry Cosmos",
       type: "Buff",
       source: "encore",
@@ -12,6 +13,7 @@ export const buffs: Record<string, BuffObject[]> = {
       duration: 10,
     },
     {
+      id: "Woolies Cheer Dance",
       name: "Woolies Cheer Dance",
       type: "Buff",
       source: "encore",
@@ -21,6 +23,7 @@ export const buffs: Record<string, BuffObject[]> = {
       duration: 10,
     },
     {
+      id: "Cosmos Rave",
       name: "Cosmos Rave",
       type: "Buff",
       source: "encore",
@@ -30,6 +33,7 @@ export const buffs: Record<string, BuffObject[]> = {
       duration: 10,
     },
     {
+      id: "Wooly's Fairy Tale",
       name: "Wooly's Fairy Tale",
       type: "BuffStacking",
       source: "encore",
@@ -44,6 +48,7 @@ export const buffs: Record<string, BuffObject[]> = {
 
   sanhua: [
     {
+      id: "Silversnow",
       name: "Silversnow",
       type: "BuffNext",
       source: "sanhua",
@@ -54,6 +59,7 @@ export const buffs: Record<string, BuffObject[]> = {
     },
 
     {
+      id: "Ice Prism",
       name: "Ice Prism",
       type: "Damage",
       source: "sanhua",
@@ -66,6 +72,7 @@ export const buffs: Record<string, BuffObject[]> = {
       resonance: 7,
     },
     {
+      id: "Ice Thorn",
       name: "Ice Thorn",
       type: "Damage",
       source: "sanhua",
@@ -77,6 +84,7 @@ export const buffs: Record<string, BuffObject[]> = {
       resonance: 2,
     },
     {
+      id: "Ice Glacier",
       name: "Ice Glacier",
       type: "Damage",
       source: "sanhua",

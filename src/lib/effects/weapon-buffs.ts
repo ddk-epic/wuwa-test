@@ -4,6 +4,7 @@ import type { WEAPON_KEY } from "@/constants/weapons"
 export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
   "Blazing Brilliance": [
     {
+      id: "Blazing Brilliance (ATK)",
       name: "Blazing Brilliance (ATK)",
       type: "Buff",
       source: "Self",
@@ -18,6 +19,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
       duration: 99999,
     },
     {
+      id: "Blazing Brilliance (Skill)",
       name: "Blazing Brilliance (Skill)",
       type: "BuffStacking",
       source: "Self",
@@ -35,6 +37,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
       duration: 10,
     },
     {
+      id: "Blazing Brilliance (MAX)",
       name: "Blazing Brilliance (MAX)",
       type: "BuffConsume",
       source: "Self",
@@ -52,6 +55,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
   ],
   "Emerald of Genesis": [
     {
+      id: "Emerald of Genesis (ER)",
       name: "Emerald of Genesis (ER)",
       type: "Buff",
       source: "Self",
@@ -66,6 +70,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
       duration: 99999,
     },
     {
+      id: "Emerald of Genesis (ATK)",
       name: "Emerald of Genesis (ATK)",
       type: "BuffStacking",
       source: "Self",
@@ -85,6 +90,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
   ],
   Stringmaster: [
     {
+      id: "Stringmaster (Ele)",
       name: "Stringmaster (Ele)",
       type: "Buff",
       source: "Self",
@@ -99,6 +105,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
       duration: 99999,
     },
     {
+      id: "Stringmaster (ATK)",
       name: "Stringmaster (ATK)",
       type: "BuffStacking",
       source: "Self",
@@ -116,6 +123,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
       duration: 5,
     },
     {
+      id: "Stringmaster (Off-field)",
       name: "Stringmaster (Off-field)",
       type: "BuffStacking",
       source: "Self",

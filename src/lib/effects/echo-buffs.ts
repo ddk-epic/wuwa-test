@@ -3,6 +3,7 @@ import type { BuffObject } from "@/constants/types"
 export const echoBuffs: Record<string, BuffObject[]> = {
   "Inferno Rider": [
     {
+      id: "Inferno Rider (Fusion/Basic)",
       name: "Inferno Rider (Fusion/Basic)",
       type: "Buff",
       source: "Self",
@@ -17,6 +18,7 @@ export const echoBuffs: Record<string, BuffObject[]> = {
   ],
   "Impermanence Heron": [
     {
+      id: "Impermanence Heron (Dormant)",
       name: "Impermanence Heron (Dormant)",
       type: "Buff",
       source: "Self",
@@ -27,6 +29,7 @@ export const echoBuffs: Record<string, BuffObject[]> = {
       duration: 15,
     },
     {
+      id: "Impermanence Heron",
       name: "Impermanence Heron",
       type: "BuffNext",
       source: "Self",
