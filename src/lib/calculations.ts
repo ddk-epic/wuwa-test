@@ -247,13 +247,10 @@ function processAction(
   passiveBuffs: Record<string, ActiveBuffObject[]>,
 ) {
   // update ctx
-  ctx.activeCharacter =
-    action.type === "parent" ? action.char : ctx.activeCharacter
+  ctx.onFieldCharacter =
+    action.type === "parent" ? action.char : ctx.onFieldCharacter
   ctx.time = action.time
   ctx.buffMap = structuredClone(initialBuffMap)
-
-  const character = action.char
-  const skill = action.skill
 
   // remove expired buffs
   removeExpiredBuffs(ctx, action)
@@ -273,9 +270,10 @@ function processAction(
   evaluateDCond(ctx, action)
   const damage = calculateDamage(ctx, action)
 
+  const character = action.char
   const buffs = ctx.activeBuffs[character]
-  const buffsPassive = passiveBuffs[character].map((buff) => buff.id)
-  const buffsCharacter = buffs ? buffs.map((buff) => buff.name) : []
+  const buffsPassive = passiveBuffs[character].map((buff) => buff.name)
+  const buffsCharacter = buffs.map((buff) => buff.name)
 
   const roundedBuffMap: Record<keyof BuffMap, string> =
     roundBuffMapToPercentStrings(ctx.buffMap[character])
@@ -285,7 +283,7 @@ function processAction(
     row: ctx.row,
     char: character,
     type: action.type,
-    skill: skill,
+    skill: action.skill,
     time: ctx.time,
     concerto: ctx.characters[character].dCond.Concerto,
     resonance: ctx.characters[character].dCond.Resonance,
@@ -297,7 +295,7 @@ function processAction(
   }
 
   // setup for next iteration
-  ctx.prevChar = ctx.activeCharacter
+  ctx.prevChar = ctx.onFieldCharacter
   ctx.procc = { damage: 0, heal: 0, shield: 0 }
   ctx.row += 1
   return resultObject
@@ -474,7 +472,7 @@ function getContext(
 
   return {
     activeBuffs,
-    activeCharacter: "",
+    onFieldCharacter: "",
     allBuffs: nonPassiveBuffs,
     buffMap: baseBuffMap,
     buffDeferred: [],
