@@ -27,7 +27,7 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
   const activeBuffString = result?.buffs.join(", ")
   const finalBuffMap = (() => {
     let idx = 0
-    return [6, 5, 5, 6, 5]
+    return [6, 5, 6, 5, 6, 3, 2]
       .map((size) => {
         const group = result?.buffMap?.slice(idx, idx + size) ?? []
         idx += size

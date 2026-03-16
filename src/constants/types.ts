@@ -23,56 +23,84 @@ export const SKILL_CATEGORY = [
 ] as const
 export type SKILL_CATEGORY_KEY = (typeof SKILL_CATEGORY)[number]
 
-export type BuffType =
-  | "atk"
-  | "def"
-  | "hp"
-  | "er"
-  | "crit"
-  | "critDmg"
-  | "basic"
-  | "heavy"
-  | "skill"
-  | "liberation"
-  | "all"
-  | "baDeep"
-  | "heDeep"
-  | "skDeep"
-  | "liDeep"
-  | "allDeep"
-  | "aero"
-  | "electro"
-  | "fusion"
-  | "glacio"
-  | "havoc"
-  | "spectro"
-  | "bonus"
-  | "amp"
-  | "multiplier"
-  | "resIgnore"
-  | "defIgnore"
-  | "erMulti"
-  | "foMulti"
-  | "heal"
-  | "physical"
-  | "allEle"
-  | "concerto"
-  | "resonance"
-  | "none"
+export type BUFF_CATEGORY_KEY = Omit<
+  SKILL_CATEGORY_KEY,
+  "forte" | "intro" | "outro"
+>
 
-export type BuffCategory =
-  | "Buff"
-  | "BuffBonus"
-  | "BuffConsume"
-  | "BuffEnergy"
-  | "BuffNext"
-  | "BuffStacking"
-  | "BuffOffField"
-  | "Damage"
-  | "Mode"
+export const BUFF_TYPE_KEYS = [
+  // stats
+  "atk",
+  "def",
+  "hp",
+  "er",
+  "crit",
+  "critDmg",
+  // category bonuses
+  "basic",
+  "heavy",
+  "skill",
+  "liberation",
+  "all",
+  // elemental bonuses
+  "aero",
+  "electro",
+  "fusion",
+  "glacio",
+  "havoc",
+  "spectro",
+  // category deepen
+  "baDeep",
+  "heDeep",
+  "skDeep",
+  "liDeep",
+  "allDeep",
+  // elemental deepen
+  "aeDeep",
+  "elDeep",
+  "fuDeep",
+  "glDeep",
+  "haDeep",
+  "spDeep",
+  // skill specific
+  "bonus",
+  "amp",
+  "multiplier",
+  // special
+  "resIgnore",
+  "defIgnore",
+  "erMulti",
+  "foMulti",
+  "heal",
+  "allEle",
+  "physical",
+  // dCond
+  "forte",
+  "forte2",
+  "concerto",
+  "resonance",
+  // rest
+  "intro",
+  "outro",
+] as const
+export type BUFF_TYPE = (typeof BUFF_TYPE_KEYS)[number]
+
+export const BUFF_CATEGORY_KEYS = [
+  "Buff",
+  "BuffBonus",
+  "BuffConsume",
+  "BuffEnergy",
+  "BuffNext",
+  "BuffStacking",
+  "BuffOffField",
+  "Damage",
+  "Mode",
+] as const
+
+export type BUFF_CATEGORY = (typeof BUFF_CATEGORY_KEYS)[number]
 
 type ModifierValue = {
-  class: BuffType
+  class: BUFF_TYPE
   value: number
   stackValue?: number
 }
@@ -80,9 +108,9 @@ type ModifierValue = {
 export type BuffObject = {
   id: string
   name: string
-  type: BuffCategory
+  type: BUFF_CATEGORY
   source: CHARACTER_KEY | "Self"
-  // classifications?: (Element | BuffType)[]
+  // classifications?: (Element | BUFF_TYPE)[]
   triggeredBy?: (string | SKILL_CATEGORY_KEY | "echo")[]
   appliesTo: CHARACTER_KEY | "Self" | "Next"
   modifiers: ModifierValue[]
@@ -239,7 +267,7 @@ export type TeamSlot =
       settings: CharSettings
     }
 
-export type BuffMap = Record<BuffType, number>
+export type BuffMap = Record<BUFF_TYPE, number>
 
 type Procc = {
   damage: number

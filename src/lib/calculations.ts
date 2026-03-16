@@ -153,11 +153,11 @@ function calculateDamage(ctx: Context, action: TimelineItem) {
     let result = 0
 
     for (const key of classifications) {
-      const sharedKey = key as ELEMENT_KEY & SKILL_CATEGORY_KEY
+      const sharedKey = key as ELEMENT_KEY | SKILL_CATEGORY_KEY
       if (buffMap[sharedKey]) {
         result += buffMap[sharedKey]
       }
-      console.log(`${ctx.row} buffMap[${sharedKey}]: ${buffMap[sharedKey]}`)
+      // console.log(`${ctx.row} buffMap[${sharedKey}]: ${buffMap[sharedKey]}`)
     }
 
     return result
@@ -320,7 +320,7 @@ function processAction(
 
   const roundedBuffMap: Record<keyof BuffMap, string> =
     roundBuffMapToPercentStrings(ctx.buffMap[character])
-  const buffMapValues = Object.values(roundedBuffMap).slice(0, 32)
+  const buffMapValues = Object.values(roundedBuffMap).slice(0, 33)
 
   const resultObject: Result = {
     row: ctx.row,
