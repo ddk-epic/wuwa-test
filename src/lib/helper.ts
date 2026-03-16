@@ -1,5 +1,3 @@
-import { getBaseBuffName, getBaseSkillName } from "./utils"
-
 import type {
   ActionListItem,
   ActiveBuffObject,
@@ -140,11 +138,11 @@ export function computeEventTimeline(
 
   for (const action of sequence) {
     // main timeline entry
-    const { variations, ...actionSkill } = action.skill
-    const baseName = getBaseSkillName(action.skill.name)
+    const skill = action.skill
+    const { variations, ...actionSkill } = skill
     const parentId = String(action.time)
 
-    const onCast = action.skill.onCast
+    const onCast = skill.onCast
     const parentItem: TimelineItem = {
       char: action.char,
       type: "parent",
@@ -162,8 +160,7 @@ export function computeEventTimeline(
 
     timeline.push(parentItem)
 
-    const hits = action.skill.hits
-    for (const hit of hits) {
+    for (const hit of skill.hits) {
       const { frame, mv, forte, forte2, concerto, resonance } = hit
       const hitFrame = frame ?? 0
 
@@ -172,7 +169,7 @@ export function computeEventTimeline(
         type: "hit",
         skill: {
           ...actionSkill,
-          name: baseName,
+          name: skill.id,
           mv: mv ?? 0,
           hits: hitFrame,
           forte: forte ?? 0,
@@ -227,16 +224,15 @@ export function hasSwapped(prevChar: string, currentChar: string) {
   return prevChar !== currentChar
 }
 
-export function removeBuffByName(array: ActiveBuffObject[], name: string) {
-  const index = array.findIndex((b) => b.name === name)
+export function removeBuffByName(array: ActiveBuffObject[], id: string) {
+  const index = array.findIndex((b) => b.id === id)
   if (index !== -1) {
     array.splice(index, 1)
   }
 }
 
 export function isMatch(trigger: string[] | undefined, skill: Skill) {
-  const baseName = getBaseSkillName(skill.name)
-  const hasNameMatch = trigger?.includes(baseName)
+  const hasNameMatch = trigger?.includes(skill.id)
   const hasCategoryMatch = !!trigger?.includes(skill.category)
   return hasNameMatch || hasCategoryMatch
 }
@@ -244,18 +240,19 @@ export function isMatch(trigger: string[] | undefined, skill: Skill) {
 export const buffHandler = {
   BuffStacking: {
     onTrigger: (buff: ActiveBuffObject, time: number) => {
-      if (!buff.stackLimit) return null
-
-      const baseBuffName = getBaseBuffName(buff.name)
-
-      buff.stackCount = Math.min((buff.stackCount ?? 0) + 1, buff.stackLimit)
+      if (!buff.stackLimit || buff.stackCount == null) return null
+      
+      const newStacks = Math.min((buff.stackCount) + 1, buff.stackLimit)
+      buff.stackCount = newStacks
       buff.endTime = time + buff.duration
-      buff.name = `${baseBuffName} x${buff.stackCount}`
+      buff.name = `${buff.id} x${newStacks}`
 
-      return buff.modifiers.map((modifier) => ({
+      const newModifiers = buff.modifiers.map((modifier) => ({
         ...modifier,
-        newValue: (buff.stackCount ?? 0) * modifier.value,
+        stackValue: newStacks * modifier.value,
       }))
+
+      return newModifiers
     },
   },
 }
