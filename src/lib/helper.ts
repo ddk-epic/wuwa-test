@@ -1,11 +1,14 @@
 import type {
   ActionListItem,
   ActiveBuffObject,
+  BuffMap,
   Character,
   CharSettings,
+  ELEMENT_KEY,
   Result,
   Skill,
   SKILL,
+  SKILL_CATEGORY_KEY,
   TimelineItem,
 } from "@/constants/types"
 import type { CHARACTER_KEY } from "@/constants/characters"
@@ -241,8 +244,8 @@ export const buffHandler = {
   BuffStacking: {
     onTrigger: (buff: ActiveBuffObject, time: number) => {
       if (!buff.stackLimit || buff.stackCount == null) return null
-      
-      const newStacks = Math.min((buff.stackCount) + 1, buff.stackLimit)
+
+      const newStacks = Math.min(buff.stackCount + 1, buff.stackLimit)
       buff.stackCount = newStacks
       buff.endTime = time + buff.duration
       buff.name = `${buff.id} x${newStacks}`
@@ -255,4 +258,46 @@ export const buffHandler = {
       return newModifiers
     },
   },
+}
+
+export function getBonus(
+  buffMap: BuffMap,
+  classifications: (ELEMENT_KEY | SKILL_CATEGORY_KEY | "echo")[],
+): number {
+  let result = 0
+
+  for (const key of classifications) {
+    const sharedKey = key as ELEMENT_KEY | SKILL_CATEGORY_KEY
+    if (buffMap[sharedKey]) {
+      result += buffMap[sharedKey]
+    }
+    // console.log(`${ctx.row} buffMap[${sharedKey}]: ${buffMap[sharedKey]}`)
+  }
+
+  return result
+}
+
+export function getResMultiplier(enemyRes: number, resDown: number): number {
+  const effectiveRes = enemyRes - resDown
+
+  if (effectiveRes < 0.8) {
+    return 1 - effectiveRes
+  }
+
+  if (effectiveRes <= 0) {
+    return 1 - effectiveRes / 2
+  }
+
+  return 1 / (1 + effectiveRes * 5)
+}
+
+export function getDefMultiplier(
+  characterLevel: number,
+  enemyDef: number,
+  defDown: number,
+): number {
+  const base = 800 + characterLevel * 8
+  const effectiveDefense = enemyDef * (1 - defDown)
+
+  return base / (base + effectiveDefense)
 }

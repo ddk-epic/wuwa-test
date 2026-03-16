@@ -6,16 +6,22 @@ import {
   type BuffObject,
   type Character,
   type Context,
-  type ELEMENT_KEY,
   type Result,
   type Skill,
-  type SKILL_CATEGORY_KEY,
   type TimelineItem,
 } from "@/constants/types"
 
 import { roundBuffMapToPercentStrings } from "./utils"
 
-import { buffHandler, hasSwapped, isMatch, removeBuffByName } from "./helper"
+import {
+  buffHandler,
+  getBonus,
+  getDefMultiplier,
+  getResMultiplier,
+  hasSwapped,
+  isMatch,
+  removeBuffByName,
+} from "./helper"
 
 import {
   BONUSSTAT_KEYS,
@@ -26,6 +32,7 @@ import { buffs } from "./effects/buffs"
 import { echoBuffs } from "./effects/echo-buffs"
 import { setBuffs } from "./effects/set-buffs"
 import { weaponBuffs } from "./effects/weapon-buffs"
+import { getSkillLevel } from "@/constants/maps"
 
 function removeExpiredBuffs(ctx: Context, action: TimelineItem) {
   const character = action.char
@@ -140,44 +147,37 @@ function evaluateDCond(ctx: Context, action: TimelineItem) {
 }
 
 function calculateDamage(ctx: Context, action: TimelineItem) {
+  if (action.type === "parent") return 0
+
   const characterId = action.char
   const skill = action.skill
   const char = ctx.characters[characterId]
   const buffMap = ctx.buffMap[characterId]
 
-  if (action.type === "parent") return 0
-
-  function getBonus(
-    classifications: (ELEMENT_KEY | SKILL_CATEGORY_KEY | "echo")[],
-  ) {
-    let result = 0
-
-    for (const key of classifications) {
-      const sharedKey = key as ELEMENT_KEY | SKILL_CATEGORY_KEY
-      if (buffMap[sharedKey]) {
-        result += buffMap[sharedKey]
-      }
-      // console.log(`${ctx.row} buffMap[${sharedKey}]: ${buffMap[sharedKey]}`)
-    }
-
-    return result
-  }
-
-  // function getDeepen() {}
-
   // character
+  const characterLevel = 90
+  const skillLevel = 10
   const attack = char.atk * (1 + buffMap.atk) + char.bonusStats.atkFlat
-  const skillMultiplier = action.skill.mv * (1 + buffMap.multiplier)
-  const bonusMultiplier = 1 + getBonus(skill.classifications)
+  const skillMultiplier =
+    action.skill.mv * getSkillLevel[skillLevel] * (1 + buffMap.multiplier)
+  const bonusMultiplier = 1 + getBonus(buffMap, skill.classifications)
   const deepenMultiplier = 1
-  const crit = Math.min(char.crit + buffMap.crit, 1)
-  const critDmg = char.critDmg + buffMap.critDmg
-  const critMultiplier = critDmg - crit + crit * critDmg
+  const crit = Math.min(buffMap.crit, 1)
+  const critDmg = buffMap.critDmg
+  const critMultiplier = 1 + crit * (critDmg - 1)
 
   // enemy
-  const enemyDefense = 0.5
+  const enemyLevel = 100
   const enemyResistance = 0.2
-  const enemyResistances = 0.48 * (1 - enemyDefense + enemyResistance)
+  const enemyDefense = 792 + 8 * enemyLevel
+  const resDown = buffMap.resIgnore
+  const defDown = buffMap.defIgnore
+  const resMultiplier = getResMultiplier(enemyResistance, resDown)
+  const enemyDefenseMultiplier = getDefMultiplier(
+    characterLevel,
+    enemyDefense,
+    defDown,
+  )
 
   const totalDamage =
     attack *
@@ -185,17 +185,19 @@ function calculateDamage(ctx: Context, action: TimelineItem) {
     bonusMultiplier *
     deepenMultiplier *
     critMultiplier *
-    enemyResistances
+    resMultiplier *
+    enemyDefenseMultiplier
 
-  // console.log(
-  //   "character",
-  //   skill.name,
+  // console.table({
   //   attack,
-  //   skillMultiplier,
-  //   bonusMultiplier,
-  //   totalDamage,
-  // )
-  // console.log("enemy", enemyResistances)
+  //   mv: skillMultiplier,
+  //   bonus: bonusMultiplier,
+  //   crit,
+  //   critDmg,
+  //   res: resMultiplier,
+  //   def: enemyDefenseMultiplier,
+  // })
+  // console.table({enemyDefenseMultiplier})
 
   return totalDamage
 }

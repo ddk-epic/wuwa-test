@@ -54,3 +54,16 @@ export const totalBuffMap: BuffMap = {
   intro: 0,
   outro: 0,
 }
+
+export const getSkillLevel = {
+  1: 1.0000,
+  2: 1.0820,
+  3: 1.1640,
+  4: 1.2788,
+  5: 1.3608,
+  6: 1.4551,
+  7: 1.5863,
+  8: 1.7175,
+  9: 1.8487,
+  10: 1.9881
+} as const;
