@@ -25,6 +25,7 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
   const result = res[index]
 
   const activeBuffString = result?.buffs.join(", ")
+  const activeTeamBuffString = result?.buffsTeam.join(", ")
   const finalBuffMap = (() => {
     let idx = 0
     return [6, 5, 6, 5, 6, 3, 2]
@@ -92,7 +93,20 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
         {!!result && (
           <Hint label={activeBuffString}>
             <span>
-              ({result.buffs.length || 0}) [{activeBuffString}]
+              ({result.buffs.length || 0}){" "}
+              {result.buffs.length !== 0 ? "[" + activeBuffString + "]" : ""}
+            </span>
+          </Hint>
+        )}
+      </TableCell>
+      <TableCell className="grow text-xs truncate">
+        {!!result && (
+          <Hint label={activeTeamBuffString}>
+            <span>
+              ({result.buffsTeam.length || 0}){" "}
+              {result.buffsTeam.length !== 0
+                ? "[" + activeTeamBuffString + "]"
+                : ""}
             </span>
           </Hint>
         )}

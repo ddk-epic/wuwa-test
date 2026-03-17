@@ -44,10 +44,13 @@ function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
               <TableHead className="w-2/36 px-3 py-2 text-right text-xs column-header">
                 Procc
               </TableHead>
-              <TableHead className="w-6/36 px-3 py-2 text-start text-xs column-header">
+              <TableHead className="w-5/36 px-3 py-2 text-start text-xs column-header">
                 Buffs
               </TableHead>
-              <TableHead className="w-6/36 px-3 py-2 text-start text-xs column-header">
+              <TableHead className="w-4/36 px-3 py-2 text-start text-xs column-header">
+                TeamBuffs
+              </TableHead>
+              <TableHead className="w-5/36 px-3 py-2 text-start text-xs column-header">
                 BuffMap
               </TableHead>
               <TableHead className="w-4 px-3 py-2 text-xs column-header">

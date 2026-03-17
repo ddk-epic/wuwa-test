@@ -90,7 +90,7 @@ export type DCOND_KEY = (typeof DCOND_KEYS)[number]
 
 export const BUFF_CATEGORY_KEYS = [
   "Buff",
-  "BuffBonus",
+  "BuffAll",
   "BuffConsume",
   "BuffNext",
   "BuffStacking",
@@ -116,10 +116,10 @@ export type BuffObject = {
   id: string
   name: string
   type: BUFF_CATEGORY
-  source: CHARACTER_KEY | "Self"
+  source: CHARACTER_KEY | "self"
   classifications?: (ELEMENT_KEY | SKILL_CATEGORY_KEY | "echo")[] // For damage proc's
   triggeredBy?: (string | SKILL_CATEGORY_KEY | "echo")[]
-  appliesTo: CHARACTER_KEY | "Self" | "Next"
+  appliesTo: CHARACTER_KEY | "self" | "all" | "next"
   modifiers: ModifierValue[]
   consumedBy?: string[]
   duration: number
@@ -270,6 +270,7 @@ type Message = {
 
 export type Context = {
   activeBuffs: Record<CHARACTER_KEY, ActiveBuffObject[]>
+  activeBuffsTeam: ActiveBuffObject[]
   onFieldChar: CHARACTER_KEY | ""
   allBuffs: BuffObject[]
   buffMap: Record<CHARACTER_KEY, BuffMap>
@@ -297,6 +298,7 @@ export type Result = {
   proc: Proc
   parent?: string
   buffs: string[]
+  buffsTeam: string[]
   buffMap: string[]
   message: Message
 }

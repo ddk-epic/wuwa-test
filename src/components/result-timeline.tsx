@@ -35,6 +35,7 @@ function ResultTimeline({
         <h1 className="font-bold">Result (raw)</h1>
         {resultTimeline.map((result) => {
           const activeBuffString = result?.buffs.join(", ")
+  const activeTeamBuffString = result?.buffsTeam.join(", ")
           const finalBuffMap = (() => {
             let idx = 0
             return [6, 5, 6, 5, 6, 3, 2]
@@ -69,8 +70,9 @@ function ResultTimeline({
                 <td className="w-1/36 px-2">
                   {Math.round(result.proc.damage)}
                 </td>
-                <td className="w-7/36 px-2">{activeBuffString}</td>
-                <td className="w-7/36 px-2">{finalBuffMap}</td>
+                <td className="w-5/36 px-2">{activeBuffString}</td>
+                <td className="w-3/36 px-2">{activeTeamBuffString || "-"}</td>
+                <td className="w-5/36 px-2">{finalBuffMap}</td>
               </tr>
             </table>
           )
