@@ -37,7 +37,7 @@ function EventTableModal({
           <CalendarSearch />
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-5xl max-h-screen bg-card overflow-auto">
+      <DialogContent className="max-w-6xl max-h-screen bg-card overflow-auto">
         <DialogHeader>
           <DialogTitle className="mb-2">Event Table</DialogTitle>
         </DialogHeader>

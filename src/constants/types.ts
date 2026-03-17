@@ -89,7 +89,7 @@ export const BUFF_CATEGORY_KEYS = [
   "Buff",
   "BuffBonus",
   "BuffConsume",
-  "BuffEnergy",
+  "BuffDCondFlat",
   "BuffNext",
   "BuffStacking",
   "BuffOffField",
@@ -103,6 +103,10 @@ type ModifierValue = {
   class: BUFF_TYPE
   value: number
   stackValue?: number
+  forte?: number
+  forte2?: number
+  concerto?: number
+  resonance?: number
 }
 
 export type BuffObject = {
@@ -110,19 +114,16 @@ export type BuffObject = {
   name: string
   type: BUFF_CATEGORY
   source: CHARACTER_KEY | "Self"
-  // classifications?: (Element | BUFF_TYPE)[]
+  classifications?: (ELEMENT_KEY | SKILL_CATEGORY_KEY | "echo")[] // For damage proc's
   triggeredBy?: (string | SKILL_CATEGORY_KEY | "echo")[]
   appliesTo: CHARACTER_KEY | "Self" | "Next"
   modifiers: ModifierValue[]
   consumedBy?: string[]
+  duration: number
+  cooldown?: number
   stackLimit?: number
   stackInterval?: number
   sequenceReq?: number
-  duration: number
-  forte?: number
-  forte2?: number
-  concerto?: number
-  resonance?: number
 }
 export type WeaponBuffObject = Omit<
   BuffObject,
@@ -141,6 +142,8 @@ type EventValues = {
   forte2: number
   concerto: number
   resonance: number
+  scaling: "def" | "hp" // default to atk
+  heal: number
 }
 
 type SkillVariation = {
@@ -205,7 +208,7 @@ export type Result = {
   concerto: number
   resonance: number
   damage: number
-  procc: Procc
+  proc: Proc
   parent?: string
   buffs: string[]
   buffMap: string[]
@@ -269,7 +272,7 @@ export type TeamSlot =
 
 export type BuffMap = Record<BUFF_TYPE, number>
 
-type Procc = {
+type Proc = {
   damage: number
   heal: number
   shield: number
@@ -285,7 +288,7 @@ export type Context = {
   characters: Record<string, Character>
   hasSwapped: boolean
   prevChar: CHARACTER_KEY | ""
-  procc: Procc
+  proc: Proc
   row: number
   time: number
 }

@@ -124,7 +124,7 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
       continue
     }
 
-    // handle damage procc
+    // handle damage proc
     if (buff.type === "Damage" && buff.consumedBy) {
       ctx.buffDeferred.push(activeBuffObject)
       // console.log(`add ${activeBuffObject.name} to buffDeferred`)
@@ -253,32 +253,34 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
         for (const buff of [...ctx.buffDeferred]) {
           if (!(buff.consumedBy && buff.consumedBy.includes(skill.id))) break
 
-          const damageProcc: Skill = {
+          const mod = buff.modifiers[0]
+
+          const damageProc: Skill = {
             id: buff.id,
-            name: `${buff.id} Procc`,
+            name: `${buff.id} Proc`,
             category: skill.category,
-            classifications: skill.classifications,
+            classifications: buff.classifications ?? [],
             mv: buff.modifiers[0].value,
             frames: 0,
             hits: 1,
-            forte: buff?.forte ?? 0,
-            forte2: buff?.forte2 ?? 0,
-            concerto: buff?.concerto ?? 0,
-            resonance: buff?.resonance ?? 0,
+            forte: mod.forte ?? 0,
+            forte2: mod.forte2 ?? 0,
+            concerto: mod.concerto ?? 0,
+            resonance: mod.resonance ?? 0,
           }
-          const damageAction: TimelineItem = {
+          const procEvent: TimelineItem = {
             char: characterId,
             type: "hit",
-            skill: damageProcc,
+            skill: damageProc,
             time,
           }
-          ctx.procc.damage = calculateDamage(ctx, damageAction)
-          evaluateDCond(ctx, damageAction)
+          ctx.proc.damage = calculateDamage(ctx, procEvent)
+          evaluateDCond(ctx, procEvent)
           removeBuffByName(ctx.activeBuffs[characterId], buff.id)
           removeBuffByName(ctx.buffDeferred, buff.id)
           // console.log(
           //   `${damageProcc.name} successfully procced for`,
-          //   ctx.procc.damage,
+          //   ctx.proc.damage,
           // )
         }
         break
@@ -353,7 +355,7 @@ function processAction(
     concerto: ctx.characters[characterId].dCond.Concerto,
     resonance: ctx.characters[characterId].dCond.Resonance,
     damage,
-    procc: { ...ctx.procc },
+    proc: { ...ctx.proc },
     parent: action?.parent,
     buffs: [...buffsPassive, ...buffsCharacter],
     buffMap: buffMapValues,
@@ -361,7 +363,7 @@ function processAction(
 
   // setup for next iteration
   ctx.prevChar = ctx.onFieldChar
-  ctx.procc = { damage: 0, heal: 0, shield: 0 }
+  ctx.proc = { damage: 0, heal: 0, shield: 0 }
   ctx.row += 1
   return resultObject
 }
@@ -536,7 +538,7 @@ function getContext(
     },
     {} as Record<CHARACTER_KEY, ActiveBuffObject[]>,
   )
-  const procc = { damage: 0, heal: 0, shield: 0 }
+  const proc = { damage: 0, heal: 0, shield: 0 }
 
   return {
     activeBuffs,
@@ -548,7 +550,7 @@ function getContext(
     characters,
     hasSwapped: false,
     prevChar: "",
-    procc,
+    proc,
     row: 1,
     time: 0,
   }

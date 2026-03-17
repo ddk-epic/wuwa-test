@@ -7,12 +7,12 @@ interface ResultTimelineProps {
 }
 
 function ResultTimeline({
-  preComputeTimeline,
+  // preComputeTimeline,
   resultTimeline,
 }: ResultTimelineProps) {
   return (
     <div className="text-xs">
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <h1 className="font-bold">Pre-compute table</h1>
         {preComputeTimeline.map((action, i) => {
           return (
@@ -30,7 +30,7 @@ function ResultTimeline({
             </table>
           )
         })}
-      </div>
+      </div> */}
       <div>
         <h1 className="font-bold">Result (raw)</h1>
         {resultTimeline.map((result) => {
@@ -67,7 +67,7 @@ function ResultTimeline({
                   {result.damage > 0 ? Math.round(result.damage) : "--"}
                 </td>
                 <td className="w-1/36 px-2">
-                  {Math.round(result.procc.damage)}
+                  {Math.round(result.proc.damage)}
                 </td>
                 <td className="w-7/36 px-2">{activeBuffString}</td>
                 <td className="w-7/36 px-2">{finalBuffMap}</td>

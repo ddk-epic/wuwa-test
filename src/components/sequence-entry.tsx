@@ -86,7 +86,7 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
           : placeholder}
       </TableCell>
       <TableCell className="px-3 text-xs font-mono text-right">
-        {!!result ? Math.round(result.procc.damage) : placeholder}
+        {!!result ? Math.round(result.proc.damage) : placeholder}
       </TableCell>
       <TableCell className="grow text-xs truncate">
         {!!result && (
