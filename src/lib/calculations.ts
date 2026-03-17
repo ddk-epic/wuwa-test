@@ -15,6 +15,7 @@ import { roundBuffMapToPercentStrings } from "./utils"
 
 import {
   buffHandler,
+  canTriggerBuff,
   getBonus,
   getDefMultiplier,
   getResMultiplier,
@@ -97,16 +98,17 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
     //  preliminary checks
     if (buff.source !== characterId) continue
 
-    // off-field buff check
-    const offFieldCheck =
-      hasOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar)
-    if (offFieldCheck) continue
+    if (!canTriggerBuff(ctx, buff.id)) continue
 
-    const isAlreadyActive = [...buffs].some((b) => b.id === buff.id)
+    const isAlreadyActive = buffs.some((b) => b.id === buff.id)
     if (isAlreadyActive) continue
 
     const sequenceRequirement = buff.sequenceReq ?? 0
     if (sequenceRequirement > ctx.characters[characterId].sequence) continue
+
+    const offFieldCheck =
+      hasOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar) // off-field buff check
+    if (offFieldCheck) continue
 
     // add buff if match
     const match = isMatch(buff.triggeredBy, skill)
@@ -118,6 +120,7 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
       buff.type !== "BuffStacking"
         ? { ...buff, endTime }
         : { ...buff, stackCount: 0, endTime }
+
     // handle outro
     if (buff.type === "BuffNext" && buff.appliesTo === "Next") {
       ctx.buffNext.push(activeBuffObject)
@@ -135,6 +138,10 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
     // console.log(
     //   `add ${activeBuffObject.name} to activeBuffs[${characterId}]`,
     // )
+    if (buff.cooldown) {
+      ctx.cooldowns[buff.id] = ctx.time + buff.cooldown
+      console.log(ctx.row, `cooldowns[${buff.id}]:`, ctx.cooldowns[buff.id])
+    }
   }
 }
 
@@ -257,7 +264,11 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
         if (isDCondKey(mod.class)) {
           character.dCond[mod.class] += mod.value
         }
-        console.log(`(${ctx.row}) ${characterId} ${buff.name} dCond[${mod.class}]: (${mod.value})`)
+        console.log(
+          ctx.row,
+          `${characterId} ${buff.name} dCond[${mod.class}]:`,
+          mod.value,
+        )
         break
 
       case "Damage":
@@ -370,6 +381,7 @@ function processAction(
     parent: action?.parent,
     buffs: [...buffsPassive, ...buffsCharacter],
     buffMap: buffMapValues,
+    message: {}
   }
 
   // setup for next iteration
@@ -382,23 +394,29 @@ function processAction(
 function getBuffData(characters: Record<CHARACTER_KEY, Character>) {
   const team = Object.keys(characters) as CHARACTER_KEY[]
 
-  const characterBuffData: BuffObject[] = team.flatMap((charName) =>
-    buffs[charName].map((buff) => ({
+  const characterBuffData: BuffObject[] = team.flatMap((characterId) => {
+    const buffData = buffs[characterId]
+    if (!buffData) return []
+
+    return buffData.map((buff) => ({
       ...buff,
       duration: buff.duration * 60, // convert to frames
-    })),
-  )
+      ...(buff.cooldown && {
+        cooldown: buff.cooldown * 60,
+      }),
+    }))
+  })
 
   const weaponBuffData: BuffObject[] = team
     .map((characterId) => {
       const character = characters[characterId]
       const sequence = character.sequence
-      const getWeaponBuffs = weaponBuffs[character.weapon.name]
+      const wBuffData = weaponBuffs[character.weapon.name]
 
       // update WeaponBuffObject
-      if (!getWeaponBuffs) return []
+      if (!wBuffData) return []
 
-      return getWeaponBuffs.map((buff) => {
+      return wBuffData.map((buff) => {
         const returnObj = {
           ...buff,
           duration: buff.duration * 60, // convert to frames
@@ -415,9 +433,9 @@ function getBuffData(characters: Record<CHARACTER_KEY, Character>) {
     .map((characterId) => {
       // TODO: proper handling
       const echoName = characters[characterId].echoSet[0]
-      const getSetBuffs = setBuffs[echoName]
+      const sBuffData = setBuffs[echoName]
 
-      return getSetBuffs.map((buff) => {
+      return sBuffData.map((buff) => {
         const appliesTo =
           buff.appliesTo === "Self" ? characterId : buff.appliesTo
         const buffObj = {
@@ -435,9 +453,9 @@ function getBuffData(characters: Record<CHARACTER_KEY, Character>) {
   const echoBuffData: BuffObject[] = team
     .map((characterId) => {
       const echoName = characters[characterId].echo
-      const getEchoBuffs = echoBuffs[echoName]
+      const eBuffData = echoBuffs[echoName]
 
-      return getEchoBuffs.map((buff) => {
+      return eBuffData.map((buff) => {
         const appliesTo =
           buff.appliesTo === "Self" ? characterId : buff.appliesTo
         const buffObj = {
@@ -559,11 +577,13 @@ function getContext(
     buffDeferred: [],
     buffNext: [],
     characters,
+    cooldowns: {},
     hasSwapped: false,
     prevChar: "",
     proc,
     row: 1,
     time: 0,
+    message: {},
   }
 }
 

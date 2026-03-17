@@ -202,21 +202,6 @@ export type TimelineItem = {
   parent?: string
 }
 
-export type Result = {
-  row: number
-  char: string
-  type: "parent" | "hit"
-  skill: Skill
-  time: number
-  concerto: number
-  resonance: number
-  damage: number
-  proc: Proc
-  parent?: string
-  buffs: string[]
-  buffMap: string[]
-}
-
 export type BonusStats = Record<BONUSSTAT_KEY, number>
 
 export interface Weapon {
@@ -279,17 +264,39 @@ type Proc = {
   shield: number
 }
 
+type Message = {
+  warning?: string
+}
+
 export type Context = {
-  activeBuffs: Record<string, ActiveBuffObject[]>
+  activeBuffs: Record<CHARACTER_KEY, ActiveBuffObject[]>
   onFieldChar: CHARACTER_KEY | ""
   allBuffs: BuffObject[]
-  buffMap: Record<string, BuffMap>
+  buffMap: Record<CHARACTER_KEY, BuffMap>
   buffNext: ActiveBuffObject[]
   buffDeferred: ActiveBuffObject[]
-  characters: Record<string, Character>
+  characters: Record<CHARACTER_KEY, Character>
+  cooldowns: Record<string, number> // buff.id, cd
   hasSwapped: boolean
   prevChar: CHARACTER_KEY | ""
   proc: Proc
   row: number
   time: number
+  message: Message
+}
+
+export type Result = {
+  row: number
+  char: string
+  type: "parent" | "hit"
+  skill: Skill
+  time: number
+  concerto: number
+  resonance: number
+  damage: number
+  proc: Proc
+  parent?: string
+  buffs: string[]
+  buffMap: string[]
+  message: Message
 }

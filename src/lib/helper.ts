@@ -7,6 +7,7 @@ import {
   type BuffObject,
   type Character,
   type CharSettings,
+  type Context,
   type DCOND_KEY,
   type ELEMENT_KEY,
   type Result,
@@ -256,6 +257,11 @@ export function removeBuffByName(array: ActiveBuffObject[], id: string) {
   if (index !== -1) {
     array.splice(index, 1)
   }
+}
+
+export function canTriggerBuff(ctx: Context, buffId: string) {
+  const cooldownEnd = ctx.cooldowns[buffId] || 0
+  return ctx.time >= cooldownEnd
 }
 
 export function isMatch(trigger: string[] | undefined, skill: Skill) {

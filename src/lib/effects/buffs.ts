@@ -47,14 +47,14 @@ export const buffs: Record<string, BuffObject[]> = {
     {
       id: "Sheep-counting Lullaby",
       name: "Sheep-counting Lullaby",
-      type: "BuffDCondFlat",
+      type: "DCondFlat",
       source: "encore",
       triggeredBy: ["basic"],
       appliesTo: "encore",
-      modifiers: [{ class: "er", value: 10 }],
-      // cooldown: 10, TODO: implement cd
+      modifiers: [{ class: "resonance", value: 10 }],
+      cooldown: 10,
       sequenceReq: 2,
-      duration: 6,
+      duration: 0,
     },
   ],
 
