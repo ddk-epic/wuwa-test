@@ -20,6 +20,7 @@ import {
   getResMultiplier,
   hasOffFieldBuff,
   hasSwapped,
+  isDCondKey,
   isMatch,
   isOnField,
   removeBuffByName,
@@ -142,7 +143,7 @@ function handleEnergyShare(ctx: Context, action: TimelineItem) {
   for (const character of Object.values(ctx.characters)) {
     const activeMultiplier = character.id === action.char ? 1 : 0.5
 
-    character.dCond.Resonance += value * activeMultiplier
+    character.dCond.resonance += value * activeMultiplier
   }
 }
 
@@ -153,12 +154,12 @@ function evaluateDCond(ctx: Context, action: TimelineItem) {
 
   // handle resonance energy
   if (skill.classifications.includes("liberation")) {
-    character.dCond.Resonance = 0
+    character.dCond.resonance = 0
   }
   handleEnergyShare(ctx, action)
 
   // handle concerto
-  character.dCond.Concerto += skill.concerto
+  character.dCond.concerto += skill.concerto
 }
 
 function calculateDamage(ctx: Context, action: TimelineItem) {
@@ -219,6 +220,7 @@ function calculateDamage(ctx: Context, action: TimelineItem) {
 
 function evaluateBuffs(ctx: Context, action: TimelineItem) {
   const characterId = action.char
+  const character = ctx.characters[characterId]
   const skill = action.skill
   const time = action.time
   const buffs = ctx.activeBuffs[characterId]
@@ -247,6 +249,15 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
         break
 
       case "BuffConsume":
+        break
+
+      case "DCondFlat":
+        // add flat DCond mod to stat
+        const mod = buff.modifiers[0]
+        if (isDCondKey(mod.class)) {
+          character.dCond[mod.class] += mod.value
+        }
+        console.log(`(${ctx.row}) ${characterId} ${buff.name} dCond[${mod.class}]: (${mod.value})`)
         break
 
       case "Damage":
@@ -352,8 +363,8 @@ function processAction(
     type: action.type,
     skill: action.skill,
     time: ctx.time,
-    concerto: ctx.characters[characterId].dCond.Concerto,
-    resonance: ctx.characters[characterId].dCond.Resonance,
+    concerto: ctx.characters[characterId].dCond.concerto,
+    resonance: ctx.characters[characterId].dCond.resonance,
     damage,
     proc: { ...ctx.proc },
     parent: action?.parent,

@@ -51,10 +51,10 @@ const characterTemplate: Record<
     critDmg: 1.5,
     bonusStats,
     dCond: {
-      Forte: 0,
-      Forte2: 0,
-      Concerto: 0,
-      Resonance: 150,
+      forte: 0,
+      forte2: 0,
+      concerto: 0,
+      resonance: 150,
     },
   },
   sanhua: {
@@ -100,10 +100,10 @@ const characterTemplate: Record<
       spectro: 0,
     },
     dCond: {
-      Forte: 0,
-      Forte2: 0,
-      Concerto: 0,
-      Resonance: 150,
+      forte: 0,
+      forte2: 0,
+      concerto: 0,
+      resonance: 150,
     },
   },
   shorekeeper: {
@@ -149,10 +149,10 @@ const characterTemplate: Record<
       spectro: 0,
     },
     dCond: {
-      Forte: 0,
-      Forte2: 0,
-      Concerto: 0,
-      Resonance: 150,
+      forte: 0,
+      forte2: 0,
+      concerto: 0,
+      resonance: 150,
     },
   },
 }

@@ -1,16 +1,19 @@
-import type {
-  ActionListItem,
-  ActiveBuffObject,
-  BuffMap,
-  BuffObject,
-  Character,
-  CharSettings,
-  ELEMENT_KEY,
-  Result,
-  Skill,
-  SKILL,
-  SKILL_CATEGORY_KEY,
-  TimelineItem,
+import {
+  DCOND_KEYS,
+  type ActionListItem,
+  type ActiveBuffObject,
+  type BUFF_TYPE,
+  type BuffMap,
+  type BuffObject,
+  type Character,
+  type CharSettings,
+  type DCOND_KEY,
+  type ELEMENT_KEY,
+  type Result,
+  type Skill,
+  type SKILL,
+  type SKILL_CATEGORY_KEY,
+  type TimelineItem,
 } from "@/constants/types"
 import type { CHARACTER_KEY } from "@/constants/characters"
 import { echoData } from "@/constants/echoes"
@@ -279,6 +282,10 @@ export const buffHandler = {
       return newModifiers
     },
   },
+}
+
+export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
+  return (DCOND_KEYS as readonly string[]).includes(key)
 }
 
 export function getBonus(

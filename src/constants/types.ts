@@ -85,15 +85,18 @@ export const BUFF_TYPE_KEYS = [
 ] as const
 export type BUFF_TYPE = (typeof BUFF_TYPE_KEYS)[number]
 
+export const DCOND_KEYS = ["forte", "forte2", "concerto", "resonance"] as const
+export type DCOND_KEY = (typeof DCOND_KEYS)[number]
+
 export const BUFF_CATEGORY_KEYS = [
   "Buff",
   "BuffBonus",
   "BuffConsume",
-  "BuffDCondFlat",
   "BuffNext",
   "BuffStacking",
   "BuffOffField",
   "Damage",
+  "DCondFlat",
   "Mode",
 ] as const
 
@@ -216,8 +219,6 @@ export type Result = {
 
 export type BonusStats = Record<BONUSSTAT_KEY, number>
 
-type DCondKeys = "Forte" | "Forte2" | "Concerto" | "Resonance"
-
 export interface Weapon {
   name: WEAPON_KEY
   type: string
@@ -248,7 +249,7 @@ export interface Character {
   crit: number
   critDmg: number
   bonusStats: BonusStats
-  dCond: Record<DCondKeys, number>
+  dCond: Record<DCOND_KEY, number>
 }
 
 export interface CharSettings {
