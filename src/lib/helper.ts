@@ -79,7 +79,13 @@ export function computeCharacterSkills(character: Character) {
     Object.values(category).forEach((skill) => {
       if (skill) {
         const { variations, ...rest } = skill
-        characterSkills.push({ ...rest }) // main skill
+        const frames = skill.freezetime
+          ? skill.frames - skill.freezetime
+          : skill.frames
+        characterSkills.push({
+          ...rest,
+          frames,
+        }) // main skill
         if (variations) {
           Object.entries(variations).forEach(([variationKey, variation]) => {
             const name = `${skill.name} (${variationKey})`
@@ -224,7 +230,10 @@ export function aggregateResult(eventTimeline: Result[]): Result[] {
   return result
 }
 
-export function hasSwapped(prevChar: CHARACTER_KEY | "", currentChar: CHARACTER_KEY) {
+export function hasSwapped(
+  prevChar: CHARACTER_KEY | "",
+  currentChar: CHARACTER_KEY,
+) {
   return prevChar !== currentChar
 }
 
