@@ -420,88 +420,83 @@ function processAction(
 function getBuffData(characters: Record<CHARACTER_KEY, Character>) {
   const team = Object.keys(characters) as CHARACTER_KEY[]
 
-  const characterBuffData: BuffObject[] = team.flatMap((characterId) => {
-    const buffData = buffs[characterId]
-    if (!buffData) return []
+  const allBuffs: BuffObject[] = []
 
-    return buffData.map((buff) => ({
-      ...buff,
-      duration: buff.duration * 60, // convert to frames
-      ...(buff.cooldown && {
-        cooldown: buff.cooldown * 60,
-      }),
-    }))
-  })
+  for (const characterId of team) {
+    const character = characters[characterId]
+    const sequence = character.sequence
 
-  const weaponBuffData: BuffObject[] = team
-    .map((characterId) => {
-      const character = characters[characterId]
-      const rank = character.weapon.rank
-      const wBuffData = weaponBuffs[character.weapon.name]
+    // Character buffs
+    const cBuffData = buffs[characterId]
+    if (cBuffData) {
+      for (const buff of cBuffData) {
+        const sequenceRequirement = buff.sequenceReq ?? 0
+        if (sequenceRequirement > sequence) continue
 
-      // update WeaponBuffObject
-      if (!wBuffData) return []
-
-      return wBuffData.map((buff) => {
-        const returnObj = {
+        allBuffs.push({
           ...buff,
-          duration: buff.duration * 60, // convert to frames
-          modifiers: [buff.modifiers[Math.max(0, rank - 1)]],
+          duration: buff.duration * 60,
+          ...(buff.cooldown && {
+            cooldown: buff.cooldown * 60,
+          }),
+        })
+      }
+    }
+
+    // Weapon buffs
+    const weapon = character.weapon
+    const wBuffData = weaponBuffs[weapon.name]
+
+    if (wBuffData) {
+      const rankIndex = Math.max(0, weapon.rank - 1)
+
+      for (const buff of wBuffData) {
+        allBuffs.push({
+          ...buff,
+          duration: buff.duration * 60,
+          modifiers: [buff.modifiers[rankIndex]],
           appliesTo: characterId,
           source: characterId,
-        } as BuffObject
-        return returnObj
-      })
-    })
-    .flat()
+        })
+      }
+    }
 
-  const setBuffData: BuffObject[] = team
-    .map((characterId) => {
-      // TODO: proper handling
-      const echoName = characters[characterId].echoSet[0]
-      const sBuffData = setBuffs[echoName]
+    // Set buffs
+    const echoSetName = character.echoSet[0]
+    const sBuffData = setBuffs[echoSetName]
 
-      return sBuffData.map((buff) => {
+    if (sBuffData) {
+      for (const buff of sBuffData) {
         const appliesTo =
           buff.appliesTo === "self" ? characterId : buff.appliesTo
-        const buffObj = {
+
+        allBuffs.push({
           ...buff,
-          duration: buff.duration * 60, // convert to frames
+          duration: buff.duration * 60,
           source: characterId,
           appliesTo,
-        } as BuffObject
+        })
+      }
+    }
 
-        return buffObj
-      })
-    })
-    .flat()
+    // Echo buffs
+    const echoName = character.echo
+    const eBuffData = echoBuffs[echoName]
 
-  const echoBuffData: BuffObject[] = team
-    .map((characterId) => {
-      const echoName = characters[characterId].echo
-      const eBuffData = echoBuffs[echoName]
-
-      return eBuffData.map((buff) => {
+    if (eBuffData) {
+      for (const buff of eBuffData) {
         const appliesTo =
           buff.appliesTo === "self" ? characterId : buff.appliesTo
-        const buffObj = {
+
+        allBuffs.push({
           ...buff,
-          duration: buff.duration * 60, // convert to frames
+          duration: buff.duration * 60,
           source: characterId,
           appliesTo,
-        } as BuffObject
-
-        return buffObj
-      })
-    })
-    .flat()
-
-  const allBuffs = [
-    ...characterBuffData,
-    ...weaponBuffData,
-    ...setBuffData,
-    ...echoBuffData,
-  ]
+        })
+      }
+    }
+  }
 
   return allBuffs
 }
@@ -627,13 +622,14 @@ function calculate(
 
   // process passive Buffs
   const { passiveBuffs, nonPassiveBuffs } = prepareBuffs(characters, buffData)
+  console.log(passiveBuffs)
+  console.log(nonPassiveBuffs)
 
   // process character and passive buff stats
   const initialBuffMap = getBuffMap(characters, baseBuffMap, passiveBuffs)
 
   // global mutable context
   const ctx = getContext(characters, initialBuffMap, nonPassiveBuffs)
-  console.log(nonPassiveBuffs)
 
   // calculation loop
   for (const action of actionList) {
