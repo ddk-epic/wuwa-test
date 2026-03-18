@@ -2,7 +2,7 @@ import type { BONUSSTAT_KEY, CHARACTER_KEY } from "./characters"
 import type { ECHO_KEY, ECHO_SET_KEY } from "./echoes"
 import type { WEAPON_KEY, WEAPON_STAT } from "./weapons"
 
-export const ELEMENT = [
+export const ELEMENT_KEYS = [
   "aero",
   "electro",
   "fusion",
@@ -10,7 +10,7 @@ export const ELEMENT = [
   "havoc",
   "spectro",
 ] as const
-export type ELEMENT_KEY = (typeof ELEMENT)[number]
+export type ELEMENT = (typeof ELEMENT_KEYS)[number]
 
 export const SKILL_CATEGORY = [
   "basic",
@@ -91,16 +91,22 @@ export type DCOND_KEY = (typeof DCOND_KEYS)[number]
 export const BUFF_CATEGORY_KEYS = [
   "Buff",
   "BuffAll",
-  "BuffConsume",
   "BuffNext",
   "BuffStacking",
-  "BuffOffField",
+  "BuffToConsume",
   "Damage",
   "DCondFlat",
-  "Mode",
+  "Mode"
 ] as const
 
 export type BUFF_CATEGORY = (typeof BUFF_CATEGORY_KEYS)[number]
+
+export type TriggerValue = {
+  type?: "hit" // default to cast
+  skill?: string[]
+  category?: (SKILL_CATEGORY_KEY | "echo")[]
+  condition?: string[]
+}
 
 type ModifierValue = {
   class: BUFF_TYPE
@@ -117,11 +123,11 @@ export type BuffObject = {
   name: string
   type: BUFF_CATEGORY
   source: CHARACTER_KEY | "self"
-  classifications?: (ELEMENT_KEY | SKILL_CATEGORY_KEY | "echo")[] // For damage proc's
-  triggeredBy?: (string | SKILL_CATEGORY_KEY | "echo")[]
+  classifications?: (ELEMENT | SKILL_CATEGORY_KEY | "echo")[] // For damage proc's
+  triggeredBy?: TriggerValue
   appliesTo: CHARACTER_KEY | "self" | "all" | "next"
   modifiers: ModifierValue[]
-  consumedBy?: string[]
+  consumedBy?: string[] // For mode and damage proc's
   duration: number
   cooldown?: number
   stackLimit?: number
@@ -130,7 +136,7 @@ export type BuffObject = {
 }
 export type WeaponBuffObject = Omit<
   BuffObject,
-  "consumedBy" | "sequenceReq" | "forte" | "forte2" | "concerto" | "resonance"
+  "consumedBy" | "sequenceReq"
 >
 
 export type ActiveBuffObject = {
@@ -158,7 +164,7 @@ export type SKILL = {
   id: string
   name: string
   category: SKILL_CATEGORY_KEY | "echo"
-  classifications: (ELEMENT_KEY | SKILL_CATEGORY_KEY | "echo")[]
+  classifications: (ELEMENT | SKILL_CATEGORY_KEY | "echo")[]
   frames: number // in frames
   freezetime?: number
   cooldown?: number
@@ -196,7 +202,7 @@ export type ActionListItem = {
 
 export type TimelineItem = {
   char: CHARACTER_KEY
-  type: "parent" | "hit"
+  type: "cast" | "hit"
   skill: Skill
   time: number
   parent?: string
@@ -222,7 +228,7 @@ export interface Character {
   echo: ECHO_KEY
   echoSet: ECHO_SET_KEY[]
   build: string
-  element: ELEMENT_KEY
+  element: ELEMENT
   bonus1: BONUSSTAT_KEY
   bonus2: BONUSSTAT_KEY | "heal"
   maxForte: number
@@ -279,6 +285,7 @@ export type Context = {
   characters: Record<CHARACTER_KEY, Character>
   cooldowns: Record<string, number> // buff.id, cd
   hasSwapped: boolean
+  mode : Record<CHARACTER_KEY, string[]>
   prevChar: CHARACTER_KEY | ""
   proc: Proc
   row: number
@@ -289,7 +296,7 @@ export type Context = {
 export type Result = {
   row: number
   char: string
-  type: "parent" | "hit"
+  type: "cast" | "hit"
   skill: Skill
   time: number
   concerto: number

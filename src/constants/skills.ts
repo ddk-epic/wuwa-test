@@ -212,7 +212,13 @@ const skillData: CharacterSkills = {
         classifications: ["fusion", "liberation"],
         frames: 202,
         hits: [{ frame: 180, mv: 1.68, concerto: 10, resonance: 10 }],
+        variations: {
+          swap: {
+            frames: 15,
+          },
+        },
       },
+
       2: {
         id: "Cosmos Rupture",
         name: "Cosmos Rupture",
@@ -220,14 +226,19 @@ const skillData: CharacterSkills = {
         classifications: ["fusion", "liberation"],
         frames: 202,
         hits: [
-          { frame: 160, mv: 0.2335, concerto: 10, resonance: 10 },
-          { frame: 160, mv: 0.2335, concerto: 10, resonance: 10 },
-          { frame: 170, mv: 0.2335, concerto: 10, resonance: 10 },
-          { frame: 170, mv: 0.2335, concerto: 10, resonance: 10 },
-          { frame: 180, mv: 0.2335, concerto: 10, resonance: 10 },
-          { frame: 180, mv: 0.2335, concerto: 10, resonance: 10 },
-          { frame: 190, mv: 2.4908, concerto: 10, resonance: 10 },
+          { frame: 160, mv: 0.2335, concerto: 0, resonance: 0 },
+          { frame: 160, mv: 0.2335, concerto: 0, resonance: 0 },
+          { frame: 170, mv: 0.2335, concerto: 0, resonance: 0 },
+          { frame: 170, mv: 0.2335, concerto: 0, resonance: 0 },
+          { frame: 180, mv: 0.2335, concerto: 0, resonance: 0 },
+          { frame: 180, mv: 0.2335, concerto: 0, resonance: 0 },
+          { frame: 190, mv: 2.4908, concerto: 10, resonance: 10 }, // TODO: check if concerto is onCast
         ],
+        variations: {
+          swap: {
+            frames: 15,
+          },
+        },
       },
     },
   },

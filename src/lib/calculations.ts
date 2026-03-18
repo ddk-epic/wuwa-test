@@ -19,8 +19,9 @@ import {
   getBonus,
   getDefMultiplier,
   getResMultiplier,
-  hasOffFieldBuff,
+  isOffFieldBuff,
   hasSwapped,
+  isActionType,
   isDCondKey,
   isMatch,
   isOnField,
@@ -40,23 +41,36 @@ import { getSkillLevel } from "@/constants/maps"
 
 function removeExpiredBuffs(ctx: Context, action: TimelineItem) {
   const characterId = action.char
+  const skill = action.skill
   const currentTime = ctx.time
   const buffsToRemove = new Set<ActiveBuffObject>()
   const buffs = ctx.activeBuffs[characterId]
+  const buffsTeam = ctx.activeBuffsTeam
 
-  for (const buff of buffs) {
-    // filter by endtime
-    if (buff.endTime <= currentTime) {
-      buffsToRemove.add(buff)
+  for (const buffArray of [buffs, buffsTeam])
+    for (const buff of buffArray) {
+      // filter by endtime
+      if (buff.endTime <= currentTime) {
+        buffsToRemove.add(buff)
+      }
+
+      // filter off-field buffs if character is on-field
+      if (isOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar)) {
+        buffsToRemove.add(buff)
+      }
+
+      // filter consumed buffs
+      if (buff.type === "BuffToConsume" && buff.consumedBy) {
+        for (const consume of buff.consumedBy) {
+          if (consume === skill.id) {
+            buffsToRemove.add(buff)
+            ctx.mode[characterId].pop() // TODO: testing needed
+          }
+        }
+      }
+
+      // other filter rules
     }
-
-    // filter off-field buffs if character is on-field
-    if (hasOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar)) {
-      buffsToRemove.add(buff)
-    }
-
-    // other filter rules
-  }
 
   // remove buffs
   ctx.activeBuffs[characterId] = buffs.filter(
@@ -99,7 +113,11 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
     //  preliminary checks
     if (buff.source !== characterId) continue
 
+    const match = isMatch(buff.triggeredBy, skill)
+    if (!match) continue
+
     if (!canTriggerBuff(ctx, buff.id)) continue
+    if (!isActionType(buff, action)) continue
 
     const isAlreadyActive = buffs.some((b) => b.id === buff.id)
     const isAlreadyActiveTeam = buffsTeam.some((b) => b.id === buff.id)
@@ -109,12 +127,8 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
     if (sequenceRequirement > ctx.characters[characterId].sequence) continue
 
     const offFieldCheck =
-      hasOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar) // off-field buff check
+      isOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar) // off-field buff check
     if (offFieldCheck) continue
-
-    // add buff if match
-    const match = isMatch(buff.triggeredBy, skill)
-    if (!match) continue
 
     // handle end time (convert to activeBuffObject)
     const endTime = currentTime + buff.duration
@@ -128,6 +142,11 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
       ctx.buffNext.push(activeBuffObject)
       // console.log(`add ${activeBuffObject.name} to buffNext`)
       continue
+    }
+
+    // handle mode
+    if (buff.type === "Mode") {
+      ctx.mode[characterId].push(activeBuffObject.id)
     }
 
     // handle damage proc
@@ -164,7 +183,7 @@ function evaluateDCond(ctx: Context, action: TimelineItem) {
   const skill = action.skill
 
   // handle resonance energy
-  if (action.type === "parent" && skill.category === "liberation") {
+  if (action.type === "cast" && skill.category === "liberation") {
     character.dCond.resonance = 0
   }
   handleEnergyShare(ctx, action)
@@ -174,7 +193,7 @@ function evaluateDCond(ctx: Context, action: TimelineItem) {
 }
 
 function calculateDamage(ctx: Context, action: TimelineItem) {
-  if (action.type === "parent") return 0
+  if (action.type === "cast") return 0
 
   const characterId = action.char
   const skill = action.skill
@@ -243,7 +262,7 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
 
       // off-field buff check
       const offFieldCheck =
-        hasOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar)
+        isOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar)
       if (offFieldCheck) continue
 
       switch (buff.type) {
@@ -261,7 +280,7 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
           currentModifiers = newModifiers
           break
 
-        case "BuffConsume":
+        case "BuffToConsume":
           break
 
         case "DCondFlat":
@@ -360,7 +379,7 @@ function processAction(
   passiveBuffs: Record<CHARACTER_KEY, ActiveBuffObject[]>,
 ) {
   // update ctx
-  ctx.onFieldChar = action.type === "parent" ? action.char : ctx.onFieldChar
+  ctx.onFieldChar = action.type === "cast" ? action.char : ctx.onFieldChar
   ctx.time = action.time
   ctx.buffMap = structuredClone(initialBuffMap)
 
@@ -590,6 +609,13 @@ function getContext(
   )
   const activeBuffsTeam = [] as ActiveBuffObject[]
   const proc = { damage: 0, heal: 0, shield: 0 }
+  const mode = team.reduce(
+    (acc, characterId) => {
+      acc[characterId] = []
+      return acc
+    },
+    {} as Record<CHARACTER_KEY, string[]>,
+  )
 
   return {
     activeBuffs,
@@ -602,6 +628,7 @@ function getContext(
     characters,
     cooldowns: {},
     hasSwapped: false,
+    mode, // priority stack
     prevChar: "",
     proc,
     row: 1,

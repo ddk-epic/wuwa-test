@@ -9,12 +9,13 @@ import {
   type CharSettings,
   type Context,
   type DCOND_KEY,
-  type ELEMENT_KEY,
+  type ELEMENT,
   type Result,
   type Skill,
   type SKILL,
   type SKILL_CATEGORY_KEY,
   type TimelineItem,
+  type TriggerValue,
 } from "@/constants/types"
 import type { CHARACTER_KEY } from "@/constants/characters"
 import { echoData } from "@/constants/echoes"
@@ -159,7 +160,7 @@ export function computeEventTimeline(
     const onCast = skill.onCast
     const parentItem: TimelineItem = {
       char: action.char,
-      type: "parent",
+      type: "cast",
       skill: {
         ...actionSkill,
         mv: 0,
@@ -209,7 +210,7 @@ export function aggregateResult(eventTimeline: Result[]): Result[] {
 
   for (let i = 0; i < eventTimeline.length; i++) {
     const row = eventTimeline[i]
-    if (row.type === "parent") {
+    if (row.type === "cast") {
       const parent: Result = {
         ...row,
         row: i + 1,
@@ -241,8 +242,10 @@ export function hasSwapped(
   return prevChar !== currentChar
 }
 
-export function hasOffFieldBuff(buff: BuffObject) {
-  return !!buff.triggeredBy?.some((trigger) => trigger === "off-field")
+export function isOffFieldBuff(buff: BuffObject) {
+  return !!buff.triggeredBy?.condition?.some(
+    (trigger) => trigger === "off-field",
+  )
 }
 
 export function isOnField(
@@ -264,9 +267,14 @@ export function canTriggerBuff(ctx: Context, buffId: string) {
   return ctx.time >= cooldownEnd
 }
 
-export function isMatch(trigger: string[] | undefined, skill: Skill) {
-  const hasNameMatch = trigger?.includes(skill.id)
-  const hasCategoryMatch = !!trigger?.includes(skill.category)
+export function isActionType(buff: BuffObject, action: TimelineItem) {
+  const buffType = buff.triggeredBy?.type ?? "cast"
+  return buffType === action.type
+}
+
+export function isMatch(trigger: TriggerValue | undefined, skill: Skill) {
+  const hasNameMatch = !!trigger?.skill?.includes(skill.id)
+  const hasCategoryMatch = !!trigger?.category?.includes(skill.category)
   return hasNameMatch || hasCategoryMatch
 }
 
@@ -296,12 +304,12 @@ export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
 
 export function getBonus(
   buffMap: BuffMap,
-  classifications: (ELEMENT_KEY | SKILL_CATEGORY_KEY | "echo")[],
+  classifications: (ELEMENT | SKILL_CATEGORY_KEY | "echo")[],
 ): number {
   let result = 0
 
   for (const key of classifications) {
-    const sharedKey = key as ELEMENT_KEY | SKILL_CATEGORY_KEY
+    const sharedKey = key as ELEMENT | SKILL_CATEGORY_KEY
     if (buffMap[sharedKey]) {
       result += buffMap[sharedKey]
     }
