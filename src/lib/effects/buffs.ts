@@ -93,7 +93,7 @@ export const buffs: Record<string, BuffObject[]> = {
       name: "Woolies Save the World!",
       type: "BuffStacking",
       source: "encore",
-      triggeredBy: { type: "hit", condition: ["modeChange"] },
+      triggeredBy: { type: "hit", mode: "Cosmos Rave" },
       appliesTo: "encore",
       modifiers: [{ class: "atk", value: 0.05 }],
       stackLimit: 5,

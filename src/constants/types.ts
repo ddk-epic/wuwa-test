@@ -106,6 +106,7 @@ export type TriggerValue = {
   skill?: string[]
   category?: (SKILL_CATEGORY_KEY | "echo")[]
   condition?: string[]
+  mode?: string
 }
 
 type ModifierValue = {

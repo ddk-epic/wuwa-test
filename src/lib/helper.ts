@@ -11,11 +11,9 @@ import {
   type DCOND_KEY,
   type ELEMENT,
   type Result,
-  type Skill,
   type SKILL,
   type SKILL_CATEGORY_KEY,
   type TimelineItem,
-  type TriggerValue,
 } from "@/constants/types"
 import type { CHARACTER_KEY } from "@/constants/characters"
 import { echoData } from "@/constants/echoes"
@@ -272,10 +270,15 @@ export function isActionType(buff: BuffObject, action: TimelineItem) {
   return buffType === action.type
 }
 
-export function isMatch(trigger: TriggerValue | undefined, skill: Skill) {
+export function isMatch(ctx: Context, action: TimelineItem, buff: BuffObject | ActiveBuffObject) {
+  const characterId = action.char
+  const skill = action.skill
+  const trigger = buff.triggeredBy
+
   const hasNameMatch = !!trigger?.skill?.includes(skill.id)
   const hasCategoryMatch = !!trigger?.category?.includes(skill.category)
-  return hasNameMatch || hasCategoryMatch
+  const hasModeMatch = ctx.mode[characterId].includes(trigger?.mode ?? "")
+  return hasNameMatch || hasCategoryMatch || hasModeMatch
 }
 
 export const buffHandler = {

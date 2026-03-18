@@ -104,7 +104,6 @@ function addOnSwapBuffs(ctx: Context, action: TimelineItem) {
 
 function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
   const characterId = action.char
-  const skill = action.skill
   const currentTime = ctx.time
   const buffs = ctx.activeBuffs[characterId]
   const buffsTeam = ctx.activeBuffsTeam
@@ -113,7 +112,7 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
     //  preliminary checks
     if (buff.source !== characterId) continue
 
-    const match = isMatch(buff.triggeredBy, skill)
+    const match = isMatch(ctx, action, buff) // check name/category/mode
     if (!match) continue
 
     if (!canTriggerBuff(ctx, buff.id)) continue
@@ -268,7 +267,7 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
       switch (buff.type) {
         case "BuffStacking":
           if (action.type !== "hit") break
-          const match = isMatch(buff.triggeredBy, skill)
+          const match = isMatch(ctx, action, buff) // check name/category/mode
           if (!match) break
 
           const handler = buffHandler["BuffStacking"]
