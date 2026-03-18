@@ -1,7 +1,7 @@
-import type { Element } from "./types"
+import type { ELEMENT } from "./types";
 
 export const ELEMENT_COLORS: Record<
-  (Element | "default"),
+  (ELEMENT | "default"),
   { text: string; bg: string; border: string, state: string }
 > = {
   aero: {

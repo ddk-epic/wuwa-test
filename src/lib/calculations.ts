@@ -1,5 +1,5 @@
 import {
-  ELEMENT,
+  ELEMENT_KEYS,
   type ActiveBuffObject,
   type BUFF_TYPE,
   type BuffMap,
@@ -337,7 +337,7 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
         }
 
         if (modifier.class === "allEle") {
-          for (const element of ELEMENT) {
+          for (const element of ELEMENT_KEYS) {
             ctx.buffMap[characterId][element] += value
           }
           return
@@ -561,7 +561,7 @@ function getBuffMap(
         for (const modifier of buff.modifiers) {
           const key = modifier.class
           if (key === "allEle") {
-            for (const element of ELEMENT) {
+            for (const element of ELEMENT_KEYS) {
               personalBuffMap[element] += modifier.value
             }
           } else {
