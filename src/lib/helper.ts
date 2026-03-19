@@ -13,16 +13,21 @@ import {
   type Result,
   type SKILL,
   type SKILL_CATEGORY_KEY,
-  type TimelineItem,
+  type TimelineEntry,
 } from "@/constants/types"
 import type { CHARACTER_KEY } from "@/constants/characters"
 import { echoData } from "@/constants/echoes"
 import skillData from "@/constants/skills"
+import characterTemplate from "@/constants/characters"
 
-export function computeBaseCharacter(char: Character, settings: CharSettings) {
+export function computeBaseCharacter(
+  characterId: CHARACTER_KEY,
+  settings: CharSettings,
+) {
   const levelMultiplier = 12.5
   const weaponMultiplier = 4.5
 
+  const char = characterTemplate[characterId]
   const base = { ...char }
   const bonusStats = { ...char.bonusStats }
 
@@ -62,7 +67,8 @@ export function computeBaseCharacter(char: Character, settings: CharSettings) {
   return newCharacter
 }
 
-export function computeCharacterSkills(character: Character) {
+export function computeCharacterSkills(characterId: CHARACTER_KEY) {
+  const character = characterTemplate[characterId]
   const { variations, set, ...echoSkill } = echoData[character.echo]
 
   const echoSkills: SKILL[] = [echoSkill]
@@ -112,14 +118,14 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
 
   return sequence.map((entry) => {
     let start = currentTime
-    const hasSwapped = previousChar && previousChar !== entry.char
+    const hasSwapped = previousChar && previousChar !== entry.characterId
 
     // add swap time
     // if (hasSwapped) {
     //   start += SWAP_FRAMES
     // }
 
-    const last = lastActionEnd[entry.char]
+    const last = lastActionEnd[entry.characterId]
     if (hasSwapped && last) {
       start = Math.max(start, last + SWITCH_CD)
     }
@@ -131,9 +137,9 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
     }
     const end = start + duration
 
-    lastActionEnd[entry.char] = end
+    lastActionEnd[entry.characterId] = end
     currentTime = end
-    previousChar = entry.char
+    previousChar = entry.characterId
 
     // TODO: implement skill cooldowns
 
@@ -146,18 +152,18 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
 
 export function computeEventTimeline(
   sequence: ActionListItem[],
-): TimelineItem[] {
-  const timeline: TimelineItem[] = []
+): TimelineEntry[] {
+  const timeline: TimelineEntry[] = []
 
   for (const action of sequence) {
     // main timeline entry
-    const skill = action.skill
+    const { characterId, skill, time } = action
     const { variations, ...actionSkill } = skill
-    const parentId = String(action.time)
+    const parentId = String(time)
 
     const onCast = skill.onCast
-    const parentItem: TimelineItem = {
-      char: action.char,
+    const parentItem: TimelineEntry = {
+      characterId,
       type: "cast",
       skill: {
         ...actionSkill,
@@ -168,7 +174,7 @@ export function computeEventTimeline(
         concerto: onCast?.concerto ?? 0,
         resonance: onCast?.resonance ?? 0,
       },
-      time: action.time,
+      time,
     }
 
     timeline.push(parentItem)
@@ -177,8 +183,8 @@ export function computeEventTimeline(
       const { frame, mv, forte, forte2, concerto, resonance } = hit
       const hitFrame = frame ?? 0
 
-      const hitItem: TimelineItem = {
-        char: action.char,
+      const hitItem: TimelineEntry = {
+        characterId,
         type: "hit",
         skill: {
           ...actionSkill,
@@ -190,7 +196,7 @@ export function computeEventTimeline(
           concerto: concerto ?? 0,
           resonance: resonance ?? 0,
         },
-        time: action.time + hitFrame,
+        time: time + hitFrame,
         parent: parentId,
       }
 
@@ -265,14 +271,17 @@ export function canTriggerBuff(ctx: Context, buffId: string) {
   return ctx.time >= cooldownEnd
 }
 
-export function isActionType(buff: BuffObject, action: TimelineItem) {
+export function isActionType(buff: BuffObject, action: TimelineEntry) {
   const buffType = buff.triggeredBy?.type ?? "cast"
   return buffType === action.type
 }
 
-export function isMatch(ctx: Context, action: TimelineItem, buff: BuffObject | ActiveBuffObject) {
-  const characterId = action.char
-  const skill = action.skill
+export function isMatch(
+  ctx: Context,
+  action: TimelineEntry,
+  buff: BuffObject | ActiveBuffObject,
+) {
+  const { characterId, skill } = action
   const trigger = buff.triggeredBy
 
   const hasNameMatch = !!trigger?.skill?.includes(skill.id)

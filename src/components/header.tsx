@@ -5,7 +5,6 @@ import DpsSummary from "./dps-summary"
 
 import type {
   CHARACTER_KEY,
-  CHARACTER_SELECTION_KEY,
 } from "@/constants/characters"
 import type {
   ActionListItem,
@@ -18,7 +17,7 @@ import AddCharacterModal from "./add-character-modal"
 
 interface HeaderBarProps {
   team: TeamSlot[]
-  charData: Record<CHARACTER_KEY, Character>
+  characterData: Record<CHARACTER_KEY, Character>
   sequence: ActionListItem[]
   result: Result[]
   updateCharSettings: (
@@ -26,13 +25,13 @@ interface HeaderBarProps {
     label: SETTINGS_KEY,
     value: string,
   ) => void
-  onCharacterChange: (index: number, value: CHARACTER_SELECTION_KEY) => void
+  onCharacterChange: (selectedIds: CHARACTER_KEY[]) => void
   onReset: () => void
 }
 
 function HeaderBar({
   team,
-  charData,
+  characterData,
   sequence,
   result,
   updateCharSettings,
@@ -54,7 +53,7 @@ function HeaderBar({
         <div className="flex items-center gap-2">
           <AddCharacterModal
             team={team}
-            charData={charData}
+            characterData={characterData}
             updateCharSettings={updateCharSettings}
             onCharacterChange={onCharacterChange}
           />

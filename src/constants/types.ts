@@ -96,7 +96,7 @@ export const BUFF_CATEGORY_KEYS = [
   "BuffToConsume",
   "Damage",
   "DCondFlat",
-  "Mode"
+  "Mode",
 ] as const
 
 export type BUFF_CATEGORY = (typeof BUFF_CATEGORY_KEYS)[number]
@@ -135,10 +135,7 @@ export type BuffObject = {
   stackInterval?: number
   sequenceReq?: number
 }
-export type WeaponBuffObject = Omit<
-  BuffObject,
-  "consumedBy" | "sequenceReq"
->
+export type WeaponBuffObject = Omit<BuffObject, "consumedBy" | "sequenceReq">
 
 export type ActiveBuffObject = {
   stackCount?: number
@@ -191,18 +188,18 @@ type SkillSequence = {
 
 type SkillCategory = Record<SKILL_CATEGORY_KEY, SkillSequence>
 
-export interface CharacterSkills {
+export interface Skills {
   [char: string]: SkillCategory
 }
 
 export type ActionListItem = {
-  char: CHARACTER_KEY
+  characterId: CHARACTER_KEY
   skill: SKILL
   time: number
 }
 
-export type TimelineItem = {
-  char: CHARACTER_KEY
+export type TimelineEntry = {
+  characterId: CHARACTER_KEY
   type: "cast" | "hit"
   skill: Skill
   time: number
@@ -253,15 +250,12 @@ export interface CharSettings {
 
 export type SETTINGS_KEY = "sequence" | "weapon" | "echoSet" | "echo"
 
-export type TeamSlot =
-  | {
-      character: null
-      settings: null
-    }
-  | {
-      character: Character
-      settings: CharSettings
-    }
+export type TeamSlot = {
+  characterId: CHARACTER_KEY
+  settings: CharSettings
+}
+
+export type CharacterSkills = Record<string, SKILL[]>
 
 export type BuffMap = Record<BUFF_TYPE, number>
 
@@ -286,7 +280,7 @@ export type Context = {
   characters: Record<CHARACTER_KEY, Character>
   cooldowns: Record<string, number> // buff.id, cd
   hasSwapped: boolean
-  mode : Record<CHARACTER_KEY, string[]>
+  mode: Record<CHARACTER_KEY, string[]>
   prevChar: CHARACTER_KEY | ""
   proc: Proc
   row: number

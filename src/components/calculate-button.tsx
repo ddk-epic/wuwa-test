@@ -1,25 +1,25 @@
 import { cn } from "@/lib/utils"
 
-import type { Character, TimelineItem } from "@/constants/types"
+import type { Character, TimelineEntry } from "@/constants/types"
 import type { CHARACTER_KEY } from "@/constants/characters"
 
 interface CalculateButtonProps {
-  charData: Record<CHARACTER_KEY, Character>
-  sequence: TimelineItem[]
+  characterData: Record<CHARACTER_KEY, Character>
+  sequence: TimelineEntry[]
   handleCalculate: (
     characters: Record<CHARACTER_KEY, Character>,
-    actionList: TimelineItem[],
+    actionList: TimelineEntry[],
   ) => void
 }
 
 function CalculateButton({
-  charData,
+  characterData,
   sequence,
   handleCalculate,
 }: CalculateButtonProps) {
   return (
     <button
-      onClick={() => handleCalculate(charData, sequence)}
+      onClick={() => handleCalculate(characterData, sequence)}
       className={cn(
         "flex items-center gap-2 rounded-lg px-4 py-2.5 z-10 text-sm font-semibold brightness-90 shadow-lg transition-all",
         sequence.length === 0

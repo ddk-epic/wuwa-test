@@ -11,10 +11,10 @@ import {
 } from "./ui/dialog"
 import ResultTimeline from "./result-timeline"
 
-import type { Result, TimelineItem } from "@/constants/types"
+import type { Result, TimelineEntry } from "@/constants/types"
 
 interface EventTableModalProps {
-  preComputeTimeline: TimelineItem[]
+  preComputeTimeline: TimelineEntry[]
   resultTimeline: Result[]
 }
 

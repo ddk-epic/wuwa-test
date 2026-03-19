@@ -1,6 +1,6 @@
-import type { CharacterSkills } from "./types"
+import type { Skills } from "./types"
 
-const skillData: CharacterSkills = {
+const skillData: Skills = {
   encore: {
     intro: {
       1: {

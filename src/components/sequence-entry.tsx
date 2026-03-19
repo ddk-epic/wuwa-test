@@ -19,7 +19,7 @@ interface SequenceEntryProps {
 function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
   const placeholder = "--"
   const skill = entry.skill
-  const character = characterTemplate[entry.char]
+  const character = characterTemplate[entry.characterId]
   const element = character.element
   const elementColorText = ELEMENT_COLORS[element].text
   const result = res[index]
@@ -54,7 +54,7 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
           elementColorText,
         )}
       >
-        {entry.char}
+        {entry.characterId}
       </TableCell>
       <TableCell className="pl-3 text-[13px] text-right font-mono text-muted-foreground font-semibold uppercase tracking-wider">
         {skill.category.slice(0, 5)}

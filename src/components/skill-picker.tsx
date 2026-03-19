@@ -3,38 +3,43 @@ import { cn } from "@/lib/utils"
 
 import { SelectSeparator } from "./ui/select"
 
-import type { SKILL, TeamSlot } from "@/constants/types"
+import type { Character, CharacterSkills, SKILL } from "@/constants/types"
 import { type CHARACTER_KEY } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 
 interface SkillSidebarProps {
-  team: TeamSlot[]
-  skillData: Record<CHARACTER_KEY, Record<string, SKILL[]>>
+  characterData: Record<CHARACTER_KEY, Character>
+  skillData: Record<CHARACTER_KEY, CharacterSkills>
   onAddSkill: (characterId: CHARACTER_KEY, skill: SKILL) => void
 }
 
-function SkillSidebar({ team, skillData, onAddSkill }: SkillSidebarProps) {
+function SkillSidebar({
+  characterData,
+  skillData,
+  onAddSkill,
+}: SkillSidebarProps) {
+  const characters = Object.values(characterData)
   const [activeTab, setActiveTab] = useState<number>(() => {
-    const index = team.findIndex((c) => c !== null)
+    const index = characters.findIndex((character) => character != null)
     return index === -1 ? 0 : index
   })
 
   useEffect(() => {
     const oldIndex = activeTab
-    const newIndex = team.findIndex((c) => c.character !== null)
-    if (!team[oldIndex]) {
+    const newIndex = characters.findIndex((character) => character.id)
+    if (!characters[oldIndex]) {
       setActiveTab(newIndex)
     }
-  }, [team])
+  }, [characters])
 
-  const activeChar = team[activeTab].character ?? null
+  const activeCharacter = characters[activeTab]
 
   function CharacterTab() {
-    if (!activeChar) return null
+    if (!activeCharacter) return null
+
     return (
       <div className="flex border-b">
-        {team.map((slot, i) => {
-          const character = slot.character
+        {characters.map((character, i) => {
           if (!character) return null
           const element = character.element || "default"
 
@@ -64,9 +69,12 @@ function SkillSidebar({ team, skillData, onAddSkill }: SkillSidebarProps) {
   }
 
   function CharacterSkills() {
-    if (!activeChar) return null
-    const element = activeChar.element || "default"
-    const { echoSkills, characterSkills } = skillData[activeChar.id]
+    if (!activeCharacter) return null
+
+    const characterId = activeCharacter.id
+    const element = activeCharacter.element || "default"
+    const echoSkills = skillData[characterId]?.echoSkills ?? []
+    const characterSkills = skillData[characterId]?.characterSkills ?? []
 
     return (
       <div className="flex flex-col gap-1">
@@ -74,7 +82,7 @@ function SkillSidebar({ team, skillData, onAddSkill }: SkillSidebarProps) {
         {echoSkills.map((echoSkill) => (
           <button
             key={echoSkill.name}
-            onClick={() => onAddSkill(activeChar.id, echoSkill)}
+            onClick={() => onAddSkill(activeCharacter.id, echoSkill)}
             className={cn(
               "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
             )}
@@ -98,7 +106,7 @@ function SkillSidebar({ team, skillData, onAddSkill }: SkillSidebarProps) {
           return (
             <button
               key={skill.name}
-              onClick={() => onAddSkill(activeChar.id, skill)}
+              onClick={() => onAddSkill(activeCharacter.id, skill)}
               className={cn(
                 "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
               )}

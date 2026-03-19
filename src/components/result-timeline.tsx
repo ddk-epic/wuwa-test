@@ -1,8 +1,8 @@
-import type { Result, TimelineItem } from "@/constants/types"
+import type { Result, TimelineEntry } from "@/constants/types"
 import { cn } from "@/lib/utils"
 
 interface ResultTimelineProps {
-  preComputeTimeline: TimelineItem[]
+  preComputeTimeline: TimelineEntry[]
   resultTimeline: Result[]
 }
 
@@ -35,7 +35,7 @@ function ResultTimeline({
         <h1 className="font-bold">Result (raw)</h1>
         {resultTimeline.map((result) => {
           const activeBuffString = result?.buffs.join(", ")
-  const activeTeamBuffString = result?.buffsTeam.join(", ")
+          const activeTeamBuffString = result?.buffsTeam.join(", ")
           const finalBuffMap = (() => {
             let idx = 0
             return [6, 5, 6, 5, 6, 3, 2]

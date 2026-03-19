@@ -19,16 +19,14 @@ import SkillSidebar from "@/components/skill-picker"
 import type {
   ActionListItem,
   Character,
+  CharacterSkills,
   Result,
   SETTINGS_KEY,
   SKILL,
   TeamSlot,
-  TimelineItem,
+  TimelineEntry,
 } from "@/constants/types"
-import characterTemplate, {
-  type CHARACTER_KEY,
-  type CHARACTER_SELECTION_KEY,
-} from "@/constants/characters"
+import characterTemplate, { type CHARACTER_KEY } from "@/constants/characters"
 import { totalBuffMap } from "@/constants/maps"
 import { weaponData, type WEAPON_KEY } from "@/constants/weapons"
 import type { ECHO_KEY, ECHO_SET_KEY } from "@/constants/echoes"
@@ -37,11 +35,7 @@ import EventTableModal from "@/components/event-table-modal"
 export const Route = createFileRoute("/")({ component: App })
 
 function App() {
-  const [team, setTeam] = usePersistedState<TeamSlot[]>("team", [
-    { character: null, settings: null },
-    { character: null, settings: null },
-    { character: null, settings: null },
-  ])
+  const [team, setTeam] = usePersistedState<TeamSlot[]>("team", [])
   const [sequence, setSequence] = usePersistedState<ActionListItem[]>(
     "sequence",
     [],
@@ -49,13 +43,15 @@ function App() {
   const [rawResult, setRawResult] = usePersistedState<Result[]>("raw", [])
   const [result, setResult] = usePersistedState<Result[]>("result", [])
 
-  const computedChars = useMemo(() => {
+  const computedCharacterData = useMemo(() => {
     return team.reduce(
       (acc, slot) => {
-        if (!slot.character || !slot.settings) return acc
+        if (!slot.characterId || !slot.settings) return acc
 
-        const char = computeBaseCharacter(slot.character, slot.settings)
-        acc[char.id] = char
+        acc[slot.characterId] = computeBaseCharacter(
+          slot.characterId,
+          slot.settings,
+        )
 
         return acc
       },
@@ -63,16 +59,16 @@ function App() {
     )
   }, [team])
 
-  const computedSkills = useMemo(() => {
+  const computedSkillData = useMemo(() => {
     return team.reduce(
       (acc, slot) => {
-        if (!slot.character || !slot.settings) return acc
+        if (!slot.characterId || !slot.settings) return acc
 
-        acc[slot.character.id] = computeCharacterSkills(slot.character)
+        acc[slot.characterId] = computeCharacterSkills(slot.characterId)
 
         return acc
       },
-      {} as Record<CHARACTER_KEY, Record<string, SKILL[]>>,
+      {} as Record<CHARACTER_KEY, CharacterSkills>,
     )
   }, [team])
 
@@ -80,36 +76,37 @@ function App() {
     return computeEventTimeline(sequence)
   }, [sequence])
 
-  const handleCharacterChange = (
-    index: number,
-    value: CHARACTER_SELECTION_KEY,
-  ) => {
-    const oldChar = team[index].character
-    const newChar = value === "__none__" ? null : value
+  const handleCharacterChange = (selectedIds: CHARACTER_KEY[]) => {
+    if (selectedIds.length > 3) return // Cap at 3 characters
 
-    setTeam((prev) => {
-      const newTeam = [...prev]
+    const newTeam: TeamSlot[] = []
 
-      if (!newChar) {
-        newTeam[index].character = null
-        newTeam[index].settings = null
-      } else {
-        newTeam[index] = {
-          character: characterTemplate[newChar],
-          settings: {
-            sequence: 0,
-            weapon: characterTemplate[newChar].weapon,
-            echoSet: [...characterTemplate[newChar].echoSet],
-            echo: characterTemplate[newChar].echo,
-          },
-        }
+    for (const characterId of selectedIds) {
+      const exists = team.find((slot) => slot.characterId === characterId)
+      if (exists) {
+        // Preserve existing settings
+        newTeam.push(exists)
+        continue
       }
-      return newTeam
-    })
 
-    setSequence((prev) =>
-      oldChar ? prev.filter((s) => s.char !== oldChar.id) : prev,
-    )
+      const template = characterTemplate[characterId]
+      if (!template) continue
+
+      const { id, weapon, echoSet, echo } = template
+      const newCharacter: TeamSlot = {
+        characterId: id,
+        settings: {
+          sequence: 0,
+          weapon,
+          echoSet,
+          echo,
+        },
+      }
+
+      newTeam.push(newCharacter)
+    }
+
+    setTeam(newTeam)
   }
 
   const updateCharSettings = (
@@ -122,7 +119,7 @@ function App() {
     setTeam((prev) => {
       const newTeam = [...prev]
       const slot = newTeam[index]
-      if (!slot.character || !slot.settings) return prev
+      if (!slot.characterId || !slot.settings) return prev
 
       const newSetting = { ...slot.settings }
 
@@ -157,11 +154,14 @@ function App() {
     })
   }
 
-  const handleAddSkill = (char: CHARACTER_KEY, skill: SKILL) => {
+  const handleAddSkill = (characterId: CHARACTER_KEY, skill: SKILL) => {
     setRawResult([])
     setResult([])
     setSequence((prev) => {
-      const newSequence: ActionListItem[] = [...prev, { char, skill, time: 0 }]
+      const newSequence: ActionListItem[] = [
+        ...prev,
+        { characterId, skill, time: 0 },
+      ]
       return computeTimeline(newSequence)
     })
   }
@@ -176,10 +176,10 @@ function App() {
   }
 
   const handleCalculate = (
-    characterData: Record<CHARACTER_KEY, Character>,
-    actionList: TimelineItem[],
+    characters: Record<CHARACTER_KEY, Character>,
+    actionList: TimelineEntry[],
   ) => {
-    const rawResult = calculate(characterData, actionList, totalBuffMap)
+    const rawResult = calculate(characters, actionList, totalBuffMap)
     setRawResult(rawResult)
     const finalResult = aggregateResult(rawResult)
     setResult(finalResult)
@@ -195,9 +195,9 @@ function App() {
     <div className="min-w-270 h-screen flex flex-col">
       <HeaderBar
         team={team}
+        characterData={computedCharacterData}
         sequence={sequence}
         result={result}
-        charData={computedChars}
         onCharacterChange={handleCharacterChange}
         updateCharSettings={updateCharSettings}
         onReset={handleReset}
@@ -217,7 +217,7 @@ function App() {
               resultTimeline={rawResult}
             />
             <CalculateButton
-              charData={computedChars}
+              characterData={computedCharacterData}
               sequence={computedEventTimeline}
               handleCalculate={handleCalculate}
             />
@@ -225,8 +225,8 @@ function App() {
         </main>
         {/* Side section */}
         <SkillSidebar
-          team={team}
-          skillData={computedSkills}
+          characterData={computedCharacterData}
+          skillData={computedSkillData}
           onAddSkill={handleAddSkill}
         />
       </div>

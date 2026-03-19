@@ -8,7 +8,7 @@ import {
   type Context,
   type Result,
   type Skill,
-  type TimelineItem,
+  type TimelineEntry,
 } from "@/constants/types"
 
 import { roundBuffMapToPercentStrings } from "./utils"
@@ -39,8 +39,8 @@ import { setBuffs } from "./effects/set-buffs"
 import { weaponBuffs } from "./effects/weapon-buffs"
 import { getSkillLevel } from "@/constants/maps"
 
-function removeExpiredBuffs(ctx: Context, action: TimelineItem) {
-  const characterId = action.char
+function removeExpiredBuffs(ctx: Context, action: TimelineEntry) {
+  const characterId = action.characterId
   const skill = action.skill
   const currentTime = ctx.time
   const buffsToRemove = new Set<ActiveBuffObject>()
@@ -78,8 +78,8 @@ function removeExpiredBuffs(ctx: Context, action: TimelineItem) {
   )
 }
 
-function addOnSwapBuffs(ctx: Context, action: TimelineItem) {
-  const characterId = action.char
+function addOnSwapBuffs(ctx: Context, action: TimelineEntry) {
+  const characterId = action.characterId
   const currentTime = ctx.time
   const buffNext = ctx.buffNext
 
@@ -102,8 +102,8 @@ function addOnSwapBuffs(ctx: Context, action: TimelineItem) {
   }
 }
 
-function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
-  const characterId = action.char
+function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
+  const characterId = action.characterId
   const currentTime = ctx.time
   const buffs = ctx.activeBuffs[characterId]
   const buffsTeam = ctx.activeBuffsTeam
@@ -167,17 +167,17 @@ function addTriggeredBuffs(ctx: Context, action: TimelineItem) {
   }
 }
 
-function handleEnergyShare(ctx: Context, action: TimelineItem) {
+function handleEnergyShare(ctx: Context, action: TimelineEntry) {
   const value = action.skill.resonance
   for (const character of Object.values(ctx.characters)) {
-    const activeMultiplier = character.id === action.char ? 1 : 0.5
+    const activeMultiplier = character.id === action.characterId ? 1 : 0.5
 
     character.dCond.resonance += value * activeMultiplier
   }
 }
 
-function evaluateDCond(ctx: Context, action: TimelineItem) {
-  const characterId = action.char
+function evaluateDCond(ctx: Context, action: TimelineEntry) {
+  const characterId = action.characterId
   const character = ctx.characters[characterId]
   const skill = action.skill
 
@@ -191,10 +191,10 @@ function evaluateDCond(ctx: Context, action: TimelineItem) {
   character.dCond.concerto += skill.concerto
 }
 
-function calculateDamage(ctx: Context, action: TimelineItem) {
+function calculateDamage(ctx: Context, action: TimelineEntry) {
   if (action.type === "cast") return 0
 
-  const characterId = action.char
+  const characterId = action.characterId
   const skill = action.skill
   const char = ctx.characters[characterId]
   const buffMap = ctx.buffMap[characterId]
@@ -247,8 +247,8 @@ function calculateDamage(ctx: Context, action: TimelineItem) {
   return totalDamage
 }
 
-function evaluateBuffs(ctx: Context, action: TimelineItem) {
-  const characterId = action.char
+function evaluateBuffs(ctx: Context, action: TimelineEntry) {
+  const characterId = action.characterId
   const character = ctx.characters[characterId]
   const skill = action.skill
   const time = action.time
@@ -314,8 +314,8 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
               concerto: mod.concerto ?? 0,
               resonance: mod.resonance ?? 0,
             }
-            const procEvent: TimelineItem = {
-              char: characterId,
+            const procEvent: TimelineEntry = {
+              characterId: characterId,
               type: "hit",
               skill: damageProc,
               time,
@@ -373,12 +373,13 @@ function evaluateBuffs(ctx: Context, action: TimelineItem) {
 
 function processAction(
   ctx: Context,
-  action: TimelineItem,
+  action: TimelineEntry,
   initialBuffMap: Record<CHARACTER_KEY, BuffMap>,
   passiveBuffs: Record<CHARACTER_KEY, ActiveBuffObject[]>,
 ) {
   // update ctx
-  ctx.onFieldChar = action.type === "cast" ? action.char : ctx.onFieldChar
+  ctx.onFieldChar =
+    action.type === "cast" ? action.characterId : ctx.onFieldChar
   ctx.time = action.time
   ctx.buffMap = structuredClone(initialBuffMap)
 
@@ -401,7 +402,7 @@ function processAction(
 
   const damage = calculateDamage(ctx, action)
 
-  const characterId = action.char
+  const characterId = action.characterId
   const buffs = ctx.activeBuffs[characterId]
   const buffsTeam = ctx.activeBuffsTeam.map((buff) => buff.name)
   const buffsPassive = passiveBuffs[characterId].map((buff) => buff.name)
@@ -638,7 +639,7 @@ function getContext(
 
 function calculate(
   characters: Record<CHARACTER_KEY, Character>,
-  actionList: TimelineItem[],
+  actionList: TimelineEntry[],
   baseBuffMap: BuffMap,
 ): Result[] {
   const resultList: Result[] = []
