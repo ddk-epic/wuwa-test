@@ -53,6 +53,7 @@ export const totalBuffMap: BuffMap = {
   resonance: 0,
   intro: 0,
   outro: 0,
+  echo: 0,
 }
 
 export const getSkillLevel = {

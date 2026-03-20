@@ -61,7 +61,7 @@ export const buffs: Record<string, BuffObject[]> = {
       name: "Fog? The Black Shores!",
       type: "Buff",
       source: "encore",
-      triggeredBy: { skill: ["Cloudy Frenzy", "Cosmos Rupture"] },
+      triggeredBy: { type: "hit", skill: ["Cloudy Frenzy", "Cosmos Rupture"] },
       appliesTo: "encore",
       modifiers: [{ class: "multiplier", value: 0.4 }],
       sequenceReq: 3,

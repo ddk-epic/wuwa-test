@@ -136,12 +136,12 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
     const duration = skill.frames
     const end = start + duration
 
-    console.table({
-      skill: skill.name,
-      start,
-      duration,
-      end,
-    })
+    // console.table({
+    //   skill: skill.name,
+    //   start,
+    //   duration,
+    //   end,
+    // })
 
     lastActionEnd.set(characterId, end)
     currentTime = end
@@ -254,7 +254,7 @@ export function hasSwapped(
 
 export function isOffFieldBuff(buff: BuffObject) {
   return !!buff.triggeredBy?.condition?.some(
-    (trigger) => trigger === "off-field",
+    (condition) => condition === "off-field",
   )
 }
 
@@ -277,7 +277,7 @@ export function canTriggerBuff(ctx: Context, buffId: string) {
   return ctx.time >= cooldownEnd
 }
 
-export function isActionType(buff: BuffObject, action: TimelineEntry) {
+export function isMatchingActionType(buff: BuffObject, action: TimelineEntry) {
   const buffType = buff.triggeredBy?.type ?? "cast"
   return buffType === action.type
 }
@@ -323,7 +323,7 @@ export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
 
 export function getBonus(
   buffMap: BuffMap,
-  classifications: (ELEMENT | SKILL_CATEGORY_KEY | "echo")[],
+  classifications: BUFF_TYPE[],
 ): number {
   let result = 0
 

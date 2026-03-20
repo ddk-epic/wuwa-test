@@ -82,6 +82,7 @@ export const BUFF_TYPE_KEYS = [
   // rest
   "intro",
   "outro",
+  "echo"
 ] as const
 export type BUFF_TYPE = (typeof BUFF_TYPE_KEYS)[number]
 
@@ -102,7 +103,7 @@ export const BUFF_CATEGORY_KEYS = [
 export type BUFF_CATEGORY = (typeof BUFF_CATEGORY_KEYS)[number]
 
 export type TriggerValue = {
-  type?: "hit" // default to cast
+  type?: "hit" // defaults to cast
   skill?: string[]
   category?: (SKILL_CATEGORY_KEY | "echo")[]
   condition?: string[]
@@ -124,7 +125,7 @@ export type BuffObject = {
   name: string
   type: BUFF_CATEGORY
   source: CHARACTER_KEY | "self"
-  classifications?: (ELEMENT | SKILL_CATEGORY_KEY | "echo")[] // For damage proc's
+  classifications?: BUFF_TYPE[] // For damage proc's
   triggeredBy?: TriggerValue
   appliesTo: CHARACTER_KEY | "self" | "all" | "next"
   modifiers: ModifierValue[]
@@ -162,7 +163,7 @@ export type SKILL = {
   id: string
   name: string
   category: SKILL_CATEGORY_KEY | "echo"
-  classifications: (ELEMENT | SKILL_CATEGORY_KEY | "echo")[]
+  classifications: BUFF_TYPE[]
   frames: number // in frames
   freezetime?: number
   cooldown?: number
@@ -301,6 +302,6 @@ export type Result = {
   parent?: string
   buffs: string[]
   buffsTeam: string[]
-  buffMap: string[]
+  buffMap: BuffMap
   message: Message
 }
