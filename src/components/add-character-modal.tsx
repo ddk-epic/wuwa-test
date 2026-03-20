@@ -19,7 +19,7 @@ import characterTemplate, { type CHARACTER_KEY, CHARACTERS } from "@/constants/c
 
 interface AddCharacterModalProps {
   team: TeamSlot[]
-  characterData: Record<CHARACTER_KEY, Character>
+  characterData: Character[]
   updateCharSettings: (
     index: number,
     label: SETTINGS_KEY,
@@ -85,8 +85,7 @@ function AddCharacterModal({
             </ToggleGroup>
           </div>
           <div className="flex gap-4">
-            {team.map((slot, i) => {
-              const character = characterData[slot.characterId]
+            {characterData.map((character, i) => {
               const weapons = Object.values(weaponData).filter(
                 (w) => w.type === character.weaponType,
               )

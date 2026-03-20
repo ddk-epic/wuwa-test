@@ -37,14 +37,14 @@ import { buffs } from "./effects/buffs"
 import { echoBuffs } from "./effects/echo-buffs"
 import { setBuffs } from "./effects/set-buffs"
 import { weaponBuffs } from "./effects/weapon-buffs"
-import { getSkillLevel } from "@/constants/maps"
+import { getSkillLevel, totalBuffMap } from "@/constants/maps"
 
 function removeExpiredBuffs(ctx: Context, action: TimelineEntry) {
   const characterId = action.characterId
   const skill = action.skill
   const currentTime = ctx.time
   const buffsToRemove = new Set<ActiveBuffObject>()
-  const buffs = ctx.activeBuffs[characterId]
+  const buffs = ctx.activeBuffs.get(characterId) ?? []
   const buffsTeam = ctx.activeBuffsTeam
 
   for (const buffArray of [buffs, buffsTeam])
@@ -64,7 +64,8 @@ function removeExpiredBuffs(ctx: Context, action: TimelineEntry) {
         for (const consume of buff.consumedBy) {
           if (consume === skill.id) {
             buffsToRemove.add(buff)
-            ctx.mode[characterId].pop() // TODO: testing needed
+            const mode = ctx.mode.get(characterId) ?? []
+            mode.pop() // TODO: testing needed
           }
         }
       }
@@ -73,29 +74,27 @@ function removeExpiredBuffs(ctx: Context, action: TimelineEntry) {
     }
 
   // remove buffs
-  ctx.activeBuffs[characterId] = buffs.filter(
-    (buff) => !buffsToRemove.has(buff),
-  )
+  const remainingBuffs = buffs.filter((buff) => !buffsToRemove.has(buff))
+  ctx.activeBuffs.set(characterId, remainingBuffs)
 }
 
 function addOnSwapBuffs(ctx: Context, action: TimelineEntry) {
   const characterId = action.characterId
   const currentTime = ctx.time
   const buffNext = ctx.buffNext
+  const buffs = ctx.activeBuffs.get(characterId) ?? []
 
   if (!hasSwapped(ctx.prevChar, characterId) || buffNext.length === 0) return
 
   for (const buff of buffNext) {
-    const isAlreadyActive = ctx.activeBuffs[characterId].some(
-      (b) => b.id === buff.id,
-    )
+    const isAlreadyActive = buffs.some((b) => b.id === buff.id)
     if (isAlreadyActive) continue
 
     // add end time
     const endTime = currentTime + buff.duration
     const activeBuffObject = { ...buff, endTime }
 
-    ctx.activeBuffs[characterId].push(activeBuffObject)
+    buffs.push(activeBuffObject)
     // console.log(
     //   `add ${activeBuffObject.name} to activeBuffs[${characterId}]`,
     // )
@@ -105,7 +104,8 @@ function addOnSwapBuffs(ctx: Context, action: TimelineEntry) {
 function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
   const characterId = action.characterId
   const currentTime = ctx.time
-  const buffs = ctx.activeBuffs[characterId]
+  const charData = ctx.characters.get(characterId)
+  const buffs = ctx.activeBuffs.get(characterId) ?? []
   const buffsTeam = ctx.activeBuffsTeam
 
   for (const buff of ctx.allBuffs) {
@@ -123,7 +123,7 @@ function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
     if (isAlreadyActive || isAlreadyActiveTeam) continue
 
     const sequenceRequirement = buff.sequenceReq ?? 0
-    if (sequenceRequirement > ctx.characters[characterId].sequence) continue
+    if (charData && sequenceRequirement > charData.sequence) continue
 
     const offFieldCheck =
       isOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar) // off-field buff check
@@ -145,7 +145,8 @@ function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
 
     // handle mode
     if (buff.type === "Mode") {
-      ctx.mode[characterId].push(activeBuffObject.id)
+      const mode = ctx.mode.get(characterId) ?? []
+      mode.push(activeBuffObject.id)
     }
 
     // handle damage proc
@@ -178,8 +179,10 @@ function handleEnergyShare(ctx: Context, action: TimelineEntry) {
 
 function evaluateDCond(ctx: Context, action: TimelineEntry) {
   const characterId = action.characterId
-  const character = ctx.characters[characterId]
+  const character = ctx.characters.get(characterId)
   const skill = action.skill
+
+  if (!character) return
 
   // handle resonance energy
   if (action.type === "cast" && skill.category === "liberation") {
@@ -196,8 +199,10 @@ function calculateDamage(ctx: Context, action: TimelineEntry) {
 
   const characterId = action.characterId
   const skill = action.skill
-  const char = ctx.characters[characterId]
-  const buffMap = ctx.buffMap[characterId]
+  const char = ctx.characters.get(characterId)
+  const buffMap = ctx.buffMap.get(characterId)
+
+  if (!char || !buffMap) return 0
 
   // character
   const characterLevel = 90
@@ -249,10 +254,10 @@ function calculateDamage(ctx: Context, action: TimelineEntry) {
 
 function evaluateBuffs(ctx: Context, action: TimelineEntry) {
   const characterId = action.characterId
-  const character = ctx.characters[characterId]
+  const character = ctx.characters.get(characterId)
   const skill = action.skill
   const time = action.time
-  const buffs = ctx.activeBuffs[characterId]
+  const buffs = ctx.activeBuffs.get(characterId) ?? []
   const buffsTeam = ctx.activeBuffsTeam
 
   for (const buffArray of [buffs, buffsTeam]) {
@@ -285,7 +290,7 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
         case "DCondFlat":
           // add flat DCond mod to stat
           const mod = buff.modifiers[0]
-          if (isDCondKey(mod.class)) {
+          if (character && isDCondKey(mod.class)) {
             character.dCond[mod.class] += mod.value
           }
           // console.log(
@@ -322,7 +327,7 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
             }
             ctx.proc.damage = calculateDamage(ctx, procEvent)
             evaluateDCond(ctx, procEvent)
-            removeBuffByName(ctx.activeBuffs[characterId], buff.id)
+            removeBuffByName(ctx.activeBuffs.get(characterId) ?? [], buff.id)
             removeBuffByName(ctx.buffDeferred, buff.id)
             // console.log(
             //   `${damageProcc.name} successfully procced for`,
@@ -339,33 +344,40 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
 
       for (const modifier of currentModifiers) {
         const value = modifier.stackValue ? modifier.stackValue : modifier.value
+        const buffMap = ctx.buffMap.get(characterId)
 
         if (buff.appliesTo === "all") {
           for (const character of Object.values(ctx.characters)) {
-            ctx.buffMap[character.id][modifier.class] += value
-            // console.log(
-            //   ctx.row,
-            //   buff.name,
-            //   `buffMap[${character.id}][${modifier.class}]:`,
-            //   ctx.buffMap[character.id][modifier.class],
-            //   `+${value}`,
-            // )
+            const personalBuffMap = ctx.buffMap.get(character.id)
+            if (personalBuffMap) {
+              personalBuffMap[modifier.class] += value
+              // console.log(
+              //   ctx.row,
+              //   buff.name,
+              //   `buffMap[${character.id}][${modifier.class}]:`,
+              //   buffMap[modifier.class],
+              //   `+${value}`,
+              // )
+            }
           }
           return
         }
 
         if (modifier.class === "allEle") {
           for (const element of ELEMENT_KEYS) {
-            ctx.buffMap[characterId][element] += value
+            if (buffMap) {
+              buffMap[element] += value
+            }
           }
           return
         }
-
-        ctx.buffMap[characterId][modifier.class] += value
-        // console.log(
-        //   ctx.row,
-        //   buff.name, `buffMap[${characterId}][${modifier.class}]:`, ctx.buffMap[characterId][modifier.class]
-        // )
+        if (buffMap) {
+          buffMap[modifier.class] += value
+          // console.log(
+          //   ctx.row,
+          //   buff.name, `buffMap[${characterId}][${modifier.class}]:`, buffMap[modifier.class]
+          // )
+        }
       }
     }
   }
@@ -374,8 +386,8 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
 function processAction(
   ctx: Context,
   action: TimelineEntry,
-  initialBuffMap: Record<CHARACTER_KEY, BuffMap>,
-  passiveBuffs: Record<CHARACTER_KEY, ActiveBuffObject[]>,
+  initialBuffMap: Map<CHARACTER_KEY, BuffMap>,
+  passiveBuffs: Map<CHARACTER_KEY, ActiveBuffObject[]>,
 ) {
   // update ctx
   ctx.onFieldChar =
@@ -403,23 +415,25 @@ function processAction(
   const damage = calculateDamage(ctx, action)
 
   const characterId = action.characterId
-  const buffs = ctx.activeBuffs[characterId]
+  const buffs = ctx.activeBuffs.get(characterId) ?? []
   const buffsTeam = ctx.activeBuffsTeam.map((buff) => buff.name)
-  const buffsPassive = passiveBuffs[characterId].map((buff) => buff.name)
+  const buffsPassive = (passiveBuffs.get(characterId) ?? []).map(
+    (buff) => buff.name,
+  )
   const buffsCharacter = buffs.map((buff) => buff.name)
 
   const roundedBuffMap: Record<BUFF_TYPE, string> =
-    roundBuffMapToPercentStrings(ctx.buffMap[characterId])
+    roundBuffMapToPercentStrings(ctx.buffMap.get(characterId) ?? totalBuffMap)
   const buffMapValues = Object.values(roundedBuffMap).slice(0, 33)
 
   const resultObject: Result = {
     row: ctx.row,
-    char: characterId,
+    characterId,
     type: action.type,
     skill: action.skill,
     time: ctx.time,
-    concerto: ctx.characters[characterId].dCond.concerto,
-    resonance: ctx.characters[characterId].dCond.resonance,
+    concerto: ctx.characters.get(characterId)?.dCond.concerto ?? 0,
+    resonance: ctx.characters.get(characterId)?.dCond.resonance ?? 0,
     damage,
     proc: { ...ctx.proc },
     parent: action?.parent,
@@ -436,13 +450,10 @@ function processAction(
   return resultObject
 }
 
-function getBuffData(characters: Record<CHARACTER_KEY, Character>) {
-  const team = Object.keys(characters) as CHARACTER_KEY[]
-
+function getBuffData(characters: Map<CHARACTER_KEY, Character>) {
   const allBuffs: BuffObject[] = []
 
-  for (const characterId of team) {
-    const character = characters[characterId]
+  for (const [characterId, character] of characters) {
     const sequence = character.sequence
 
     // Character buffs
@@ -521,26 +532,31 @@ function getBuffData(characters: Record<CHARACTER_KEY, Character>) {
 }
 
 function prepareBuffs(
-  characters: Record<CHARACTER_KEY, Character>,
+  characters: Map<CHARACTER_KEY, Character>,
   allBuffs: BuffObject[],
 ) {
-  const team = Object.keys(characters) as CHARACTER_KEY[]
+  // Initialize passiveBuffs as a Map
+  const passiveBuffs = new Map<CHARACTER_KEY, ActiveBuffObject[]>()
 
-  const passiveBuffs = team.reduce(
-    (acc, characterId) => {
-      acc[characterId] = []
-      return acc
-    },
-    {} as Record<CHARACTER_KEY, ActiveBuffObject[]>,
-  )
-  const nonPassiveBuffs = [] as BuffObject[]
+  for (const [characterId, _] of characters) {
+    passiveBuffs.set(characterId, [])
+  }
+
+  const nonPassiveBuffs: BuffObject[] = []
 
   for (const buff of allBuffs) {
     if (buff.duration < 500 * 60) {
       nonPassiveBuffs.push(buff)
     } else {
       if (buff.source === "self") continue
-      passiveBuffs[buff.source].push({
+
+      // Ensure the array exists
+      if (!passiveBuffs.has(buff.source)) {
+        passiveBuffs.set(buff.source, [])
+      }
+
+      const buffsArray = passiveBuffs.get(buff.source)!
+      buffsArray.push({
         ...buff,
         endTime: 99999,
       })
@@ -551,71 +567,66 @@ function prepareBuffs(
 }
 
 function getBuffMap(
-  characters: Record<CHARACTER_KEY, Character>,
+  characters: Map<CHARACTER_KEY, Character>,
   buffMap: BuffMap,
-  passiveBuffs: Record<CHARACTER_KEY, ActiveBuffObject[]>,
-): Record<CHARACTER_KEY, BuffMap> {
-  const team = Object.keys(characters) as CHARACTER_KEY[]
+  passiveBuffs: Map<CHARACTER_KEY, ActiveBuffObject[]>,
+): Map<CHARACTER_KEY, BuffMap> {
+  const initialBuffMap = new Map<CHARACTER_KEY, BuffMap>()
 
-  const initialBuffMap: Record<CHARACTER_KEY, BuffMap> = team.reduce(
-    (acc, characterId) => {
-      const bonusStats = characters[characterId].bonusStats
-      const personalBuffMap = { ...buffMap }
+  for (const [characterId, character] of characters) {
+    const personalBuffMap: BuffMap = { ...buffMap }
 
-      // apply BonusStats
-      BONUSSTAT_KEYS.forEach((key) => {
-        if (key in personalBuffMap) {
-          const sharedKey = key as BONUSSTAT_KEY & BUFF_TYPE
-          personalBuffMap[sharedKey] += bonusStats[sharedKey]
-        }
-      })
+    // Apply BonusStats
+    for (const key of BONUSSTAT_KEYS) {
+      if (key in personalBuffMap) {
+        const sharedKey = key as BONUSSTAT_KEY & BUFF_TYPE
+        personalBuffMap[sharedKey] += character.bonusStats[sharedKey]
+      }
+    }
 
-      // apply passive buff stats
-      passiveBuffs[characterId].forEach((buff) => {
-        for (const modifier of buff.modifiers) {
-          const key = modifier.class
-          if (key === "allEle") {
-            for (const element of ELEMENT_KEYS) {
-              personalBuffMap[element] += modifier.value
-            }
-          } else {
-            personalBuffMap[key] += modifier.value
+    // Apply passive buff stats
+    const buffs = passiveBuffs.get(characterId) ?? []
+    for (const buff of buffs) {
+      for (const modifier of buff.modifiers) {
+        const key = modifier.class
+        if (key === "allEle") {
+          for (const element of ELEMENT_KEYS) {
+            personalBuffMap[element] += modifier.value
           }
+        } else {
+          personalBuffMap[key] += modifier.value
         }
-      })
+      }
+    }
 
-      acc[characterId] = personalBuffMap
-      return acc
-    },
-    {} as Record<CHARACTER_KEY, BuffMap>,
-  )
+    initialBuffMap.set(characterId, personalBuffMap)
+  }
 
   return initialBuffMap
 }
 
 function getContext(
-  characterData: Record<CHARACTER_KEY, Character>,
-  baseBuffMap: Record<CHARACTER_KEY, BuffMap>,
+  characterData: Map<CHARACTER_KEY, Character>,
+  baseBuffMap: Map<CHARACTER_KEY, BuffMap>,
   nonPassiveBuffs: BuffObject[],
 ): Context {
-  const team = Object.keys(characterData) as CHARACTER_KEY[]
-  const characters = structuredClone(characterData)
-  const activeBuffs = team.reduce(
-    (acc, characterId) => {
-      acc[characterId] = []
-      return acc
-    },
-    {} as Record<CHARACTER_KEY, ActiveBuffObject[]>,
+  const characters = new Map(
+    Array.from(characterData, ([key, value]) => [key, structuredClone(value)]),
   )
-  const activeBuffsTeam = [] as ActiveBuffObject[]
+
+  const activeBuffs = new Map<CHARACTER_KEY, ActiveBuffObject[]>()
+  for (const characterId of characters.keys()) {
+    activeBuffs.set(characterId, [])
+  }
+  const activeBuffsTeam: ActiveBuffObject[] = []
+
+  // Proc stats
   const proc = { damage: 0, heal: 0, shield: 0 }
-  const mode = team.reduce(
-    (acc, characterId) => {
-      acc[characterId] = []
-      return acc
-    },
-    {} as Record<CHARACTER_KEY, string[]>,
-  )
+
+  const mode = new Map<CHARACTER_KEY, string[]>()
+  for (const characterId of characters.keys()) {
+    mode.set(characterId, [])
+  }
 
   return {
     activeBuffs,
@@ -638,11 +649,16 @@ function getContext(
 }
 
 function calculate(
-  characters: Record<CHARACTER_KEY, Character>,
+  characterData: Character[],
   actionList: TimelineEntry[],
   baseBuffMap: BuffMap,
 ): Result[] {
   const resultList: Result[] = []
+
+  const characters = new Map<CHARACTER_KEY, Character>()
+  characterData.forEach((character) => {
+    characters.set(character.id, character)
+  })
 
   // get Data
   const buffData = getBuffData(characters)

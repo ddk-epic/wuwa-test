@@ -44,19 +44,13 @@ function App() {
   const [result, setResult] = usePersistedState<Result[]>("result", [])
 
   const computedCharacterData = useMemo(() => {
-    return team.reduce(
-      (acc, slot) => {
-        if (!slot.characterId || !slot.settings) return acc
+    return team.reduce<Character[]>((acc, slot) => {
+      if (!slot.characterId || !slot.settings) return acc
 
-        acc[slot.characterId] = computeBaseCharacter(
-          slot.characterId,
-          slot.settings,
-        )
+      acc.push(computeBaseCharacter(slot.characterId, slot.settings))
 
-        return acc
-      },
-      {} as Record<CHARACTER_KEY, Character>,
-    )
+      return acc
+    }, [])
   }, [team])
 
   const computedSkillData = useMemo(() => {
@@ -176,7 +170,7 @@ function App() {
   }
 
   const handleCalculate = (
-    characters: Record<CHARACTER_KEY, Character>,
+    characters: Character[],
     actionList: TimelineEntry[],
   ) => {
     const rawResult = calculate(characters, actionList, totalBuffMap)

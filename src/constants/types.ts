@@ -270,17 +270,17 @@ type Message = {
 }
 
 export type Context = {
-  activeBuffs: Record<CHARACTER_KEY, ActiveBuffObject[]>
+  activeBuffs: Map<CHARACTER_KEY, ActiveBuffObject[]>
   activeBuffsTeam: ActiveBuffObject[]
   onFieldChar: CHARACTER_KEY | ""
   allBuffs: BuffObject[]
-  buffMap: Record<CHARACTER_KEY, BuffMap>
+  buffMap: Map<CHARACTER_KEY, BuffMap>
   buffNext: ActiveBuffObject[]
   buffDeferred: ActiveBuffObject[]
-  characters: Record<CHARACTER_KEY, Character>
+  characters: Map<CHARACTER_KEY, Character>
   cooldowns: Record<string, number> // buff.id, cd
   hasSwapped: boolean
-  mode: Record<CHARACTER_KEY, string[]>
+  mode: Map<CHARACTER_KEY, string[]>
   prevChar: CHARACTER_KEY | ""
   proc: Proc
   row: number
@@ -290,7 +290,7 @@ export type Context = {
 
 export type Result = {
   row: number
-  char: string
+  characterId: string
   type: "cast" | "hit"
   skill: Skill
   time: number

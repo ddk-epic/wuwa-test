@@ -17,7 +17,7 @@ import AddCharacterModal from "./add-character-modal"
 
 interface HeaderBarProps {
   team: TeamSlot[]
-  characterData: Record<CHARACTER_KEY, Character>
+  characterData: Character[]
   sequence: ActionListItem[]
   result: Result[]
   updateCharSettings: (

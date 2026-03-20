@@ -8,7 +8,7 @@ import { type CHARACTER_KEY } from "@/constants/characters"
 import { ELEMENT_COLORS } from "@/constants/colors"
 
 interface SkillSidebarProps {
-  characterData: Record<CHARACTER_KEY, Character>
+  characterData: Character[]
   skillData: Record<CHARACTER_KEY, CharacterSkills>
   onAddSkill: (characterId: CHARACTER_KEY, skill: SKILL) => void
 }
@@ -18,28 +18,27 @@ function SkillSidebar({
   skillData,
   onAddSkill,
 }: SkillSidebarProps) {
-  const characters = Object.values(characterData)
   const [activeTab, setActiveTab] = useState<number>(() => {
-    const index = characters.findIndex((character) => character != null)
+    const index = characterData.findIndex((character) => character != null)
     return index === -1 ? 0 : index
   })
 
   useEffect(() => {
     const oldIndex = activeTab
-    const newIndex = characters.findIndex((character) => character.id)
-    if (!characters[oldIndex]) {
+    const newIndex = characterData.findIndex((character) => character.id)
+    if (!characterData[oldIndex]) {
       setActiveTab(newIndex)
     }
-  }, [characters])
+  }, [characterData])
 
-  const activeCharacter = characters[activeTab]
+  const activeCharacter = characterData[activeTab]
 
   function CharacterTab() {
     if (!activeCharacter) return null
 
     return (
       <div className="flex border-b">
-        {characters.map((character, i) => {
+        {characterData.map((character, i) => {
           if (!character) return null
           const element = character.element || "default"
 
