@@ -109,7 +109,7 @@ export function computeCharacterSkills(characterId: CHARACTER_KEY) {
 }
 
 export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
-  const lastActionEnd = {} as Record<CHARACTER_KEY, number>
+  const lastActionEnd = new Map() as Map<CHARACTER_KEY, number>
   const SWITCH_CD = 60 // in frames
   // const SWAP_FRAMES = 15
 
@@ -117,29 +117,35 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
   let previousChar: CHARACTER_KEY | null = null
 
   return sequence.map((entry) => {
+    const characterId = entry.characterId
+    const skill = entry.skill
+    const hasSwapped = previousChar && previousChar !== characterId
+
     let start = currentTime
-    const hasSwapped = previousChar && previousChar !== entry.characterId
 
     // add swap time
     // if (hasSwapped) {
     //   start += SWAP_FRAMES
     // }
 
-    const last = lastActionEnd[entry.characterId]
-    if (hasSwapped && last) {
-      start = Math.max(start, last + SWITCH_CD)
+    const lastEnd = lastActionEnd.get(characterId)
+    if (hasSwapped && lastEnd != null) {
+      start = Math.max(start, lastEnd + SWITCH_CD)
     }
 
-    let duration = entry.skill.frames
-    const freezetime = entry.skill.freezetime
-    if (freezetime) {
-      duration = duration - freezetime
-    }
+    const duration = skill.frames
     const end = start + duration
 
-    lastActionEnd[entry.characterId] = end
+    console.table({
+      skill: skill.name,
+      start,
+      duration,
+      end,
+    })
+
+    lastActionEnd.set(characterId, end)
     currentTime = end
-    previousChar = entry.characterId
+    previousChar = characterId
 
     // TODO: implement skill cooldowns
 
@@ -283,10 +289,11 @@ export function isMatch(
 ) {
   const { characterId, skill } = action
   const trigger = buff.triggeredBy
+  const mode = ctx.mode.get(characterId) ?? []
 
   const hasNameMatch = !!trigger?.skill?.includes(skill.id)
   const hasCategoryMatch = !!trigger?.category?.includes(skill.category)
-  const hasModeMatch = ctx.mode[characterId].includes(trigger?.mode ?? "")
+  const hasModeMatch = mode.includes(trigger?.mode ?? "")
   return hasNameMatch || hasCategoryMatch || hasModeMatch
 }
 
