@@ -11,8 +11,6 @@ import {
   type TimelineEntry,
 } from "@/constants/types"
 
-import { roundBuffMapToPercentStrings } from "./utils"
-
 import {
   buffHandler,
   canTriggerBuff,
@@ -21,7 +19,7 @@ import {
   getResMultiplier,
   isOffFieldBuff,
   hasSwapped,
-  isActionType,
+  isMatchingActionType,
   isDCondKey,
   isMatch,
   isOnField,
@@ -116,7 +114,7 @@ function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
     if (!match) continue
 
     if (!canTriggerBuff(ctx, buff.id)) continue
-    if (!isActionType(buff, action)) continue
+    if (!isMatchingActionType(buff, action)) continue
 
     const isAlreadyActive = buffs.some((b) => b.id === buff.id)
     const isAlreadyActiveTeam = buffsTeam.some((b) => b.id === buff.id)
@@ -170,8 +168,8 @@ function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
 
 function handleEnergyShare(ctx: Context, action: TimelineEntry) {
   const value = action.skill.resonance
-  for (const character of Object.values(ctx.characters)) {
-    const activeMultiplier = character.id === action.characterId ? 1 : 0.5
+  for (const [characterId, character] of ctx.characters) {
+    const activeMultiplier = characterId === action.characterId ? 1 : 0.5
 
     character.dCond.resonance += value * activeMultiplier
   }
@@ -347,15 +345,15 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
         const buffMap = ctx.buffMap.get(characterId)
 
         if (buff.appliesTo === "all") {
-          for (const character of Object.values(ctx.characters)) {
-            const personalBuffMap = ctx.buffMap.get(character.id)
+          for (const [characterId] of ctx.characters) {
+            const personalBuffMap = ctx.buffMap.get(characterId)
             if (personalBuffMap) {
               personalBuffMap[modifier.class] += value
               // console.log(
               //   ctx.row,
               //   buff.name,
-              //   `buffMap[${character.id}][${modifier.class}]:`,
-              //   buffMap[modifier.class],
+              //   `buffMap[${characterId}][${modifier.class}]:`,
+              //   personalBuffMap[modifier.class],
               //   `+${value}`,
               // )
             }
@@ -422,9 +420,7 @@ function processAction(
   )
   const buffsCharacter = buffs.map((buff) => buff.name)
 
-  const roundedBuffMap: Record<BUFF_TYPE, string> =
-    roundBuffMapToPercentStrings(ctx.buffMap.get(characterId) ?? totalBuffMap)
-  const buffMapValues = Object.values(roundedBuffMap).slice(0, 33)
+  const personalBuffMap = ctx.buffMap.get(characterId) ?? totalBuffMap
 
   const resultObject: Result = {
     row: ctx.row,
@@ -439,7 +435,7 @@ function processAction(
     parent: action?.parent,
     buffs: [...buffsPassive, ...buffsCharacter],
     buffsTeam: [...buffsTeam],
-    buffMap: buffMapValues,
+    buffMap: personalBuffMap,
     message: {},
   }
 
@@ -538,7 +534,7 @@ function prepareBuffs(
   // Initialize passiveBuffs as a Map
   const passiveBuffs = new Map<CHARACTER_KEY, ActiveBuffObject[]>()
 
-  for (const [characterId, _] of characters) {
+  for (const [characterId] of characters) {
     passiveBuffs.set(characterId, [])
   }
 
@@ -615,7 +611,7 @@ function getContext(
   )
 
   const activeBuffs = new Map<CHARACTER_KEY, ActiveBuffObject[]>()
-  for (const characterId of characters.keys()) {
+  for (const [characterId] of characters) {
     activeBuffs.set(characterId, [])
   }
   const activeBuffsTeam: ActiveBuffObject[] = []
@@ -624,7 +620,7 @@ function getContext(
   const proc = { damage: 0, heal: 0, shield: 0 }
 
   const mode = new Map<CHARACTER_KEY, string[]>()
-  for (const characterId of characters.keys()) {
+  for (const [characterId] of characters) {
     mode.set(characterId, [])
   }
 

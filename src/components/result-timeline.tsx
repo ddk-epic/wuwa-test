@@ -1,5 +1,5 @@
-import type { Result, TimelineEntry } from "@/constants/types"
-import { cn } from "@/lib/utils"
+import type { BUFF_TYPE, Result, TimelineEntry } from "@/constants/types"
+import { cn, roundBuffMapToPercentStrings } from "@/lib/utils"
 
 interface ResultTimelineProps {
   preComputeTimeline: TimelineEntry[]
@@ -36,11 +36,16 @@ function ResultTimeline({
         {resultTimeline.map((result) => {
           const activeBuffString = result?.buffs.join(", ")
           const activeTeamBuffString = result?.buffsTeam.join(", ")
+
           const finalBuffMap = (() => {
+            if (!result) return ""
+            const roundedBuffMap: Record<BUFF_TYPE, string> =
+              roundBuffMapToPercentStrings(result?.buffMap)
+            const buffMapValues = Object.values(roundedBuffMap).slice(0, 33)
             let idx = 0
             return [6, 5, 6, 5, 6, 3, 2]
               .map((size) => {
-                const group = result?.buffMap.slice(idx, idx + size) ?? []
+                const group = buffMapValues.slice(idx, idx + size) ?? []
                 idx += size
                 return `[${group.join(" ")}]`
               })

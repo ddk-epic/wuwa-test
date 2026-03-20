@@ -1,11 +1,11 @@
 import { X } from "lucide-react"
-import { cn, frameToSecond } from "@/lib/utils"
+import { cn, frameToSecond, roundBuffMapToPercentStrings } from "@/lib/utils"
 
 import { Button } from "./ui/button"
 import { TableCell, TableRow } from "./ui/table"
 import Hint from "./hint"
 
-import type { ActionListItem, Result } from "@/constants/types"
+import type { ActionListItem, BUFF_TYPE, Result } from "@/constants/types"
 import { ELEMENT_COLORS } from "@/constants/colors"
 import characterTemplate from "@/constants/characters"
 
@@ -26,11 +26,16 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
 
   const activeBuffString = result?.buffs.join(", ")
   const activeTeamBuffString = result?.buffsTeam.join(", ")
+
   const finalBuffMap = (() => {
+    if (!result) return ""
+    const roundedBuffMap: Record<BUFF_TYPE, string> =
+      roundBuffMapToPercentStrings(result?.buffMap)
+    const buffMapValues = Object.values(roundedBuffMap).slice(0, 33)
     let idx = 0
     return [6, 5, 6, 5, 6, 3, 2]
       .map((size) => {
-        const group = result?.buffMap?.slice(idx, idx + size) ?? []
+        const group = buffMapValues.slice(idx, idx + size) ?? []
         idx += size
         return `[${group.join(" ")}]`
       })
@@ -45,18 +50,18 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
         index % 2 === 0 ? "bg-secondary/90" : "bg-secondary/70",
       )}
     >
-      <TableCell className="px-2 text-xs font-mono text-muted-foreground text-right">
+      <TableCell className="px-1 text-xs font-mono text-muted-foreground text-right">
         {index + 1}
       </TableCell>
       <TableCell
         className={cn(
-          "px-3 font-mono text-xs uppercase tracking-wide",
+          "px-2 font-mono text-xs uppercase tracking-wide",
           elementColorText,
         )}
       >
         {entry.characterId}
       </TableCell>
-      <TableCell className="pl-3 text-[13px] text-right font-mono text-muted-foreground font-semibold uppercase tracking-wider">
+      <TableCell className="text-[13px] text-right font-mono text-muted-foreground font-semibold uppercase tracking-wider">
         {skill.category.slice(0, 5)}
       </TableCell>
       <TableCell
@@ -67,18 +72,18 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
       >
         {skill.name}
       </TableCell>
-      <TableCell className="px-3 text-xs font-mono text-right">
+      <TableCell className="px-2 text-xs font-mono text-right">
         {frameToSecond(entry.time)}
       </TableCell>
-      <TableCell className="px-3 text-xs font-mono text-right">
+      <TableCell className="px-2 text-xs font-mono text-right">
         {!!result ? result.concerto.toFixed(1) : placeholder}
       </TableCell>
-      <TableCell className="px-3 text-xs font-mono text-right">
+      <TableCell className="px-2 text-xs font-mono text-right">
         {!!result ? result.resonance.toFixed(1) : placeholder}
       </TableCell>
       <TableCell
         className={cn(
-          "px-3 text-right text-sm",
+          "px-2 text-right text-sm",
           !!result && result.damage !== 0 ? elementColorText : "",
         )}
       >
@@ -86,7 +91,7 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
           ? Math.round(result.damage).toLocaleString("en-US")
           : placeholder}
       </TableCell>
-      <TableCell className="px-3 text-xs font-mono text-right">
+      <TableCell className="px-2 text-xs font-mono text-right">
         {!!result ? Math.round(result.proc.damage) : placeholder}
       </TableCell>
       <TableCell className="grow text-xs truncate">

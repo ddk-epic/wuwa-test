@@ -20,37 +20,37 @@ function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
               <TableHead className="w-1/36 px-2 py-2 text-right text-xs column-header">
                 #
               </TableHead>
-              <TableHead className="w-3/36 px-3 py-2 text-xs column-header">
+              <TableHead className="w-3/36 px-2 py-2 text-xs column-header">
                 Character
               </TableHead>
-              <TableHead className="w-2/36 px-3 py-2 text-xs column-header">
-                {/* Skill */}
+              <TableHead className="w-2/36 px-2 py-2 text-xs column-header">
+                {/* Category */}
               </TableHead>
               <TableHead className="w-7/36 pr-3 py-2 text-start text-xs column-header">
                 Skill
               </TableHead>
-              <TableHead className="w-2/36 px-3 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/36 px-2 py-2 text-right text-xs column-header">
                 Time
               </TableHead>
-              <TableHead className="w-2/36 px-3 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/36 px-2 py-2 text-right text-xs column-header">
                 Con.
               </TableHead>
-              <TableHead className="w-2/36 px-3 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/36 px-2 py-2 text-right text-xs column-header">
                 Res.
               </TableHead>
-              <TableHead className="w-2/36 px-3 py-2 text-right text-xs column-header">
+              <TableHead className="w-3/36 px-1 py-2 text-right text-xs column-header">
                 Damage
               </TableHead>
-              <TableHead className="w-2/36 px-3 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/36 px-2 py-2 text-right text-xs column-header">
                 Procc
               </TableHead>
-              <TableHead className="w-5/36 px-3 py-2 text-start text-xs column-header">
+              <TableHead className="w-4/36 px-2 py-2 text-start text-xs column-header">
                 Buffs
               </TableHead>
-              <TableHead className="w-4/36 px-3 py-2 text-start text-xs column-header">
+              <TableHead className="w-4/36 px-2 py-2 text-start text-xs column-header">
                 TeamBuffs
               </TableHead>
-              <TableHead className="w-5/36 px-3 py-2 text-start text-xs column-header">
+              <TableHead className="w-4/36 px-2 py-2 text-start text-xs column-header">
                 BuffMap
               </TableHead>
               <TableHead className="w-4 px-3 py-2 text-xs column-header">
