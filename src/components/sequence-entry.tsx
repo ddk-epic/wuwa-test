@@ -45,7 +45,7 @@ function SequenceEntry({ index, entry, res, onRemove }: SequenceEntryProps) {
         index % 2 === 0 ? "bg-secondary/90" : "bg-secondary/70",
       )}
     >
-      <TableCell className="px-3 text-xs font-mono text-muted-foreground text-right">
+      <TableCell className="px-2 text-xs font-mono text-muted-foreground text-right">
         {index + 1}
       </TableCell>
       <TableCell

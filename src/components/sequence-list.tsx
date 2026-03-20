@@ -17,7 +17,7 @@ function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
           {/* Sequence header */}
           <TableHeader className="top-0 sticky z-10 border bg-card">
             <TableRow>
-              <TableHead className="px-3 py-2 text-right text-xs column-header">
+              <TableHead className="w-1/36 px-2 py-2 text-right text-xs column-header">
                 #
               </TableHead>
               <TableHead className="w-3/36 px-3 py-2 text-xs column-header">

@@ -19,7 +19,7 @@ function ResultTimeline({
             <table className="w-120 table-fixed border-b">
               <tr>
                 <td className="w-1/16 px-2">{i + 1}</td>
-                <td className="w-3/16 px-2">{action.char}</td>
+                <td className="w-3/16 px-2">{action.characterId}</td>
                 <td className="w-6/16 px-2">{action.skill.name}</td>
                 <td className="w-2/16 px-2">{action.time}</td>
                 <td className="w-2/16 px-2">{action.skill.concerto}</td>
@@ -51,7 +51,7 @@ function ResultTimeline({
             <table className="table-fixed border-b">
               <tr className="w-full">
                 <td className="w-1/32 px-2">{result.row}</td>
-                <td className="w-3/32 px-2">{result.char}</td>
+                <td className="w-3/32 px-2">{result.characterId}</td>
                 <td className="w-2/32 px-2">{result.type}</td>
                 <td
                   className={cn(
