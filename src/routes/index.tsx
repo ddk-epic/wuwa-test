@@ -31,6 +31,7 @@ import { totalBuffMap } from "@/constants/maps"
 import { weaponData, type WEAPON_KEY } from "@/constants/weapons"
 import type { ECHO_KEY, ECHO_SET_KEY } from "@/constants/echoes"
 import EventTableModal from "@/components/event-table-modal"
+import EntryDetails from "@/components/entry-details"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -198,6 +199,7 @@ function App() {
       />
       {/* Main section */}
       <div className="h-[90vh] flex flex-1 overflow-hidden">
+        <EntryDetails />
         <main className="relative flex flex-col flex-1">
           <SequenceList
             sequence={sequence}
@@ -207,7 +209,6 @@ function App() {
           {/* Calculate button */}
           <div className="absolute bottom-4 right-6 flex gap-2">
             <EventTableModal
-              preComputeTimeline={computedEventTimeline}
               resultTimeline={rawResult}
             />
             <CalculateButton
