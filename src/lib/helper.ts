@@ -185,7 +185,8 @@ export function computeEventTimeline(
 
     timeline.push(parentItem)
 
-    for (const hit of skill.hits) {
+    for (let i = 0; i < skill.hits.length; i++) {
+      const hit = skill.hits[i]
       const { frame, mv, forte, forte2, concerto, resonance } = hit
       const hitFrame = frame ?? 0
 
@@ -194,7 +195,7 @@ export function computeEventTimeline(
         type: "hit",
         skill: {
           ...actionSkill,
-          name: skill.id,
+          name: `${skill.id} [hit ${i + 1}]`,
           mv: mv ?? 0,
           hits: hitFrame,
           forte: forte ?? 0,

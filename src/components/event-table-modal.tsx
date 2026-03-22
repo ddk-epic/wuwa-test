@@ -9,17 +9,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog"
-import ResultTimeline from "./result-timeline"
 
-import type { Result, TimelineEntry } from "@/constants/types"
+import type { Result } from "@/constants/types"
+import CalculationLog from "./calculation-log"
 
 interface EventTableModalProps {
-  preComputeTimeline: TimelineEntry[]
   resultTimeline: Result[]
 }
 
 function EventTableModal({
-  preComputeTimeline,
   resultTimeline,
 }: EventTableModalProps) {
   return (
@@ -37,14 +35,17 @@ function EventTableModal({
           <CalendarSearch />
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-screen bg-card overflow-auto">
-        <DialogHeader>
-          <DialogTitle className="mb-2">Event Table</DialogTitle>
+      <DialogContent className="max-w-[80vw] h-full max-h-[90vh] flex flex-col p-0 bg-card overflow-hidden">
+        <DialogHeader className="items-center pt-3">
+          <DialogTitle className="text-lg font-medium">
+            Rotation Log
+          </DialogTitle>
         </DialogHeader>
-        <ResultTimeline
-          preComputeTimeline={preComputeTimeline}
-          resultTimeline={resultTimeline}
-        />
+        <div className="grow overflow-auto">
+          <CalculationLog
+            resultTimeline={resultTimeline}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   )

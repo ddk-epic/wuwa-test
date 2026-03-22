@@ -1,6 +1,9 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+import type { BUFF_TYPE } from "@/constants/types"
+import { STAT_COLORS } from "@/constants/colors"
+
 declare global {
   interface String {
     capitalize(): string
@@ -15,8 +18,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function frameToSecond(number: number, digits: number = 2) {
-  return Number(number / 60).toFixed(digits)
+export function frameToSecond(number: number, digits: number = 2): string {
+  const seconds = number / 60
+
+  if (seconds === 0) return "0"
+
+  return seconds.toFixed(digits)
 }
 
 export function roundBuffMap<T extends Record<string, number>>(
@@ -46,4 +53,23 @@ export function roundBuffMapToPercentStrings<T extends Record<string, number>>(
       return [key, `${roundedValue}%`]
     }),
   ) as Record<keyof T, string>
+}
+
+export function toPercent(value: number, decimals = 1): string {
+  return (value * 100).toFixed(decimals) + "%"
+}
+
+export function getStatCellColor(statKey: BUFF_TYPE, value: number) {
+  const { rgb, maxValue } = STAT_COLORS[statKey]
+
+  const [r, g, b] = rgb.split(" ").map(Number)
+
+  // const base = 150 // light gray base
+  const baseFactor = 0.4
+  const intensity = Math.min(value / maxValue, 1)
+
+  const mix = (channel: number) =>
+    Math.round(channel * (baseFactor + (1 - baseFactor) * intensity) + 20)
+
+  return { backgroundColor: `rgb(${mix(r)} ${mix(g)} ${mix(b)})` }
 }
