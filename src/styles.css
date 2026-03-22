@@ -116,5 +116,5 @@ code {
 }
 
 .column-header {
-  @apply font-mono uppercase tracking-widest text-muted-foreground;
+  @apply font-mono text-xs uppercase tracking-widest text-muted-foreground;
 }

@@ -1,12 +1,25 @@
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "./ui/table"
-import SequenceEntry from "./sequence-entry"
+import { X } from "lucide-react"
+
+import { cn, frameToSecond } from "@/lib/utils"
+
+import { Button } from "./ui/button"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table"
 
 import type { ActionListItem, Result } from "@/constants/types"
+import characterTemplate from "@/constants/characters"
+import { ELEMENT_COLORS } from "@/constants/colors"
 
 interface SequenceListProps {
   sequence: ActionListItem[]
   result: Result[]
-  onRemoveSkill: (index: number) => void
+  onRemoveSkill: (i: number) => void
 }
 
 function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
@@ -17,41 +30,32 @@ function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
           {/* Sequence header */}
           <TableHeader className="top-0 sticky z-10 border bg-card">
             <TableRow>
-              <TableHead className="w-1/36 px-2 py-2 text-right text-xs column-header">
+              <TableHead className="w-1/24 px-2 py-2 text-right text-xs column-header">
                 #
               </TableHead>
-              <TableHead className="w-3/36 px-2 py-2 text-xs column-header">
+              <TableHead className="w-3/24 px-2 py-2 text-xs column-header">
                 Character
               </TableHead>
-              <TableHead className="w-2/36 px-2 py-2 text-xs column-header">
+              <TableHead className="w-2/24 px-2 py-2 text-xs column-header">
                 {/* Category */}
               </TableHead>
-              <TableHead className="w-7/36 pr-3 py-2 text-start text-xs column-header">
+              <TableHead className="w-7/24 pr-3 py-2 text-start text-xs column-header">
                 Skill
               </TableHead>
-              <TableHead className="w-2/36 px-2 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
                 Time
               </TableHead>
-              <TableHead className="w-2/36 px-2 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
                 Con.
               </TableHead>
-              <TableHead className="w-2/36 px-2 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
                 Res.
               </TableHead>
-              <TableHead className="w-3/36 px-1 py-2 text-right text-xs column-header">
+              <TableHead className="w-3/24 px-1 py-2 text-right text-xs column-header">
                 Damage
               </TableHead>
-              <TableHead className="w-2/36 px-2 py-2 text-right text-xs column-header">
+              <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
                 Procc
-              </TableHead>
-              <TableHead className="w-4/36 px-2 py-2 text-start text-xs column-header">
-                Buffs
-              </TableHead>
-              <TableHead className="w-4/36 px-2 py-2 text-start text-xs column-header">
-                TeamBuffs
-              </TableHead>
-              <TableHead className="w-4/36 px-2 py-2 text-start text-xs column-header">
-                BuffMap
               </TableHead>
               <TableHead className="w-4 px-3 py-2 text-xs column-header">
                 {/* Button */}
@@ -61,14 +65,78 @@ function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
           {/* Sequence list */}
           <TableBody>
             {sequence.map((action, i) => {
+              const placeholder = "--"
+              const { characterId, skill, time } = action
+              const character = characterTemplate[characterId]
+
+              const element = character.element
+              const elementColorText = ELEMENT_COLORS[element].text
+
+              const row = result[i]
+
               return (
-                <SequenceEntry
-                  key={`${action.skill.name}-${i}`}
-                  index={i}
-                  entry={action}
-                  res={result}
-                  onRemove={() => onRemoveSkill(i)}
-                />
+                <TableRow
+                  key={i}
+                  className={cn(
+                    "group",
+                    i % 2 === 0 ? "bg-secondary/90" : "bg-secondary/70",
+                  )}
+                >
+                  <TableCell className="px-1 font-mono text-right">
+                    {i + 1}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "px-2 font-mono uppercase tracking-wide",
+                      elementColorText,
+                    )}
+                  >
+                    {characterId}
+                  </TableCell>
+                  <TableCell className="text-[13px] text-right font-mono text-muted-foreground font-semibold uppercase tracking-wider">
+                    {skill.category.slice(0, 5)}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "pr-3 text-start text-sm text-foreground truncate",
+                      skill.category === "liberation" ? elementColorText : "",
+                    )}
+                  >
+                    {skill.name}
+                  </TableCell>
+                  <TableCell className="px-2 font-mono text-right">
+                    {frameToSecond(time)}
+                  </TableCell>
+                  <TableCell className="px-2 font-mono text-right">
+                    {!!row ? row.concerto.toFixed(1) : placeholder}
+                  </TableCell>
+                  <TableCell className="px-2 font-mono text-right">
+                    {!!row ? row.resonance.toFixed(1) : placeholder}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "px-2 text-right text-sm",
+                      !!row && row.damage !== 0 ? elementColorText : "",
+                    )}
+                  >
+                    {!!row && row.damage !== 0
+                      ? Math.round(row.damage).toLocaleString("en-US")
+                      : placeholder}
+                  </TableCell>
+                  <TableCell className="px-2 font-mono text-right">
+                    {!!row ? Math.round(row.proc.damage) : placeholder}
+                  </TableCell>
+                  <TableCell className="w-4 p-0 pr-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onRemoveSkill(i)}
+                      className="size-6 text-muted-foreground opacity-0 transition-opacity hover:bg-secondary/90 hover:text-destructive group-hover:opacity-100"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
               )
             })}
           </TableBody>
