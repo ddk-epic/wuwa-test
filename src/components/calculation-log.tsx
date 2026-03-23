@@ -17,17 +17,17 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
   if (!resultTimeline) return null
   return (
     <Table className="w-full border-separate border-spacing-0">
-      {/* Table group headers */}
       <TableHeader>
+        {/* Table group headers */}
         <TableRow>
           <TableHead
-            colSpan={4}
+            colSpan={5}
             className="sticky left-0 top-0 z-30 column-header py-1 bg-card border-b border-card text-center shadow-[inset_0_-1px_0_rgb(39,39,42)]"
           >
             Entry
           </TableHead>
           <TableHead
-            colSpan={5}
+            colSpan={4}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800 text-center shadow-[inset_0_-1px_0_rgb(39,39,42)]"
           >
             Result
@@ -101,7 +101,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           <TableHead className="sticky left-44 top-6 z-30 min-w-64 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             Skill
           </TableHead>
-          <TableHead className="sticky left-0 top-6 z-20 column-header py-1 bg-zinc-800 text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+          <TableHead className="sticky left-108 top-6 z-30 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             Time
           </TableHead>
           <TableHead className="sticky left-0 top-6 z-20 column-header py-1 bg-zinc-800 text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
@@ -193,7 +193,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             >
               {skill.name}
             </TableCell>
-            <TableCell className="bg-zinc-800/50 text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+            <TableCell className="sticky left-108 z-10 bg-card shadow-[inset_0_-1px_0_rgb(39,39,42)]">
               {frameToSecond(time)}
             </TableCell>
             <TableCell className="bg-zinc-800/50 text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]">

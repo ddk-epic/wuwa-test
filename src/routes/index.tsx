@@ -200,17 +200,24 @@ function App() {
       {/* Main section */}
       <div className="h-[90vh] flex flex-1 overflow-hidden">
         <EntryDetails />
-        <main className="relative flex flex-col flex-1">
-          <SequenceList
-            sequence={sequence}
-            result={result}
-            onRemoveSkill={handleRemoveSkill}
-          />
+        <main className="relative flex">
+          <div className="flex-col pl-7 pr-3 overflow-auto [scrollbar-gutter:stable]">
+            <SequenceList
+              sequence={sequence}
+              result={result}
+              onRemoveSkill={handleRemoveSkill}
+            />
+            {sequence.length === 0 && (
+              <div className="h-80 flex items-center justify-center border border-dashed">
+                <p className="text-md text-muted-foreground">
+                  Add skills from the sidebar to build your rotation.
+                </p>
+              </div>
+            )}
+          </div>
           {/* Calculate button */}
           <div className="absolute bottom-4 right-6 flex gap-2">
-            <EventTableModal
-              resultTimeline={rawResult}
-            />
+            <EventTableModal resultTimeline={rawResult} />
             <CalculateButton
               characterData={computedCharacterData}
               sequence={computedEventTimeline}

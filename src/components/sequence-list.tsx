@@ -24,132 +24,121 @@ interface SequenceListProps {
 
 function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
   return (
-    <div className="flex pl-7 pr-3 overflow-auto [scrollbar-gutter:stable]">
-      <div className="flex-1">
-        <Table className="table-fixed w-full">
-          {/* Sequence header */}
-          <TableHeader className="top-0 sticky z-10 border bg-card">
-            <TableRow>
-              <TableHead className="w-1/24 px-2 py-2 text-right text-xs column-header">
-                #
-              </TableHead>
-              <TableHead className="w-3/24 px-2 py-2 text-xs column-header">
-                Character
-              </TableHead>
-              <TableHead className="w-2/24 px-2 py-2 text-xs column-header">
-                {/* Category */}
-              </TableHead>
-              <TableHead className="w-7/24 pr-3 py-2 text-start text-xs column-header">
-                Skill
-              </TableHead>
-              <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
-                Time
-              </TableHead>
-              <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
-                Con.
-              </TableHead>
-              <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
-                Res.
-              </TableHead>
-              <TableHead className="w-3/24 px-1 py-2 text-right text-xs column-header">
-                Damage
-              </TableHead>
-              <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
-                Procc
-              </TableHead>
-              <TableHead className="w-4 px-3 py-2 text-xs column-header">
-                {/* Button */}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          {/* Sequence list */}
-          <TableBody>
-            {sequence.map((action, i) => {
-              const placeholder = "--"
-              const { characterId, skill, time } = action
-              const character = characterTemplate[characterId]
+    <Table className="table-fixed w-full">
+      {/* Sequence header */}
+      <TableHeader className="top-0 sticky z-10 border bg-card">
+        <TableRow>
+          <TableHead className="w-1/24 px-2 py-2 text-right text-xs column-header">
+            #
+          </TableHead>
+          <TableHead className="w-3/24 px-2 py-2 text-xs column-header">
+            Character
+          </TableHead>
+          <TableHead className="w-2/24 px-2 py-2 text-xs column-header">
+            {/* Category */}
+          </TableHead>
+          <TableHead className="w-7/24 pr-3 py-2 text-start text-xs column-header">
+            Skill
+          </TableHead>
+          <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
+            Time
+          </TableHead>
+          <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
+            Con.
+          </TableHead>
+          <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
+            Res.
+          </TableHead>
+          <TableHead className="w-3/24 px-1 py-2 text-right text-xs column-header">
+            Damage
+          </TableHead>
+          <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
+            Procc
+          </TableHead>
+          <TableHead className="w-4 px-3 py-2 text-xs column-header">
+            {/* Button */}
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      {/* Sequence list */}
+      <TableBody>
+        {sequence.map((action, i) => {
+          const placeholder = "--"
+          const { characterId, skill, time } = action
+          const character = characterTemplate[characterId]
 
-              const element = character.element
-              const elementColorText = ELEMENT_COLORS[element].text
+          const element = character.element
+          const elementColorText = ELEMENT_COLORS[element].text
 
-              const row = result[i]
+          const row = result[i]
 
-              return (
-                <TableRow
-                  key={i}
-                  className={cn(
-                    "group",
-                    i % 2 === 0 ? "bg-secondary/90" : "bg-secondary/70",
-                  )}
+          return (
+            <TableRow
+              key={i}
+              className={cn(
+                "group",
+                i % 2 === 0 ? "bg-secondary/90" : "bg-secondary/70",
+              )}
+            >
+              <TableCell className="px-1 font-mono text-right">
+                {i + 1}
+              </TableCell>
+              <TableCell
+                className={cn(
+                  "px-2 font-mono uppercase tracking-wide",
+                  elementColorText,
+                )}
+              >
+                {characterId}
+              </TableCell>
+              <TableCell className="text-[13px] text-right font-mono text-muted-foreground font-semibold uppercase tracking-wider">
+                {skill.category.slice(0, 5)}
+              </TableCell>
+              <TableCell
+                className={cn(
+                  "pr-3 text-start text-sm text-foreground truncate",
+                  skill.category === "liberation" ? elementColorText : "",
+                )}
+              >
+                {skill.name}
+              </TableCell>
+              <TableCell className="px-2 font-mono text-right">
+                {frameToSecond(time)}
+              </TableCell>
+              <TableCell className="px-2 font-mono text-right">
+                {!!row ? row.concerto.toFixed(1) : placeholder}
+              </TableCell>
+              <TableCell className="px-2 font-mono text-right">
+                {!!row ? row.resonance.toFixed(1) : placeholder}
+              </TableCell>
+              <TableCell
+                className={cn(
+                  "px-2 text-right text-sm",
+                  !!row && row.damage !== 0 ? elementColorText : "",
+                )}
+              >
+                {!!row && row.damage !== 0
+                  ? Math.round(row.damage).toLocaleString("en-US")
+                  : placeholder}
+              </TableCell>
+              <TableCell className="px-2 font-mono text-right">
+                {!!row ? Math.round(row.proc.damage) : placeholder}
+              </TableCell>
+              <TableCell className="w-4 p-0 pr-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onRemoveSkill(i)}
+                  className="size-6 text-muted-foreground opacity-0 transition-opacity hover:bg-secondary/90 hover:text-destructive group-hover:opacity-100"
                 >
-                  <TableCell className="px-1 font-mono text-right">
-                    {i + 1}
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "px-2 font-mono uppercase tracking-wide",
-                      elementColorText,
-                    )}
-                  >
-                    {characterId}
-                  </TableCell>
-                  <TableCell className="text-[13px] text-right font-mono text-muted-foreground font-semibold uppercase tracking-wider">
-                    {skill.category.slice(0, 5)}
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "pr-3 text-start text-sm text-foreground truncate",
-                      skill.category === "liberation" ? elementColorText : "",
-                    )}
-                  >
-                    {skill.name}
-                  </TableCell>
-                  <TableCell className="px-2 font-mono text-right">
-                    {frameToSecond(time)}
-                  </TableCell>
-                  <TableCell className="px-2 font-mono text-right">
-                    {!!row ? row.concerto.toFixed(1) : placeholder}
-                  </TableCell>
-                  <TableCell className="px-2 font-mono text-right">
-                    {!!row ? row.resonance.toFixed(1) : placeholder}
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "px-2 text-right text-sm",
-                      !!row && row.damage !== 0 ? elementColorText : "",
-                    )}
-                  >
-                    {!!row && row.damage !== 0
-                      ? Math.round(row.damage).toLocaleString("en-US")
-                      : placeholder}
-                  </TableCell>
-                  <TableCell className="px-2 font-mono text-right">
-                    {!!row ? Math.round(row.proc.damage) : placeholder}
-                  </TableCell>
-                  <TableCell className="w-4 p-0 pr-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onRemoveSkill(i)}
-                      className="size-6 text-muted-foreground opacity-0 transition-opacity hover:bg-secondary/90 hover:text-destructive group-hover:opacity-100"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-        {sequence.length === 0 && (
-          <div className="h-80 flex items-center justify-center border border-dashed">
-            <p className="text-md text-muted-foreground">
-              Add skills from the sidebar to build your rotation.
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
+                  <X className="h-4 w-4" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          )
+        })}
+      </TableBody>
+    </Table>
   )
 }
 
