@@ -134,18 +134,16 @@ function SkillSidebar({
   }
 
   return (
-    <div className="w-72 shrink-0 border-l bg-card opacity-85">
-      <aside className="h-full flex flex-col overflow-hidden border">
+    <aside className="w-72 h-full flex flex-col shrink-0 bg-card border opacity-85 overflow-hidden">
         <div className="px-3 py-2 border-b">
           <p className="text-xs column-header">Skills</p>
         </div>
         <CharacterTab />
         {/* Skill list */}
-        <div className="flex-1 overflow-y-auto p-1.5 pr-px [scrollbar-gutter:stable]">
+        <div className="flex-1 p-1.5 pr-px overflow-y-auto [scrollbar-gutter:stable]">
           <CharacterSkills />
         </div>
-      </aside>
-    </div>
+    </aside>
   )
 }
 
