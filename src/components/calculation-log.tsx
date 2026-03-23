@@ -34,35 +34,33 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           </TableHead>
           <TableHead
             colSpan={2}
-            className="sticky left-0 top-0 z-20 column-header py-1 bg-card border-b border-card text-center shadow-[inset_0_-1px_0_rgb(39,39,42)]"
+            className="sticky left-0 top-0 z-20 column-header py-1 bg-card text-center shadow-[inset_0_-1px_0_rgb(39,39,42)]"
           >
             Buffs
           </TableHead>
           <TableHead
             colSpan={6}
-            style={getStatCellColor("atk", 0.2)}
+            style={getStatCellColor("atk", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Final Stats
           </TableHead>
           <TableHead
             colSpan={5}
-            style={getStatCellColor("basic", 0.2)}
-            className="sticky left-0 top-0 z-20 column-header py-1 text-center"
+            className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Damage Bonuses
           </TableHead>
           <TableHead
             colSpan={6}
-            style={getStatCellColor("aero", 0.2)}
+            style={getStatCellColor("aero", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Elemental Bonuses
           </TableHead>
           <TableHead
             colSpan={5}
-            style={getStatCellColor("baDeep", 0)}
-            className="sticky left-0 top-0 z-20 column-header py-1 text-center"
+            className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Damage Deepen
           </TableHead>
@@ -76,7 +74,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           <TableHead
             colSpan={3}
             style={getStatCellColor("bonus", 0)}
-            className="sticky left-0 top-0 z-20 column-header py-1 text-center"
+            className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Skill Specific
           </TableHead>

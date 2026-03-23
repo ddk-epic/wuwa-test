@@ -60,13 +60,13 @@ export function toPercent(value: number, decimals = 1): string {
 }
 
 export function getStatCellColor(statKey: BUFF_TYPE, value: number) {
-  const { rgb, maxValue } = STAT_COLORS[statKey]
-
+  const { rgb, minValue, maxValue } = STAT_COLORS[statKey]
   const [r, g, b] = rgb.split(" ").map(Number)
 
-  // const base = 150 // light gray base
   const baseFactor = 0.4
-  const intensity = Math.min(value / maxValue, 1)
+
+  const normalized = (value - minValue) / (maxValue - minValue)
+  const intensity = Math.min(Math.max(normalized, 0), 1) // clamped
 
   const mix = (channel: number) =>
     Math.round(channel * (baseFactor + (1 - baseFactor) * intensity) + 20)
