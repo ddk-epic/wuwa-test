@@ -24,6 +24,7 @@ import {
   isMatch,
   isOnField,
   removeBuffByName,
+  getDeepen,
 } from "./helper"
 
 import {
@@ -209,7 +210,7 @@ function calculateDamage(ctx: Context, action: TimelineEntry) {
   const skillMultiplier =
     action.skill.mv * getSkillLevel[skillLevel] * (1 + buffMap.multiplier)
   const bonusMultiplier = 1 + getBonus(buffMap, skill.classifications)
-  const deepenMultiplier = 1
+  const deepenMultiplier = 1 + getDeepen(buffMap, skill.classifications)
   const crit = Math.min(buffMap.crit, 1)
   const critDmg = buffMap.critDmg
   const critMultiplier = 1 + crit * (critDmg - 1)

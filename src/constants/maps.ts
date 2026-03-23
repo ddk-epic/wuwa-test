@@ -1,4 +1,4 @@
-import type { BuffMap } from "./types"
+import type { BuffMap, CATEGORY, DEEPEN_KEY, ELEMENT } from "./types"
 
 export const totalBuffMap: BuffMap = {
   // stats
@@ -57,14 +57,27 @@ export const totalBuffMap: BuffMap = {
 }
 
 export const getSkillLevel = {
-  1: 1.0000,
-  2: 1.0820,
-  3: 1.1640,
+  1: 1.0,
+  2: 1.082,
+  3: 1.164,
   4: 1.2788,
   5: 1.3608,
   6: 1.4551,
   7: 1.5863,
   8: 1.7175,
   9: 1.8487,
-  10: 1.9881
-} as const;
+  10: 1.9881,
+} as const
+
+export const bonusToDeepen: Record<CATEGORY | ELEMENT, DEEPEN_KEY> = {
+  basic: "baDeep",
+  heavy: "heDeep",
+  liberation: "liDeep",
+  skill: "skDeep",
+  aero: "aeDeep",
+  electro: "elDeep",
+  fusion: "fuDeep",
+  glacio: "glDeep",
+  havoc: "haDeep",
+  spectro: "spDeep",
+}

@@ -1,24 +1,28 @@
 import {
+  CATEGORY_KEYS,
   DCOND_KEYS,
+  ELEMENT_KEYS,
   type ActionListItem,
   type ActiveBuffObject,
   type BUFF_TYPE,
   type BuffMap,
   type BuffObject,
+  type CATEGORY,
   type Character,
   type CharSettings,
   type Context,
   type DCOND_KEY,
+  type DEEPEN_KEY,
   type ELEMENT,
   type Result,
   type SKILL,
-  type SKILL_CATEGORY_KEY,
   type TimelineEntry,
 } from "@/constants/types"
 import type { CHARACTER_KEY } from "@/constants/characters"
 import { echoData } from "@/constants/echoes"
 import skillData from "@/constants/skills"
 import characterTemplate from "@/constants/characters"
+import { bonusToDeepen } from "@/constants/maps"
 
 export function computeBaseCharacter(
   characterId: CHARACTER_KEY,
@@ -290,12 +294,19 @@ export function isMatch(
 ) {
   const { characterId, skill } = action
   const trigger = buff.triggeredBy
-  const mode = ctx.mode.get(characterId) ?? []
+  const modeList = ctx.mode.get(characterId) ?? []
 
-  const hasNameMatch = !!trigger?.skill?.includes(skill.id)
-  const hasCategoryMatch = !!trigger?.category?.includes(skill.category)
-  const hasModeMatch = mode.includes(trigger?.mode ?? "")
-  return hasNameMatch || hasCategoryMatch || hasModeMatch
+  const skillMatch =
+    trigger?.skill?.includes("all") || trigger?.skill?.includes(skill.id)
+  const hasCategoryMatch = trigger?.category?.includes(skill.category)
+
+  // require mode AND (name OR category)
+  if (trigger?.mode) {
+    const hasModeMatch = modeList.includes(trigger.mode)
+    return hasModeMatch && (skillMatch || hasCategoryMatch)
+  }
+
+  return skillMatch || hasCategoryMatch
 }
 
 export const buffHandler = {
@@ -328,12 +339,34 @@ export function getBonus(
 ): number {
   let result = 0
 
-  for (const key of classifications) {
-    const sharedKey = key as ELEMENT | SKILL_CATEGORY_KEY
-    if (buffMap[sharedKey]) {
-      result += buffMap[sharedKey]
-    }
-    // console.log(`${ctx.row} buffMap[${sharedKey}]: ${buffMap[sharedKey]}`)
+  const bonusKeys = classifications.filter(
+    (key): key is CATEGORY | ELEMENT =>
+      (CATEGORY_KEYS as readonly string[]).includes(key) ||
+      (ELEMENT_KEYS as readonly string[]).includes(key),
+  )
+
+  for (const key of bonusKeys) {
+    result += buffMap[key]
+  }
+
+  return result
+}
+
+export function getDeepen(
+  buffMap: BuffMap,
+  classifications: BUFF_TYPE[],
+): number {
+  let result = 0
+
+  const bonusKeys = classifications.filter(
+    (key): key is CATEGORY | ELEMENT =>
+      (CATEGORY_KEYS as readonly string[]).includes(key) ||
+      (ELEMENT_KEYS as readonly string[]).includes(key),
+  )
+
+  for (const key of bonusKeys) {
+    const deepenKey = bonusToDeepen[key] as DEEPEN_KEY
+    result += buffMap[deepenKey]
   }
 
   return result

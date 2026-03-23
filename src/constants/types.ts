@@ -23,10 +23,24 @@ export const SKILL_CATEGORY = [
 ] as const
 export type SKILL_CATEGORY_KEY = (typeof SKILL_CATEGORY)[number]
 
-export type BUFF_CATEGORY_KEY = Omit<
-  SKILL_CATEGORY_KEY,
-  "forte" | "intro" | "outro"
->
+export const CATEGORY_KEYS = ["basic", "heavy", "liberation", "skill"] as const 
+export type CATEGORY = (typeof CATEGORY_KEYS)[number]
+
+
+export const DEEPEN_KEYS = [
+  "baDeep",
+  "heDeep",
+  "liDeep",
+  "skDeep",
+  "aeDeep",
+  "elDeep",
+  "fuDeep",
+  "glDeep",
+  "haDeep",
+  "spDeep",
+] as const
+
+export type DEEPEN_KEY = (typeof DEEPEN_KEYS)[number]
 
 export const BUFF_TYPE_KEYS = [
   // stats
@@ -82,7 +96,7 @@ export const BUFF_TYPE_KEYS = [
   // rest
   "intro",
   "outro",
-  "echo"
+  "echo",
 ] as const
 export type BUFF_TYPE = (typeof BUFF_TYPE_KEYS)[number]
 
