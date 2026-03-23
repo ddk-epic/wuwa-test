@@ -16,112 +16,110 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
 
   if (!resultTimeline) return null
   return (
-    <Table className="w-full border-b">
+    <Table className="w-full border-separate border-spacing-0">
       {/* Table group headers */}
       <TableHeader>
-        <TableRow className="border-t">
+        <TableRow>
           <TableHead
             colSpan={4}
-            className="column-header py-1 text-center text-[16px]!"
+            className="sticky left-px top-0 z-30 bg-card column-header py-1 text-center text-[16px]! shadow-[inset_0_-1px_0_0_rgb(39,39,42)]"
           >
             Entry
           </TableHead>
           <TableHead
             colSpan={5}
-            className="bg-zinc-800/70 column-header py-1 text-center text-[16px]!"
+            className="sticky left-0 top-0 z-20 bg-zinc-800/50 column-header py-1 text-center text-[16px]! shadow-[inset_0_-1px_0_0_rgb(39,39,42)]"
           >
             Result
           </TableHead>
           <TableHead
             colSpan={2}
-            className="column-header py-1 text-center text-[16px]!"
+            className="sticky left-0 top-0 z-20 bg-card column-header py-1 text-center text-[16px]! shadow-[inset_0_-1px_0_0_rgb(39,39,42)]"
           >
             Buffs
           </TableHead>
           <TableHead
             colSpan={6}
             style={getStatCellColor("atk", 0.2)}
-            className="column-header py-1 text-center text-[16px]! bg-zinc-800/70"
+            className="sticky left-0 top-0 z-20 bg-zinc-800/50 column-header py-1 text-center text-[16px]!"
           >
             Final Stats
           </TableHead>
           <TableHead
             colSpan={5}
-            
             style={getStatCellColor("basic", 0.2)}
-            className="column-header py-1 text-center text-[16px]!"
+            className="sticky left-0 top-0 z-20 column-header py-1 text-center text-[16px]!"
           >
             Damage Bonuses
           </TableHead>
           <TableHead
             colSpan={6}
-            
             style={getStatCellColor("aero", 0.2)}
-            className="column-header py-1 text-center text-[16px]! bg-zinc-800/70"
+            className="sticky left-0 top-0 z-20 bg-zinc-800/50 column-header py-1 text-center text-[16px]!"
           >
             Elemental Bonuses
           </TableHead>
           <TableHead
             colSpan={5}
             style={getStatCellColor("baDeep", 0)}
-            className="column-header py-1 text-center text-[16px]!"
+            className="sticky left-0 top-0 z-20 column-header py-1 text-center text-[16px]!"
           >
             Damage Deepen
           </TableHead>
           <TableHead
             colSpan={6}
-            
             style={getStatCellColor("aeDeep", 0)}
-            className="column-header py-1 text-center text-[16px]! bg-zinc-800/70"
+            className="sticky left-0 top-0 z-20 bg-zinc-800/50 column-header py-1 text-center text-[16px]!"
           >
             Elemental Deepen
           </TableHead>
           <TableHead
             colSpan={3}
-            
             style={getStatCellColor("bonus", 0)}
-            className="column-header py-1 text-center text-[16px]!"
+            className="sticky left-0 top-0 z-20 column-header py-1 text-center text-[16px]!"
           >
             Skill Specific
           </TableHead>
           <TableHead
             colSpan={2}
-            className="column-header py-1 text-center text-[16px]! bg-zinc-800/70"
+            className="sticky left-0 top-0 z-20 bg-zinc-800/50 column-header py-1 text-center text-[16px]!"
           >
             Enemy
           </TableHead>
         </TableRow>
         {/* Table headers */}
         <TableRow>
-          <TableHead className="column-header py-1 text-[14px]!">#</TableHead>
-          <TableHead className="min-w-28 column-header py-1 text-[14px]!">
+          <TableHead className="sticky left-px top-6 z-30 bg-card column-header py-1 text-[14px]! shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
+            #
+          </TableHead>
+          <TableHead className="sticky left-6 top-6 z-30 bg-card min-w-28 column-header py-1 text-[14px]! shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
             Character
           </TableHead>
-          <TableHead className="column-header py-1 text-[14px]!">
+          <TableHead className="sticky left-34 top-6 z-30 bg-card column-header py-1 text-[14px]! shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
             {/* Category */}
           </TableHead>
-          <TableHead className="min-w-64 column-header py-1 text-[14px]!">
+          <TableHead className="sticky left-44.25 top-6 z-30 min-w-64 bg-card column-header py-1 text-[14px]! shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
             Skill
           </TableHead>
-          <TableHead className="column-header py-1 text-[14px]! bg-zinc-800/70">
+          <TableHead className="sticky left-0 top-6 z-20 column-header py-1 text-[14px]! bg-zinc-800/50 shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
             Time
           </TableHead>
-          <TableHead className="column-header py-1 text-[14px]! bg-zinc-800/70">
+          <TableHead className="sticky left-0 top-6 z-20 column-header py-1 text-[14px]! bg-zinc-800/50 shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
             Con.
           </TableHead>
-          <TableHead className="column-header py-1 text-[14px]! bg-zinc-800/70">
+          <TableHead className="sticky left-0 top-6 z-20 column-header py-1 text-[14px]! bg-zinc-800/50 shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
             Res.
           </TableHead>
-          <TableHead className="min-w-16 column-header py-1 text-[14px]! bg-zinc-800/70">
+          <TableHead className="sticky left-0 top-6 z-20 min-w-16 column-header py-1 text-[14px]! bg-zinc-800/50 shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
             Damage
           </TableHead>
-          <TableHead className="column-header py-1 text-[14px]! bg-zinc-800/70">
+          <TableHead className="sticky left-0 top-6 z-20 column-header py-1 text-[14px]! bg-zinc-800/50 shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
             Procc
           </TableHead>
-          <TableHead className="column-header py-1 text-[14px]! min-w-70">
+          <TableHead className="sticky left-0 top-6 z-20 bg-card column-header py-1 text-[14px]! min-w-70 shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
             Personal Buffs
           </TableHead>
-          <TableHead className="column-header py-1 text-[14px]! min-w-70">
+          <TableHead className="sticky left-0 top-6 z-20 bg-card column-header py-1 text-[14px]! min-w-70 shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
             Global Buffs
           </TableHead>
           {statKeys.map((key) => {
@@ -129,7 +127,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             return (
               <TableHead
                 key={statKey}
-                className="min-w-16 column-header py-1 text-[14px]! text-center bg-zinc-800/70"
+                className="sticky left-0 top-6 z-20 min-w-16 column-header py-1 text-[14px]! text-center"
               >
                 {STAT_COLORS[statKey].label}
               </TableHead>
@@ -166,16 +164,21 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
         ][]
 
         return (
-          <TableRow>
-            <TableCell className="pt-2! pl-1 pr-2 text-right text-[12px] text-muted-foreground">
+          <TableRow className="bg-card">
+            <TableCell className="sticky left-px z-10 pt-2! pl-1 pr-2 bg-card text-right text-[12px] text-muted-foreground shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
               {row}
             </TableCell>
-            <TableCell className={cn("capitalize", elementColorText)}>
+            <TableCell
+              className={cn(
+                "sticky left-6 z-10 bg-card capitalize shadow-[inset_0_-1px_0_0_rgb(39,39,42)]",
+                elementColorText,
+              )}
+            >
               {characterId}
             </TableCell>
             <TableCell
               className={cn(
-                "pt-2! align-middle text-[12px] font-mono uppercase tracking-wider",
+                "sticky left-34 z-10 pt-2! bg-card align-middle text-[12px] font-mono uppercase tracking-wider shadow-[inset_0_-1px_0_0_rgb(39,39,42)]",
                 isHit ? "text-transparent" : "text-muted-foreground",
               )}
             >
@@ -183,25 +186,25 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             </TableCell>
             <TableCell
               className={cn(
-                "",
+                "sticky left-44.25 z-10 bg-card shadow-[inset_0_-1px_0_0_rgb(39,39,42)]",
                 isCast ? elementColorText : "",
                 isHit ? "text-xs" : "",
               )}
             >
               {skill.name}
             </TableCell>
-            <TableCell className="bg-zinc-800/70 text-right">
+            <TableCell className="bg-zinc-800/50 text-right shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
               {frameToSecond(time)}
             </TableCell>
-            <TableCell className="bg-zinc-800/70 text-right">
+            <TableCell className="bg-zinc-800/50 text-right shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
               {concerto.toFixed(1)}
             </TableCell>
-            <TableCell className="bg-zinc-800/70 text-right">
+            <TableCell className="bg-zinc-800/50 text-right shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
               {resonance.toFixed(1)}
             </TableCell>
             <TableCell
               className={cn(
-                "bg-zinc-800/70 pr-3! text-right",
+                "bg-zinc-800/50 pr-3! text-right shadow-[inset_0_-1px_0_0_rgb(39,39,42)]",
                 damage !== 0 ? elementColorText : "",
               )}
             >
@@ -209,19 +212,23 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             </TableCell>
             <TableCell
               className={cn(
-                "bg-zinc-800/70 pr-2! text-right",
+                "bg-zinc-800/50 pr-2! text-right shadow-[inset_0_-1px_0_0_rgb(39,39,42)]",
                 proc.damage !== 0 ? elementColorText : "",
               )}
             >
               {proc.damage > 0 ? Math.round(proc.damage) : ""}
             </TableCell>
-            <TableCell className="">{`(${buffs.length || 0}) ${[activeBuffString]}`}</TableCell>
-            <TableCell className="">{`(${buffsTeam.length || 0}) ${[activeTeamBuffString]}`}</TableCell>
+            <TableCell className="shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
+              {`(${buffs.length || 0}) ${[activeBuffString]}`}
+            </TableCell>
+            <TableCell className="shadow-[inset_0_-1px_0_0_rgb(39,39,42)]">
+              {`(${buffsTeam.length || 0}) ${[activeTeamBuffString]}`}
+            </TableCell>
             {stats.map(([statKey, value]) => (
               <TableCell
                 key={`${row}-${statKey}`}
                 style={getStatCellColor(statKey, value)}
-                className="pl-0 pr-2.5 text-right bg-zinc-800/70"
+                className="pl-0 pr-2.5 text-right bg-zinc-800/50"
               >
                 {toPercent(value)}
               </TableCell>
