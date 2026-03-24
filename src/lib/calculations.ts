@@ -21,10 +21,11 @@ import {
   hasSwapped,
   isMatchingActionType,
   isDCondKey,
-  isMatch,
+  findSkillMatch,
   isOnField,
   removeBuffByName,
   getDeepen,
+  findBuffMatch,
 } from "./helper"
 
 import {
@@ -59,22 +60,25 @@ function removeExpiredBuffs(ctx: Context, action: TimelineEntry) {
       }
 
       // filter consumed buffs
-      if (buff.type === "BuffToConsume" && buff.consumedBy) {
-        for (const consume of buff.consumedBy) {
-          if (consume === skill.id) {
-            buffsToRemove.add(buff)
-            const mode = ctx.mode.get(characterId) ?? []
-            mode.pop() // TODO: testing needed
-          }
-        }
-      }
+      // if (buff.type === "BuffToConsume" && buff.consumedBy) {
+      //   for (const consume of buff.consumedBy) {
+      //     if (consume === skill.id) {
+      //       buffsToRemove.add(buff)
+      //       const mode = ctx.mode.get(characterId) ?? []
+      //       mode.pop() // TODO: testing needed
+      //     }
+      //   }
+      // }
 
       // other filter rules
     }
 
   // remove buffs
   const remainingBuffs = buffs.filter((buff) => !buffsToRemove.has(buff))
-  ctx.activeBuffs.set(characterId, remainingBuffs)
+  const remainingBuffsTeam = buffsTeam.filter(
+    (buff) => !buffsToRemove.has(buff),
+  )
+  ctx.activeBuffs.set(characterId, [...remainingBuffs, ...remainingBuffsTeam])
 }
 
 function addOnSwapBuffs(ctx: Context, action: TimelineEntry) {
@@ -82,6 +86,7 @@ function addOnSwapBuffs(ctx: Context, action: TimelineEntry) {
   const currentTime = ctx.time
   const buffNext = ctx.buffNext
   const buffs = ctx.activeBuffs.get(characterId) ?? []
+  const buffsTeam = ctx.activeBuffsTeam
 
   if (!hasSwapped(ctx.prevChar, characterId) || buffNext.length === 0) return
 
@@ -93,40 +98,57 @@ function addOnSwapBuffs(ctx: Context, action: TimelineEntry) {
     const endTime = currentTime + buff.duration
     const BuffInstance = { ...buff, endTime }
 
-    buffs.push(BuffInstance)
+    const buffArray = buff.appliesTo === "all" ? buffsTeam : buffs
+    buffArray.push(BuffInstance)
     // console.log(
     //   `add ${BuffInstance.name} to activeBuffs[${characterId}]`,
     // )
   }
 }
 
+function isBuffEligible(
+  ctx: Context,
+  action: TimelineEntry,
+  buff: BuffDefinition,
+): boolean {
+  const characterId = action.characterId
+  const charData = ctx.characters.get(characterId)
+  const buffs = ctx.activeBuffs.get(characterId) ?? []
+  const buffsTeam = ctx.activeBuffsTeam
+
+  if (buff.source !== characterId) return false
+
+  const skillMatch = findSkillMatch(ctx, action, buff) // check name/category/mode
+  if (!skillMatch) return false
+  const buffMatch = findBuffMatch(ctx, action, buff) // check if condition is an active buffs
+  if (buff.triggeredBy?.condition && !buffMatch) return false
+
+  if (!canTriggerBuff(ctx, buff.id)) return false
+  if (!isMatchingActionType(buff, action)) return false
+
+  const isAlreadyActive = buffs.some((b) => b.id === buff.id)
+  const isAlreadyActiveTeam = buffsTeam.some((b) => b.id === buff.id)
+  if (isAlreadyActive || isAlreadyActiveTeam) return false
+
+  const sequenceRequirement = buff.sequenceReq ?? 0
+  if (charData && sequenceRequirement > charData.sequence) return false
+
+  const offFieldCheck =
+    isOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar) // off-field buff check
+  if (offFieldCheck) return false
+
+  return true
+}
+
 function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
   const characterId = action.characterId
   const currentTime = ctx.time
-  const charData = ctx.characters.get(characterId)
   const buffs = ctx.activeBuffs.get(characterId) ?? []
   const buffsTeam = ctx.activeBuffsTeam
 
   for (const buff of ctx.allBuffs) {
     //  preliminary checks
-    if (buff.source !== characterId) continue
-
-    const match = isMatch(ctx, action, buff) // check name/category/mode
-    if (!match) continue
-
-    if (!canTriggerBuff(ctx, buff.id)) continue
-    if (!isMatchingActionType(buff, action)) continue
-
-    const isAlreadyActive = buffs.some((b) => b.id === buff.id)
-    const isAlreadyActiveTeam = buffsTeam.some((b) => b.id === buff.id)
-    if (isAlreadyActive || isAlreadyActiveTeam) continue
-
-    const sequenceRequirement = buff.sequenceReq ?? 0
-    if (charData && sequenceRequirement > charData.sequence) continue
-
-    const offFieldCheck =
-      isOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar) // off-field buff check
-    if (offFieldCheck) continue
+    if (!isBuffEligible(ctx, action, buff)) continue
 
     // handle end time (convert to BuffInstance)
     const endTime = currentTime + buff.duration
@@ -138,11 +160,9 @@ function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
     switch (buff.type) {
       case "BuffNext":
         // handle outro
-        if (buff.appliesTo === "next") {
-          ctx.buffNext.push(BuffInstance)
-          // console.log(`add ${BuffInstance.name} to buffNext`)
-          continue
-        }
+        ctx.buffNext.push(BuffInstance)
+        // console.log(`add ${BuffInstance.name} to buffNext`)
+        continue
         break
 
       case "Mode":
@@ -282,8 +302,9 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
       switch (buff.type) {
         case "BuffStacking":
           if (action.type !== "hit") break
-          const match = isMatch(ctx, action, buff) // check name/category/mode
-          if (!match) break
+
+          const skillMatch = findSkillMatch(ctx, action, buff) // check name/category/mode
+          if (!skillMatch) break
 
           const handler = buffHandler["BuffStacking"]
           const newModifiers = handler.onTrigger(buff, time)

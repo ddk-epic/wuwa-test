@@ -282,18 +282,21 @@ export function canTriggerBuff(ctx: Context, buffId: string) {
   return ctx.time >= cooldownEnd
 }
 
-export function isMatchingActionType(buff: BuffDefinition, action: TimelineEntry) {
+export function isMatchingActionType(
+  buff: BuffDefinition,
+  action: TimelineEntry,
+) {
   const buffType = buff.triggeredBy?.type ?? "cast"
   return buffType === action.type
 }
 
-export function isMatch(
+export function findSkillMatch(
   ctx: Context,
   action: TimelineEntry,
-  buff: BuffDefinition | BuffInstance,
-) {
+  buffToCheck: BuffDefinition | BuffInstance,
+): boolean {
   const { characterId, skill } = action
-  const trigger = buff.triggeredBy
+  const trigger = buffToCheck.triggeredBy
   const modeList = ctx.mode.get(characterId) ?? []
   const modeListlast = modeList[Math.max(modeList.length - 1, 0)]
 
@@ -304,10 +307,32 @@ export function isMatch(
   // require mode AND (name OR category)
   if (trigger?.mode) {
     const hasModeMatch = trigger.mode.includes(modeListlast)
-    return hasModeMatch && (skillMatch || hasCategoryMatch)
+    return hasModeMatch && (!!skillMatch || !!hasCategoryMatch)
   }
 
-  return skillMatch || hasCategoryMatch
+  return !!skillMatch || !!hasCategoryMatch
+}
+
+export function findBuffMatch(
+  ctx: Context,
+  action: TimelineEntry,
+  buffToCheck: BuffDefinition | BuffInstance,
+): boolean {
+  const triggerCondition = buffToCheck.triggeredBy?.condition
+  if (!triggerCondition) return false
+
+  const characterId = action.characterId
+  const buffs = ctx.activeBuffs.get(characterId) ?? []
+  const buffsTeam = ctx.activeBuffsTeam
+
+  for (const buffArray of [buffs, buffsTeam]) {
+    for (const activeBuff of buffArray) {
+      const buffMatch = triggerCondition.includes(activeBuff.name)
+      return buffMatch
+    }
+  }
+
+  return false
 }
 
 export const buffHandler = {
