@@ -111,6 +111,7 @@ export const BUFF_CATEGORY_KEYS = [
   "BuffToConsume",
   "Damage",
   "DCondFlat",
+  "Heal",
   "Mode",
 ] as const
 
@@ -121,7 +122,7 @@ export type TriggerValue = {
   skill?: string[]
   category?: (SKILL_CATEGORY_KEY | "echo")[]
   condition?: string[]
-  mode?: string
+  mode?: string[]
 }
 
 type ModifierValue = {
@@ -134,14 +135,14 @@ type ModifierValue = {
   resonance?: number
 }
 
-export type BuffObject = {
+export type BuffDefinition = {
   id: string
   name: string
   type: BUFF_CATEGORY
   source: CHARACTER_KEY | "self"
   classifications?: BUFF_TYPE[] // For damage proc's
   triggeredBy?: TriggerValue
-  appliesTo: CHARACTER_KEY | "self" | "all" | "next"
+  appliesTo: CHARACTER_KEY | "self" | "all" | "current" | "next"
   modifiers: ModifierValue[]
   consumedBy?: string[] // For mode and damage proc's
   duration: number
@@ -150,12 +151,12 @@ export type BuffObject = {
   stackInterval?: number
   sequenceReq?: number
 }
-export type WeaponBuffObject = Omit<BuffObject, "consumedBy" | "sequenceReq">
+export type WeaponBuffDefinition = Omit<BuffDefinition, "consumedBy" | "sequenceReq">
 
-export type ActiveBuffObject = {
+export type BuffInstance = {
   stackCount?: number
   endTime: number
-} & BuffObject
+} & BuffDefinition
 
 type EventValues = {
   frame: number
@@ -285,13 +286,13 @@ type Message = {
 }
 
 export type Context = {
-  activeBuffs: Map<CHARACTER_KEY, ActiveBuffObject[]>
-  activeBuffsTeam: ActiveBuffObject[]
+  activeBuffs: Map<CHARACTER_KEY, BuffInstance[]>
+  activeBuffsTeam: BuffInstance[]
   onFieldChar: CHARACTER_KEY | ""
-  allBuffs: BuffObject[]
+  allBuffs: BuffDefinition[]
   buffMap: Map<CHARACTER_KEY, BuffMap>
-  buffNext: ActiveBuffObject[]
-  buffDeferred: ActiveBuffObject[]
+  buffNext: BuffInstance[]
+  buffDeferred: BuffInstance[]
   characters: Map<CHARACTER_KEY, Character>
   cooldowns: Record<string, number> // buff.id, cd
   hasSwapped: boolean

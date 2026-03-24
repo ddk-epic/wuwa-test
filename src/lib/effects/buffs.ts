@@ -1,6 +1,6 @@
-import type { BuffObject } from "@/constants/types"
+import type { BuffDefinition } from "@/constants/types"
 
-export const buffs: Record<string, BuffObject[]> = {
+export const buffs: Record<string, BuffDefinition[]> = {
   encore: [
     {
       id: "Angry Cosmos",
@@ -93,7 +93,7 @@ export const buffs: Record<string, BuffObject[]> = {
       name: "Woolies Save the World!",
       type: "BuffStacking",
       source: "encore",
-      triggeredBy: { type: "hit", mode: "Cosmos Rave" },
+      triggeredBy: { type: "hit", skill: ["all"], mode: ["Cosmos Rave"] },
       appliesTo: "encore",
       modifiers: [{ class: "atk", value: 0.05 }],
       stackLimit: 5,
@@ -105,6 +105,36 @@ export const buffs: Record<string, BuffObject[]> = {
 
   sanhua: [
     {
+      id: "Condensation",
+      name: "Condensation",
+      type: "Buff",
+      source: "sanhua",
+      triggeredBy: { category: ["intro"] },
+      appliesTo: "sanhua",
+      modifiers: [{ class: "skill", value: 0.2 }],
+      duration: 8,
+    },
+    {
+      id: "Avalanche",
+      name: "Avalanche",
+      type: "Mode",
+      source: "sanhua",
+      triggeredBy: { skill: ["Frigid Light 5"] },
+      appliesTo: "sanhua",
+      modifiers: [],
+      duration: 8,
+    },
+    {
+      id: "Avalanche (bonus)",
+      name: "Avalanche (bonus)",
+      type: "Buff",
+      source: "sanhua",
+      triggeredBy: { type: "hit", skill: ["Detonate"], mode: ["Avalanche"] },
+      appliesTo: "sanhua",
+      modifiers: [{ class: "bonus", value: 0.2 }],
+      duration: 0.1,
+    },
+    {
       id: "Silversnow",
       name: "Silversnow",
       type: "BuffNext",
@@ -114,7 +144,6 @@ export const buffs: Record<string, BuffObject[]> = {
       modifiers: [{ class: "baDeep", value: 0.38 }],
       duration: 14,
     },
-
     {
       id: "Ice Prism",
       name: "Ice Prism",
@@ -151,6 +180,89 @@ export const buffs: Record<string, BuffObject[]> = {
       consumedBy: ["Detonate"],
       duration: 5,
     },
+    {
+      id: "Solitude's Embrace",
+      name: "Solitude's Embrace",
+      type: "Buff",
+      source: "sanhua",
+      triggeredBy: { skill: ["Frigid Light 5"] },
+      appliesTo: "sanhua",
+      modifiers: [{ class: "crit", value: 0.15 }],
+      sequenceReq: 1,
+      duration: 10,
+    },
+    // {
+    //   id: "Anomalous Vision",
+    //   name: "Anomalous Vision",
+    //   type: "Buff",
+    //   source: "sanhua",
+    //   triggeredBy: {},
+    //   appliesTo: "sanhua",
+    //   modifiers: [{ class: "all", value: 0.35 }],
+    //   sequenceReq: 3,
+    //   duration: 10,
+    // },
+    {
+      id: "Blade Mastery (energy)",
+      name: "Blade Mastery (energy)",
+      type: "DCondFlat",
+      source: "sanhua",
+      triggeredBy: { skill: ["Glacial Gaze"] },
+      appliesTo: "sanhua",
+      modifiers: [{ class: "resonance", value: 10 }],
+      sequenceReq: 4,
+      duration: 0,
+    },
+    {
+      id: "Blade Mastery",
+      name: "Blade Mastery",
+      type: "Mode",
+      source: "sanhua",
+      triggeredBy: { skill: ["Glacial Gaze"] },
+      appliesTo: "sanhua",
+      modifiers: [],
+      sequenceReq: 4,
+      duration: 5,
+    },
+    {
+      id: "Blade Mastery (bonus)",
+      name: "Blade Mastery (bonus)",
+      type: "Buff",
+      source: "sanhua",
+      triggeredBy: {
+        type: "hit",
+        skill: ["Detonate"],
+        mode: ["Blade Mastery"],
+      },
+      appliesTo: "sanhua",
+      modifiers: [{ class: "bonus", value: 1.2 }],
+      sequenceReq: 4,
+      duration: 0.1,
+    },
+    {
+      id: "Unraveling Fate",
+      name: "Unraveling Fate",
+      type: "Buff",
+      source: "sanhua",
+      triggeredBy: { type: "hit", skill: ["Detonate"] },
+      appliesTo: "sanhua",
+      modifiers: [{ class: "critDmg", value: 1, concerto: 7.5 }], // 2 Detonate hits
+      sequenceReq: 5,
+      duration: 0.1,
+    },
+    {
+      id: "Daybreak Radiance",
+      name: "Daybreak Radiance",
+      type: "BuffStacking",
+      source: "sanhua",
+      triggeredBy: { type: "hit", skill: ["Detonate"] }, // TODO: actual proc logic
+      appliesTo: "all",
+      modifiers: [{ class: "atk", value: 0.1 }],
+      stackLimit: 2,
+      stackInterval: 0,
+      sequenceReq: 6,
+      duration: 20,
+    },
   ],
   shorekeeper: [
     {
@@ -158,10 +270,80 @@ export const buffs: Record<string, BuffObject[]> = {
       name: "Self Gravitation",
       type: "Buff",
       source: "shorekeeper",
-      triggeredBy: { condition: ["offField"] },
+      triggeredBy: {
+        mode: [
+          "Outer Stellarealm",
+          "Inner Stellarealm",
+          "Supernal Stellarealm",
+        ],
+      },
       appliesTo: "shorekeeper",
       modifiers: [{ class: "er", value: 0.1 }],
       duration: 0,
     },
+    {
+      id: "Self Gravitation (rover)",
+      name: "Self Gravitation (rover)",
+      type: "Buff",
+      source: "shorekeeper",
+      triggeredBy: {
+        mode: [
+          "Outer Stellarealm",
+          " Inner Stellarealm",
+          "Supernal Stellarealm",
+        ],
+      },
+      appliesTo: "rover",
+      modifiers: [{ class: "er", value: 0.1 }],
+      duration: 0,
+    },
+    {
+      id: "Outer Stellarealm",
+      name: "Outer Stellarealm",
+      type: "Heal",
+      source: "shorekeeper",
+      triggeredBy: {
+        mode: [
+          "Outer Stellarealm",
+          "Inner Stellarealm",
+          "Supernal Stellarealm",
+        ],
+      },
+      appliesTo: "current",
+      modifiers: [{ class: "heal", value: 0.012 }], // TODO: implement heal
+      duration: 30,
+    },
+    {
+      id: "Inner Stellarealm",
+      name: "Inner Stellarealm",
+      type: "BuffAll",
+      source: "shorekeeper",
+      triggeredBy: { category: ["intro"], mode: ["Outer Stellarealm"] },
+      appliesTo: "current",
+      modifiers: [{ class: "crit", value: 0.0001 }], // TODO
+      duration: 30,
+    },
+    {
+      id: "Supernal Stellarealm",
+      name: "Supernal Stellarealm",
+      type: "BuffAll",
+      source: "shorekeeper",
+      triggeredBy: { category: ["intro"], mode: ["Inner Stellarealm"] },
+      appliesTo: "current",
+      modifiers: [{ class: "critDmg", value: 0.0001 }], // TODO
+      duration: 30,
+    },
   ],
 }
+// {
+//       id: "Ice Thorn",
+//       name: "Ice Thorn",
+//       type: "Damage",
+//       source: "sanhua",
+//       classifications: ["glacio", "skill"],
+//       triggeredBy: { skill: ["Freezing Thorns"] },
+//       appliesTo: "sanhua",
+//       modifiers: [{ class: "glacio", value: 0.3, resonance: 2 }],
+//       consumedBy: ["Detonate"],
+//       duration: 8,
+//     },

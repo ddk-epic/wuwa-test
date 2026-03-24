@@ -3,10 +3,10 @@ import {
   DCOND_KEYS,
   ELEMENT_KEYS,
   type ActionListItem,
-  type ActiveBuffObject,
   type BUFF_TYPE,
+  type BuffDefinition,
+  type BuffInstance,
   type BuffMap,
-  type BuffObject,
   type CATEGORY,
   type Character,
   type CharSettings,
@@ -257,7 +257,7 @@ export function hasSwapped(
   return prevChar !== currentChar
 }
 
-export function isOffFieldBuff(buff: BuffObject) {
+export function isOffFieldBuff(buff: BuffDefinition) {
   return !!buff.triggeredBy?.condition?.some(
     (condition) => condition === "off-field",
   )
@@ -270,7 +270,7 @@ export function isOnField(
   return characterId === onFieldChar
 }
 
-export function removeBuffByName(array: ActiveBuffObject[], id: string) {
+export function removeBuffByName(array: BuffInstance[], id: string) {
   const index = array.findIndex((b) => b.id === id)
   if (index !== -1) {
     array.splice(index, 1)
@@ -282,7 +282,7 @@ export function canTriggerBuff(ctx: Context, buffId: string) {
   return ctx.time >= cooldownEnd
 }
 
-export function isMatchingActionType(buff: BuffObject, action: TimelineEntry) {
+export function isMatchingActionType(buff: BuffDefinition, action: TimelineEntry) {
   const buffType = buff.triggeredBy?.type ?? "cast"
   return buffType === action.type
 }
@@ -290,11 +290,12 @@ export function isMatchingActionType(buff: BuffObject, action: TimelineEntry) {
 export function isMatch(
   ctx: Context,
   action: TimelineEntry,
-  buff: BuffObject | ActiveBuffObject,
+  buff: BuffDefinition | BuffInstance,
 ) {
   const { characterId, skill } = action
   const trigger = buff.triggeredBy
   const modeList = ctx.mode.get(characterId) ?? []
+  const modeListlast = modeList[Math.max(modeList.length - 1, 0)]
 
   const skillMatch =
     trigger?.skill?.includes("all") || trigger?.skill?.includes(skill.id)
@@ -302,7 +303,7 @@ export function isMatch(
 
   // require mode AND (name OR category)
   if (trigger?.mode) {
-    const hasModeMatch = modeList.includes(trigger.mode)
+    const hasModeMatch = trigger.mode.includes(modeListlast)
     return hasModeMatch && (skillMatch || hasCategoryMatch)
   }
 
@@ -311,7 +312,7 @@ export function isMatch(
 
 export const buffHandler = {
   BuffStacking: {
-    onTrigger: (buff: ActiveBuffObject, time: number) => {
+    onTrigger: (buff: BuffInstance, time: number) => {
       if (!buff.stackLimit || buff.stackCount == null) return null
 
       const newStacks = Math.min(buff.stackCount + 1, buff.stackLimit)

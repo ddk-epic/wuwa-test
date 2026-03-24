@@ -1,6 +1,6 @@
-import type { BuffObject } from "@/constants/types"
+import type { BuffDefinition } from "@/constants/types"
 
-export const setBuffs: Record<string, BuffObject[]> = {
+export const setBuffs: Record<string, BuffDefinition[]> = {
   "Molten Rift": [
     {
       id: "Molten Rift 2pc",

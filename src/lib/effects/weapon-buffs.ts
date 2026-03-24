@@ -1,7 +1,7 @@
-import type { WeaponBuffObject } from "@/constants/types"
+import type { WeaponBuffDefinition } from "@/constants/types"
 import type { WEAPON_KEY } from "@/constants/weapons"
 
-export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
+export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffDefinition[]>> = {
   "Blazing Brilliance": [
     {
       id: "Blazing Brilliance (ATK)",
@@ -127,7 +127,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffObject[]>> = {
       name: "Stringmaster (Off-field)",
       type: "BuffStacking",
       source: "self",
-      triggeredBy: { category: ["skill"], condition: ["off-field"] },
+      triggeredBy: { category: ["skill"], condition: ["offField"] },
       appliesTo: "self",
       modifiers: [
         { class: "atk", value: 0.12 },

@@ -1,6 +1,6 @@
-import type { BuffObject } from "@/constants/types"
+import type { BuffDefinition } from "@/constants/types"
 
-export const echoBuffs: Record<string, BuffObject[]> = {
+export const echoBuffs: Record<string, BuffDefinition[]> = {
   "Inferno Rider": [
     {
       id: "Inferno Rider (Fusion/Basic)",
