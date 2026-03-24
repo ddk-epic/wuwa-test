@@ -47,26 +47,26 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           </TableHead>
           <TableHead
             colSpan={5}
+            style={getStatCellColor("basic", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Damage Bonuses
           </TableHead>
           <TableHead
             colSpan={6}
-            style={getStatCellColor("aero", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Elemental Bonuses
           </TableHead>
           <TableHead
             colSpan={5}
+            style={getStatCellColor("basic", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Damage Deepen
           </TableHead>
           <TableHead
             colSpan={6}
-            style={getStatCellColor("aeDeep", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Elemental Deepen

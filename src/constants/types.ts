@@ -2,6 +2,9 @@ import type { BONUSSTAT_KEY, CHARACTER_KEY } from "./characters"
 import type { ECHO_KEY, ECHO_SET_KEY } from "./echoes"
 import type { WEAPON_KEY, WEAPON_STAT } from "./weapons"
 
+export const BASE_STATS = ["atk", "def", "hp", "er", "crit", "critDmg"] as const
+export type BASE_STAT = (typeof BASE_STATS)[number]
+
 export const ELEMENT_KEYS = [
   "aero",
   "electro",
@@ -23,9 +26,8 @@ export const SKILL_CATEGORY = [
 ] as const
 export type SKILL_CATEGORY_KEY = (typeof SKILL_CATEGORY)[number]
 
-export const CATEGORY_KEYS = ["basic", "heavy", "liberation", "skill"] as const 
+export const CATEGORY_KEYS = ["basic", "heavy", "liberation", "skill"] as const
 export type CATEGORY = (typeof CATEGORY_KEYS)[number]
-
 
 export const DEEPEN_KEYS = [
   "baDeep",
@@ -107,6 +109,7 @@ export const BUFF_CATEGORY_KEYS = [
   "Buff",
   "BuffAll",
   "BuffNext",
+  "BuffNextAll",
   "BuffStacking",
   "BuffToConsume",
   "Damage",
@@ -127,7 +130,9 @@ export type TriggerValue = {
 
 type ModifierValue = {
   class: BUFF_TYPE
+  statReq?: BASE_STAT
   value: number
+  flatValue?: number
   stackValue?: number
   forte?: number
   forte2?: number
@@ -151,7 +156,10 @@ export type BuffDefinition = {
   stackInterval?: number
   sequenceReq?: number
 }
-export type WeaponBuffDefinition = Omit<BuffDefinition, "consumedBy" | "sequenceReq">
+export type WeaponBuffDefinition = Omit<
+  BuffDefinition,
+  "consumedBy" | "sequenceReq"
+>
 
 export type BuffInstance = {
   stackCount?: number

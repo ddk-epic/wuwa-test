@@ -1,7 +1,7 @@
 import type { BuffMap, CATEGORY, DEEPEN_KEY, ELEMENT } from "./types"
 
 export const totalBuffMap: BuffMap = {
-  // stats
+  // base stats
   atk: 0,
   def: 0,
   hp: 0,
