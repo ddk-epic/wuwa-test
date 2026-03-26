@@ -35,7 +35,7 @@ export const buffs: Record<string, BuffDefinition[]> = {
     {
       id: "Wooly's Fairy Tale",
       name: "Wooly's Fairy Tale",
-      type: "BuffStacking",
+      type: "Buff",
       source: "encore",
       triggeredBy: { category: ["basic"] },
       appliesTo: "encore",
@@ -70,7 +70,7 @@ export const buffs: Record<string, BuffDefinition[]> = {
     {
       id: "Adventure? Let's go!",
       name: "Adventure? Let's go!",
-      type: "BuffAll",
+      type: "Buff",
       source: "encore",
       triggeredBy: { skill: ["Cosmos Rupture"] },
       appliesTo: "all",
@@ -91,7 +91,7 @@ export const buffs: Record<string, BuffDefinition[]> = {
     {
       id: "Woolies Save the World!",
       name: "Woolies Save the World!",
-      type: "BuffStacking",
+      type: "Buff",
       source: "encore",
       triggeredBy: { type: "hit", skill: ["all"], mode: ["Cosmos Rave"] },
       appliesTo: "encore",
@@ -153,7 +153,6 @@ export const buffs: Record<string, BuffDefinition[]> = {
       triggeredBy: { type: "hit",  skill: ["Eternal Frost"] },
       appliesTo: "sanhua",
       modifiers: [{ class: "glacio", value: 0.4, concerto: 15, resonance: 7 }],
-      consumedBy: ["Detonate"],
       duration: 5,
     },
     {
@@ -165,7 +164,6 @@ export const buffs: Record<string, BuffDefinition[]> = {
       triggeredBy: { type: "hit",  skill: ["Freezing Thorns"] },
       appliesTo: "sanhua",
       modifiers: [{ class: "glacio", value: 0.3, resonance: 2 }],
-      consumedBy: ["Detonate"],
       duration: 8,
     },
     {
@@ -177,7 +175,6 @@ export const buffs: Record<string, BuffDefinition[]> = {
       triggeredBy: { type: "hit",  skill: ["Glacial Gaze"] },
       appliesTo: "sanhua",
       modifiers: [{ class: "glacio", value: 0.7, concerto: 15, resonance: 7 }],
-      consumedBy: ["Detonate"],
       duration: 5,
     },
     {
@@ -253,7 +250,7 @@ export const buffs: Record<string, BuffDefinition[]> = {
     {
       id: "Daybreak Radiance",
       name: "Daybreak Radiance",
-      type: "BuffStacking",
+      type: "Buff",
       source: "sanhua",
       triggeredBy: { type: "hit", skill: ["Detonate"] }, // TODO: actual proc logic
       appliesTo: "all",
@@ -300,7 +297,7 @@ export const buffs: Record<string, BuffDefinition[]> = {
     {
       id: "Binary Butterfly",
       name: "Binary Butterfly",
-      type: "BuffNextAll",
+      type: "BuffNext",
       source: "sanhua",
       triggeredBy: { skill: ["Binary Butterfly"] },
       appliesTo: "all",
@@ -310,7 +307,7 @@ export const buffs: Record<string, BuffDefinition[]> = {
     {
       id: "Outer Stellarealm",
       name: "Outer Stellarealm",
-      type: "BuffAll",
+      type: "Buff",
       source: "shorekeeper",
       triggeredBy: { skill: ["End Loop"] },
       appliesTo: "all",
@@ -356,7 +353,7 @@ export const buffs: Record<string, BuffDefinition[]> = {
     {
       id: "Inner Stellarealm (buff)",
       name: "Inner Stellarealm (buff)",
-      type: "BuffAll",
+      type: "Buff",
       source: "shorekeeper",
       triggeredBy: { skill: ["all"], mode: ["Inner Stellarealm"] },
       appliesTo: "all",
@@ -366,7 +363,7 @@ export const buffs: Record<string, BuffDefinition[]> = {
     {
       id: "Supernal Stellarealm (buff)",
       name: "Supernal Stellarealm (buff)",
-      type: "BuffAll",
+      type: "Buff",
       source: "shorekeeper",
       triggeredBy: { skill: ["all"], mode: ["Inner Stellarealm"] },
       appliesTo: "all",

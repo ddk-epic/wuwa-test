@@ -25,7 +25,6 @@ export const echoBuffs: Record<string, BuffDefinition[]> = {
       triggeredBy: {skill: ["Impermanence Heron"]},
       appliesTo: "self",
       modifiers: [],
-      consumedBy: ["outro"],
       duration: 15,
     },
     {

@@ -336,7 +336,7 @@ export function findBuffMatch(
 }
 
 export const buffHandler = {
-  BuffStacking: {
+  stacking: {
     onTrigger: (buff: BuffInstance, time: number) => {
       if (!buff.stackLimit || buff.stackCount == null) return null
 

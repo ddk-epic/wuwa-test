@@ -21,7 +21,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffDefinition[]>> = 
     {
       id: "Blazing Brilliance (Skill)",
       name: "Blazing Brilliance (Skill)",
-      type: "BuffStacking",
+      type: "Buff",
       source: "self",
       triggeredBy: { type: "hit" },
       appliesTo: "self",
@@ -39,7 +39,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffDefinition[]>> = 
     {
       id: "Blazing Brilliance (MAX)",
       name: "Blazing Brilliance (MAX)",
-      type: "BuffToConsume",
+      type: "BuffConsume",
       source: "self",
       triggeredBy: { condition: ["Blazing Brilliance (Skill) x14"] },
       appliesTo: "self",
@@ -72,7 +72,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffDefinition[]>> = 
     {
       id: "Emerald of Genesis (ATK)",
       name: "Emerald of Genesis (ATK)",
-      type: "BuffStacking",
+      type: "Buff",
       source: "self",
       triggeredBy: { category: ["skill"] },
       appliesTo: "self",
@@ -107,7 +107,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffDefinition[]>> = 
     {
       id: "Stringmaster (ATK)",
       name: "Stringmaster (ATK)",
-      type: "BuffStacking",
+      type: "Buff",
       source: "self",
       triggeredBy: { category: ["skill"] },
       appliesTo: "self",
@@ -125,7 +125,7 @@ export const weaponBuffs: Partial<Record<WEAPON_KEY, WeaponBuffDefinition[]>> = 
     {
       id: "Stringmaster (Off-field)",
       name: "Stringmaster (Off-field)",
-      type: "BuffStacking",
+      type: "Buff",
       source: "self",
       triggeredBy: { category: ["skill"], condition: ["offField"] },
       appliesTo: "self",

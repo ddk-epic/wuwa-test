@@ -41,7 +41,6 @@ import { getSkillLevel, totalBuffMap } from "@/constants/maps"
 
 function removeExpiredBuffs(ctx: Context, action: TimelineEntry) {
   const characterId = action.characterId
-  const skill = action.skill
   const currentTime = ctx.time
   const buffsToRemove = new Set<BuffInstance>()
   const buffs = ctx.activeBuffs.get(characterId) ?? []
@@ -152,10 +151,9 @@ function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
 
     // handle end time (convert to BuffInstance)
     const endTime = currentTime + buff.duration
-    const BuffInstance =
-      buff.type !== "BuffStacking"
-        ? { ...buff, endTime }
-        : { ...buff, stackCount: 0, endTime }
+    const BuffInstance = buff.stackLimit
+      ? { ...buff, stackCount: 0, endTime }
+      : { ...buff, endTime }
 
     switch (buff.type) {
       case "BuffNext":
@@ -173,10 +171,8 @@ function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
 
       case "Damage":
         // handle damage proc
-        if (buff.consumedBy) {
-          ctx.buffDeferred.push(BuffInstance)
-          // console.log(`add ${BuffInstance.name} to buffDeferred`)
-        }
+        ctx.buffDeferred.push(BuffInstance)
+        console.log(ctx.row, `add ${BuffInstance.name} to buffDeferred`)
         break
 
       default:
@@ -294,30 +290,26 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
     for (const buff of buffArray) {
       let currentModifiers = buff.modifiers
 
-      // off-field buff check
+      // preliminary checks
       const offFieldCheck =
         isOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar)
       if (offFieldCheck) continue
 
+      // handle stacking buff
+      if (buff.stackLimit && action.type === "hit") {
+        const skillMatch = findSkillMatch(ctx, action, buff) // check name/category/mode
+        if (!skillMatch) break
+
+        const handler = buffHandler.stacking
+        const newModifiers = handler.onTrigger(buff, time)
+
+        if (!newModifiers) break
+
+        buff.modifiers = newModifiers
+        currentModifiers = newModifiers
+      }
+
       switch (buff.type) {
-        case "BuffStacking":
-          if (action.type !== "hit") break
-
-          const skillMatch = findSkillMatch(ctx, action, buff) // check name/category/mode
-          if (!skillMatch) break
-
-          const handler = buffHandler["BuffStacking"]
-          const newModifiers = handler.onTrigger(buff, time)
-
-          if (!newModifiers) break
-
-          buff.modifiers = newModifiers
-          currentModifiers = newModifiers
-          break
-
-        case "BuffToConsume":
-          break
-
         case "DCondFlat":
           // add flat DCond mod to stat
           for (const modifier of buff.modifiers) {
@@ -332,10 +324,8 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
           }
           break
 
-        case "Damage":
+        case "BuffConsume":
           for (const buff of [...ctx.buffDeferred]) {
-            if (!(buff.consumedBy && buff.consumedBy.includes(skill.id))) break
-
             const mod = buff.modifiers[0]
 
             const damageProc: Skill = {

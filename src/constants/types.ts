@@ -107,11 +107,8 @@ export type DCOND_KEY = (typeof DCOND_KEYS)[number]
 
 export const BUFF_CATEGORY_KEYS = [
   "Buff",
-  "BuffAll",
   "BuffNext",
-  "BuffNextAll",
-  "BuffStacking",
-  "BuffToConsume",
+  "BuffConsume",
   "Damage",
   "DCondFlat",
   "Heal",
@@ -149,7 +146,7 @@ export type BuffDefinition = {
   triggeredBy?: TriggerValue
   appliesTo: CHARACTER_KEY | "self" | "all" | "current" | "next"
   modifiers: ModifierValue[]
-  consumedBy?: string[] // For mode and damage proc's
+  // consumedBy?: string[] // For mode and damage proc's
   duration: number
   cooldown?: number
   stackLimit?: number
