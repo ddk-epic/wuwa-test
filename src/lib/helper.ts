@@ -297,8 +297,6 @@ export function findSkillMatch(
 ): boolean {
   const { characterId, skill } = action
   const trigger = buffToCheck.triggeredBy
-  const modeList = ctx.mode.get(characterId) ?? []
-  const modeListlast = modeList[Math.max(modeList.length - 1, 0)]
 
   const skillMatch =
     trigger?.skill?.includes("all") || trigger?.skill?.includes(skill.id)
@@ -306,7 +304,13 @@ export function findSkillMatch(
 
   // require mode AND (name OR category)
   if (trigger?.mode) {
-    const hasModeMatch = trigger.mode.includes(modeListlast)
+    const modeList = ctx.mode.get(characterId) ?? []
+    const modeListTeam = ctx.mode.get("all") ?? []
+    const allModes = [...modeList, ...modeListTeam]
+
+    const hasModeMatch = allModes.some((mode) =>
+      trigger.mode?.includes(mode.id),
+    )
     return hasModeMatch && (!!skillMatch || !!hasCategoryMatch)
   }
 

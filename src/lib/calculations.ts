@@ -166,13 +166,15 @@ function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
       case "Mode":
         // handle mode
         const mode = ctx.mode.get(characterId) ?? []
-        mode.push(BuffInstance.id)
+        const modeTeam = ctx.mode.get("all") ?? []
+        const modeArray = buff.appliesTo === "all" ? modeTeam : mode
+        modeArray.push(BuffInstance)
         break
 
       case "Damage":
         // handle damage proc
         ctx.buffDeferred.push(BuffInstance)
-        console.log(ctx.row, `add ${BuffInstance.name} to buffDeferred`)
+        // console.log(ctx.row, `add ${BuffInstance.name} to buffDeferred`)
         break
 
       default:
@@ -653,7 +655,7 @@ function getContext(
   // Proc stats
   const proc = { damage: 0, heal: 0, shield: 0 }
 
-  const mode = new Map<CHARACTER_KEY, string[]>()
+  const mode = new Map<CHARACTER_KEY, BuffInstance[]>()
   for (const [characterId] of characters) {
     mode.set(characterId, [])
   }

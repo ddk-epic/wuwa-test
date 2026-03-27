@@ -301,7 +301,7 @@ export type Context = {
   characters: Map<CHARACTER_KEY, Character>
   cooldowns: Record<string, number> // buff.id, cd
   hasSwapped: boolean
-  mode: Map<CHARACTER_KEY, string[]>
+  mode: Map<CHARACTER_KEY | "all", BuffInstance[]>
   prevChar: CHARACTER_KEY | ""
   proc: Proc
   row: number
