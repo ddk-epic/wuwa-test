@@ -77,7 +77,8 @@ function removeExpiredBuffs(ctx: Context, action: TimelineEntry) {
   const remainingBuffsTeam = buffsTeam.filter(
     (buff) => !buffsToRemove.has(buff),
   )
-  ctx.activeBuffs.set(characterId, [...remainingBuffs, ...remainingBuffsTeam])
+  ctx.activeBuffs.set(characterId, remainingBuffs)
+  ctx.activeBuffsTeam = remainingBuffsTeam
 }
 
 function addOnSwapBuffs(ctx: Context, action: TimelineEntry) {
@@ -108,12 +109,12 @@ function addOnSwapBuffs(ctx: Context, action: TimelineEntry) {
 function isBuffEligible(
   ctx: Context,
   action: TimelineEntry,
+  buffs: BuffInstance[],
+  buffsTeam: BuffInstance[],
   buff: BuffDefinition,
 ): boolean {
   const characterId = action.characterId
   const charData = ctx.characters.get(characterId)
-  const buffs = ctx.activeBuffs.get(characterId) ?? []
-  const buffsTeam = ctx.activeBuffsTeam
 
   if (buff.source !== characterId) return false
 
@@ -139,15 +140,20 @@ function isBuffEligible(
   return true
 }
 
-function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
+function addTriggeredBuffs(
+  ctx: Context,
+  action: TimelineEntry,
+  allBuffs: BuffDefinition[],
+) {
   const characterId = action.characterId
   const currentTime = ctx.time
   const buffs = ctx.activeBuffs.get(characterId) ?? []
   const buffsTeam = ctx.activeBuffsTeam
 
-  for (const buff of ctx.allBuffs) {
+  for (const buff of allBuffs) {
     //  preliminary checks
-    if (!isBuffEligible(ctx, action, buff)) continue
+    if (!isBuffEligible(ctx, action, buffs, buffsTeam, buff)) continue
+    const isGlobal = buff.appliesTo === "all"
 
     // handle end time (convert to BuffInstance)
     const endTime = currentTime + buff.duration
@@ -161,14 +167,18 @@ function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
         ctx.buffNext.push(BuffInstance)
         // console.log(`add ${BuffInstance.name} to buffNext`)
         continue
-        break
 
       case "Mode":
         // handle mode
-        const mode = ctx.mode.get(characterId) ?? []
-        const modeTeam = ctx.mode.get("all") ?? []
-        const modeArray = buff.appliesTo === "all" ? modeTeam : mode
-        modeArray.push(BuffInstance)
+        const key = isGlobal ? "all" : characterId
+        const modeArray = ctx.mode.get(key) ?? []
+        if (modeArray) {
+          modeArray.push(BuffInstance)
+        }
+        // console.log(
+        //   ctx.row,
+        //   `add ${BuffInstance.name} to ${isGlobal ? "modeTeam" : "mode"}`,
+        // )
         break
 
       case "Damage":
@@ -182,10 +192,11 @@ function addTriggeredBuffs(ctx: Context, action: TimelineEntry) {
     }
     // switch end
 
-    const buffArray = buff.appliesTo === "all" ? buffsTeam : buffs
+    const buffArray = isGlobal ? buffsTeam : buffs
     buffArray.push(BuffInstance)
     // console.log(
-    //   ctx.row, `add ${BuffInstance.name}`,
+    //   ctx.row,
+    //   `add ${BuffInstance.name} to ${isGlobal ? "buffsTeam" : "buffs"}`,
     // )
 
     if (buff.cooldown) {
@@ -281,89 +292,149 @@ function calculateDamage(ctx: Context, action: TimelineEntry) {
 }
 
 function evaluateBuffs(ctx: Context, action: TimelineEntry) {
-  const characterId = action.characterId
+  const { characterId, skill, time } = action
   const character = ctx.characters.get(characterId)
-  const skill = action.skill
-  const time = action.time
   const buffs = ctx.activeBuffs.get(characterId) ?? []
+
+  for (const buff of buffs) {
+    // preliminary checks
+    if (buff.appliesTo === "all") {
+      console.log(ctx.row, `buff ${buff.name} does not belong in buffs`)
+      continue
+    }
+
+    const offFieldCheck =
+      isOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar)
+    if (offFieldCheck) continue
+
+    // handle stacking buff
+    let currentModifiers = buff.modifiers
+
+    if (buff.stackLimit && action.type === "hit") {
+      const skillMatch = findSkillMatch(ctx, action, buff) // check name/category/mode
+      if (!skillMatch) break
+
+      const newModifiers = buffHandler.stacking(buff, time)
+      if (!newModifiers) break
+
+      buff.modifiers = newModifiers
+      currentModifiers = newModifiers
+    }
+
+    switch (buff.type) {
+      case "DCondFlat":
+        // add flat DCond mod to stat
+        for (const modifier of buff.modifiers) {
+          if (character && isDCondKey(modifier.class)) {
+            character.dCond[modifier.class] += modifier.value
+          }
+          // console.log(
+          //   ctx.row,
+          //   `${characterId} ${buff.name} dCond[${modifier.class}]:`,
+          //   modifier.value,
+          // )
+        }
+        break
+
+      case "BuffConsume":
+        for (const buff of [...ctx.buffDeferred]) {
+          const mod = buff.modifiers[0]
+
+          const damageProc: Skill = {
+            id: buff.id,
+            name: `${buff.id} Proc`,
+            category: skill.category,
+            classifications: buff.classifications ?? [],
+            mv: buff.modifiers[0].value,
+            frames: 0,
+            hits: 1,
+            forte: mod.forte ?? 0,
+            forte2: mod.forte2 ?? 0,
+            concerto: mod.concerto ?? 0,
+            resonance: mod.resonance ?? 0,
+          }
+          const procEvent: TimelineEntry = {
+            characterId: characterId,
+            type: "hit",
+            skill: damageProc,
+            time,
+          }
+          ctx.proc.damage = calculateDamage(ctx, procEvent)
+          evaluateDCond(ctx, procEvent)
+          removeBuffByName(ctx.activeBuffs.get(characterId) ?? [], buff.id)
+          removeBuffByName(ctx.buffDeferred, buff.id)
+          // console.log(
+          //   `${damageProcc.name} successfully procced for`,
+          //   ctx.proc.damage,
+          // )
+        }
+        break
+
+      default:
+      // console.log(ctx.row, `evaluateBuffs: default (${buff.name})`)
+    }
+    // switch end
+    if (!buff.type.includes("Buff")) continue
+
+    for (const modifier of currentModifiers) {
+      const value = modifier.stackValue ? modifier.stackValue : modifier.value
+
+      // default dCond check
+      if (character && modifier.concerto) {
+        character.dCond.concerto += modifier.concerto
+      }
+      if (character && modifier.resonance) {
+        character.dCond.resonance += modifier.resonance
+      }
+
+      const buffMap = ctx.buffMap.get(characterId)
+
+      if (modifier.class === "allEle") {
+        for (const element of ELEMENT_KEYS) {
+          if (buffMap) {
+            buffMap[element] += value
+          }
+        }
+        return
+      }
+
+      if (buffMap) {
+        buffMap[modifier.class] += value
+        // console.log(
+        //   ctx.row,
+        //   buff.name, `buffMap[${characterId}][${modifier.class}]:`, buffMap[modifier.class]
+        // )
+      }
+    }
+  }
+}
+
+function evaluateBuffsGlobal(ctx: Context, action: TimelineEntry) {
+  const time = action.time
+  const characters = ctx.characters
   const buffsTeam = ctx.activeBuffsTeam
 
-  for (const buffArray of [buffs, buffsTeam]) {
-    for (const buff of buffArray) {
-      let currentModifiers = buff.modifiers
-
+  for (const buff of buffsTeam) {
+    for (const [characterId, character] of characters) {
       // preliminary checks
       const offFieldCheck =
         isOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar)
       if (offFieldCheck) continue
 
       // handle stacking buff
+      let currentModifiers = buff.modifiers
+
       if (buff.stackLimit && action.type === "hit") {
         const skillMatch = findSkillMatch(ctx, action, buff) // check name/category/mode
         if (!skillMatch) break
 
-        const handler = buffHandler.stacking
-        const newModifiers = handler.onTrigger(buff, time)
-
+        const newModifiers = buffHandler.stacking(buff, time)
         if (!newModifiers) break
 
         buff.modifiers = newModifiers
         currentModifiers = newModifiers
       }
 
-      switch (buff.type) {
-        case "DCondFlat":
-          // add flat DCond mod to stat
-          for (const modifier of buff.modifiers) {
-            if (character && isDCondKey(modifier.class)) {
-              character.dCond[modifier.class] += modifier.value
-            }
-            // console.log(
-            //   ctx.row,
-            //   `${characterId} ${buff.name} dCond[${modifier.class}]:`,
-            //   modifier.value,
-            // )
-          }
-          break
-
-        case "BuffConsume":
-          for (const buff of [...ctx.buffDeferred]) {
-            const mod = buff.modifiers[0]
-
-            const damageProc: Skill = {
-              id: buff.id,
-              name: `${buff.id} Proc`,
-              category: skill.category,
-              classifications: buff.classifications ?? [],
-              mv: buff.modifiers[0].value,
-              frames: 0,
-              hits: 1,
-              forte: mod.forte ?? 0,
-              forte2: mod.forte2 ?? 0,
-              concerto: mod.concerto ?? 0,
-              resonance: mod.resonance ?? 0,
-            }
-            const procEvent: TimelineEntry = {
-              characterId: characterId,
-              type: "hit",
-              skill: damageProc,
-              time,
-            }
-            ctx.proc.damage = calculateDamage(ctx, procEvent)
-            evaluateDCond(ctx, procEvent)
-            removeBuffByName(ctx.activeBuffs.get(characterId) ?? [], buff.id)
-            removeBuffByName(ctx.buffDeferred, buff.id)
-            // console.log(
-            //   `${damageProcc.name} successfully procced for`,
-            //   ctx.proc.damage,
-            // )
-          }
-          break
-
-        default:
-        // console.log(ctx.row, `evaluateBuffs: default (${buff.name})`)
-      }
-      // switch end
       if (!buff.type.includes("Buff")) continue
 
       for (const modifier of currentModifiers) {
@@ -378,33 +449,6 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
         }
 
         const buffMap = ctx.buffMap.get(characterId)
-
-        if (buff.appliesTo === "all") {
-          for (const [characterId] of ctx.characters) {
-            const personalBuffMap = ctx.buffMap.get(characterId)
-            if (personalBuffMap) {
-              personalBuffMap[modifier.class] += value
-              // console.log(
-              //   ctx.row,
-              //   buff.name,
-              //   `buffMap[${characterId}][${modifier.class}]:`,
-              //   personalBuffMap[modifier.class],
-              //   `+${value}`,
-              // )
-            }
-          }
-          return
-        }
-
-        if (modifier.class === "allEle") {
-          for (const element of ELEMENT_KEYS) {
-            if (buffMap) {
-              buffMap[element] += value
-            }
-          }
-          return
-        }
-
         if (buffMap) {
           buffMap[modifier.class] += value
           // console.log(
@@ -412,6 +456,8 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
           //   buff.name, `buffMap[${characterId}][${modifier.class}]:`, buffMap[modifier.class]
           // )
         }
+
+        return
       }
     }
   }
@@ -422,6 +468,7 @@ function processAction(
   action: TimelineEntry,
   initialBuffMap: Map<CHARACTER_KEY, BuffMap>,
   passiveBuffs: Map<CHARACTER_KEY, BuffInstance[]>,
+  allBuffs: BuffDefinition[],
 ) {
   // update ctx
   ctx.onFieldChar =
@@ -436,19 +483,20 @@ function processAction(
   addOnSwapBuffs(ctx, action)
 
   // add triggered buffs
-  addTriggeredBuffs(ctx, action)
+  addTriggeredBuffs(ctx, action, allBuffs)
 
   // evaluate buffs
   evaluateBuffs(ctx, action)
 
   // handle team buff
+  evaluateBuffsGlobal(ctx, action)
 
   // evaluate dynamic conditions (concerto, resonance)
   evaluateDCond(ctx, action)
 
   const damage = calculateDamage(ctx, action)
 
-  const characterId = action.characterId
+  const { characterId, type, skill } = action
   const buffs = ctx.activeBuffs.get(characterId) ?? []
   const buffsTeam = ctx.activeBuffsTeam.map((buff) => buff.name)
   const buffsPassive = (passiveBuffs.get(characterId) ?? []).map(
@@ -456,13 +504,13 @@ function processAction(
   )
   const buffsCharacter = buffs.map((buff) => buff.name)
 
-  const personalBuffMap = ctx.buffMap.get(characterId) ?? totalBuffMap
+  const buffMapCharacter = ctx.buffMap.get(characterId) ?? totalBuffMap
 
   const resultObject: Result = {
     row: ctx.row,
     characterId,
-    type: action.type,
-    skill: action.skill,
+    type,
+    skill,
     time: ctx.time,
     concerto: ctx.characters.get(characterId)?.dCond.concerto ?? 0,
     resonance: ctx.characters.get(characterId)?.dCond.resonance ?? 0,
@@ -471,7 +519,7 @@ function processAction(
     parent: action?.parent,
     buffs: [...buffsPassive, ...buffsCharacter],
     buffsTeam: [...buffsTeam],
-    buffMap: personalBuffMap,
+    buffMap: buffMapCharacter,
     message: {},
   }
 
@@ -640,7 +688,6 @@ function getBuffMap(
 function getContext(
   characterData: Map<CHARACTER_KEY, Character>,
   baseBuffMap: Map<CHARACTER_KEY, BuffMap>,
-  nonPassiveBuffs: BuffDefinition[],
 ): Context {
   const characters = new Map(
     Array.from(characterData, ([key, value]) => [key, structuredClone(value)]),
@@ -655,7 +702,8 @@ function getContext(
   // Proc stats
   const proc = { damage: 0, heal: 0, shield: 0 }
 
-  const mode = new Map<CHARACTER_KEY, BuffInstance[]>()
+  const mode = new Map<CHARACTER_KEY | "all", BuffInstance[]>()
+  mode.set("all", [])
   for (const [characterId] of characters) {
     mode.set(characterId, [])
   }
@@ -664,14 +712,13 @@ function getContext(
     activeBuffs,
     activeBuffsTeam,
     onFieldChar: "",
-    allBuffs: nonPassiveBuffs,
     buffMap: baseBuffMap,
     buffDeferred: [],
     buffNext: [],
     characters,
     cooldowns: {},
     hasSwapped: false,
-    mode, // priority stack
+    mode,
     prevChar: "",
     proc,
     row: 1,
@@ -704,11 +751,17 @@ function calculate(
   const initialBuffMap = getBuffMap(characters, baseBuffMap, passiveBuffs)
 
   // global mutable context
-  const ctx = getContext(characters, initialBuffMap, nonPassiveBuffs)
+  const ctx = getContext(characters, initialBuffMap)
 
   // calculation loop
   for (const action of actionList) {
-    const result = processAction(ctx, action, initialBuffMap, passiveBuffs)
+    const result = processAction(
+      ctx,
+      action,
+      initialBuffMap,
+      passiveBuffs,
+      nonPassiveBuffs,
+    )
     resultList.push(result)
   }
   return resultList
@@ -722,6 +775,7 @@ export {
   evaluateDCond,
   calculateDamage,
   evaluateBuffs,
+  evaluateBuffsGlobal,
   processAction,
   getBuffData,
   getBuffMap,
