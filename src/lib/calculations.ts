@@ -43,40 +43,46 @@ function removeExpiredBuffs(ctx: Context, action: TimelineEntry) {
   const characterId = action.characterId
   const currentTime = ctx.time
   const buffsToRemove = new Set<BuffInstance>()
-  const buffs = ctx.activeBuffs.get(characterId) ?? []
-  const buffsTeam = ctx.activeBuffsTeam
 
-  for (const buffArray of [buffs, buffsTeam])
-    for (const buff of buffArray) {
-      // filter by endtime
-      if (buff.endTime <= currentTime) {
-        buffsToRemove.add(buff)
-      }
+  function shouldRemove(buff: BuffInstance): boolean {
+    // expired
+    if (buff.endTime <= currentTime) return true
 
-      // filter off-field buffs if character is on-field
-      if (isOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar)) {
-        buffsToRemove.add(buff)
-      }
-
-      // filter consumed buffs
-      // if (buff.type === "BuffToConsume" && buff.consumedBy) {
-      //   for (const consume of buff.consumedBy) {
-      //     if (consume === skill.id) {
-      //       buffsToRemove.add(buff)
-      //       const mode = ctx.mode.get(characterId) ?? []
-      //       mode.pop() // TODO: testing needed
-      //     }
-      //   }
-      // }
-
-      // other filter rules
+    // off-field buff while character is on-field
+    if (isOffFieldBuff(buff) && isOnField(characterId, ctx.onFieldChar)) {
+      return true
     }
 
-  // remove buffs
-  const remainingBuffs = buffs.filter((buff) => !buffsToRemove.has(buff))
+    // other filter rules
+
+    return false
+  }
+
+  // evaluate personal buffs
+  const buffs = ctx.activeBuffs.get(characterId) ?? []
+  for (const buff of buffs) {
+    if (shouldRemove(buff)) {
+      buffsToRemove.add(buff)
+    }
+  }
+
+  // evaluate team buffs
+  const buffsTeam = ctx.activeBuffsTeam
+  for (const buff of buffsTeam) {
+    if (shouldRemove(buff)) {
+      buffsToRemove.add(buff)
+    }
+  }
+
+  // filter results
+  const remainingBuffs = buffs.filter(
+    (buff) => !buffsToRemove.has(buff),
+  )
+
   const remainingBuffsTeam = buffsTeam.filter(
     (buff) => !buffsToRemove.has(buff),
   )
+
   ctx.activeBuffs.set(characterId, remainingBuffs)
   ctx.activeBuffsTeam = remainingBuffsTeam
 }
@@ -376,6 +382,7 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
     // switch end
     if (!buff.type.includes("Buff")) continue
 
+    // apply modifiers
     for (const modifier of currentModifiers) {
       const value = modifier.stackValue ? modifier.stackValue : modifier.value
 
@@ -388,17 +395,14 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
       }
 
       const buffMap = ctx.buffMap.get(characterId)
-
-      if (modifier.class === "allEle") {
-        for (const element of ELEMENT_KEYS) {
-          if (buffMap) {
+      if (buffMap) {
+        if (modifier.class === "allEle") {
+          for (const element of ELEMENT_KEYS) {
             buffMap[element] += value
           }
+          return
         }
-        return
-      }
 
-      if (buffMap) {
         buffMap[modifier.class] += value
         // console.log(
         //   ctx.row,
@@ -437,6 +441,7 @@ function evaluateBuffsGlobal(ctx: Context, action: TimelineEntry) {
 
       if (!buff.type.includes("Buff")) continue
 
+      // apply modifiers
       for (const modifier of currentModifiers) {
         const value = modifier.stackValue ? modifier.stackValue : modifier.value
 
@@ -450,14 +455,19 @@ function evaluateBuffsGlobal(ctx: Context, action: TimelineEntry) {
 
         const buffMap = ctx.buffMap.get(characterId)
         if (buffMap) {
+          if (modifier.class === "allEle") {
+            for (const element of ELEMENT_KEYS) {
+              buffMap[element] += value
+            }
+            return
+          }
+
           buffMap[modifier.class] += value
           // console.log(
           //   ctx.row,
           //   buff.name, `buffMap[${characterId}][${modifier.class}]:`, buffMap[modifier.class]
           // )
         }
-
-        return
       }
     }
   }
