@@ -102,10 +102,11 @@ function addOnSwapBuffs(ctx: Context, action: TimelineEntry) {
     const endTime = currentTime + buff.duration
     const BuffInstance = { ...buff, endTime }
 
-    const buffArray = buff.appliesTo === "all" ? buffsTeam : buffs
+    const isGlobal = buff.appliesTo === "all"
+    const buffArray = isGlobal ? buffsTeam : buffs
     buffArray.push(BuffInstance)
     // console.log(
-    //   `add ${BuffInstance.name} to activeBuffs[${characterId}]`,
+    //   `add ${BuffInstance.name} to ${isGlobal ? "buffsTeam" : "buffs"}`,
     // )
   }
 }
@@ -398,7 +399,7 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
           for (const element of ELEMENT_KEYS) {
             buffMap[element] += value
           }
-          return
+          continue
         }
 
         if (modifier.class === "allDeep") {
@@ -406,7 +407,7 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
             const deepenElement = bonusToDeepen[element]
             buffMap[deepenElement] += value
           }
-          return
+          continue
         }
 
         buffMap[modifier.class] += value
@@ -465,7 +466,7 @@ function evaluateBuffsGlobal(ctx: Context, action: TimelineEntry) {
             for (const element of ELEMENT_KEYS) {
               buffMap[element] += value
             }
-            return
+            continue
           }
 
           if (modifier.class === "allDeep") {
@@ -473,7 +474,7 @@ function evaluateBuffsGlobal(ctx: Context, action: TimelineEntry) {
               const deepenElement = bonusToDeepen[element]
               buffMap[deepenElement] += value
             }
-            return
+            continue
           }
 
           buffMap[modifier.class] += value
