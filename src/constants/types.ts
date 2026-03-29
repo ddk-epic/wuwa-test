@@ -294,7 +294,6 @@ export type Context = {
   activeBuffs: Map<CHARACTER_KEY, BuffInstance[]>
   activeBuffsTeam: BuffInstance[]
   onFieldChar: CHARACTER_KEY | ""
-  allBuffs: BuffDefinition[]
   buffMap: Map<CHARACTER_KEY, BuffMap>
   buffNext: BuffInstance[]
   buffDeferred: BuffInstance[]

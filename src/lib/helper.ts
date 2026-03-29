@@ -259,7 +259,7 @@ export function hasSwapped(
 
 export function isOffFieldBuff(buff: BuffDefinition) {
   return !!buff.triggeredBy?.condition?.some(
-    (condition) => condition === "off-field",
+    (condition) => condition === "offField",
   )
 }
 
@@ -340,22 +340,20 @@ export function findBuffMatch(
 }
 
 export const buffHandler = {
-  stacking: {
-    onTrigger: (buff: BuffInstance, time: number) => {
-      if (!buff.stackLimit || buff.stackCount == null) return null
+  stacking: (buff: BuffInstance, time: number) => {
+    if (!buff.stackLimit || buff.stackCount == null) return null
 
-      const newStacks = Math.min(buff.stackCount + 1, buff.stackLimit)
-      buff.stackCount = newStacks
-      buff.endTime = time + buff.duration
-      buff.name = `${buff.id} x${newStacks}`
+    const newStacks = Math.min(buff.stackCount + 1, buff.stackLimit)
+    buff.stackCount = newStacks
+    buff.endTime = time + buff.duration
+    buff.name = `${buff.id} x${newStacks}`
 
-      const newModifiers = buff.modifiers.map((modifier) => ({
-        ...modifier,
-        stackValue: newStacks * modifier.value,
-      }))
+    const newModifiers = buff.modifiers.map((modifier) => ({
+      ...modifier,
+      stackValue: newStacks * modifier.value,
+    }))
 
-      return newModifiers
-    },
+    return newModifiers
   },
 }
 
