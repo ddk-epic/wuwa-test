@@ -75,9 +75,7 @@ function removeExpiredBuffs(ctx: Context, action: TimelineEntry) {
   }
 
   // filter results
-  const remainingBuffs = buffs.filter(
-    (buff) => !buffsToRemove.has(buff),
-  )
+  const remainingBuffs = buffs.filter((buff) => !buffsToRemove.has(buff))
 
   const remainingBuffsTeam = buffsTeam.filter(
     (buff) => !buffsToRemove.has(buff),
@@ -160,7 +158,7 @@ function addTriggeredBuffs(
     //  preliminary checks
     if (!isBuffEligible(ctx, action, buffs, buffsTeam, buff)) continue
     const isGlobal = buff.appliesTo === "all"
-
+    
     // handle end time (convert to BuffInstance)
     const endTime = currentTime + buff.duration
     const BuffInstance = buff.stackLimit
@@ -627,25 +625,30 @@ function prepareBuffs(
 ) {
   // Initialize passiveBuffs as a Map
   const passiveBuffs = new Map<CHARACTER_KEY, BuffInstance[]>()
+  const allowedKeys: (CHARACTER_KEY | "all" | "current" | "next")[] = [
+    "all",
+    "current",
+    "next",
+  ]
 
   for (const [characterId] of characters) {
     passiveBuffs.set(characterId, [])
+    allowedKeys.push(characterId) // CHARACTER_KEY of team only
   }
 
   const nonPassiveBuffs: BuffDefinition[] = []
 
   for (const buff of allBuffs) {
+    // non-passive buffs under 500s
     if (buff.duration < 500 * 60) {
       nonPassiveBuffs.push(buff)
     } else {
-      if (buff.source === "self") continue
+      if (buff.source === "self" || buff.appliesTo === "self") continue
+      if (!allowedKeys.some((key) => key === buff.appliesTo)) continue
 
-      // Ensure the array exists
-      if (!passiveBuffs.has(buff.source)) {
-        passiveBuffs.set(buff.source, [])
-      }
+      const buffsArray = passiveBuffs.get(buff.source)
+      if (!buffsArray) continue
 
-      const buffsArray = passiveBuffs.get(buff.source)!
       buffsArray.push({
         ...buff,
         endTime: 99999,
@@ -754,8 +757,8 @@ function calculate(
 
   // process passive Buffs
   const { passiveBuffs, nonPassiveBuffs } = prepareBuffs(characters, buffData)
-  console.log(passiveBuffs)
-  console.log(nonPassiveBuffs)
+  console.log("passiveBuffs", passiveBuffs)
+  console.log("nonPassiveBuffs", nonPassiveBuffs)
 
   // process character and passive buff stats
   const initialBuffMap = getBuffMap(characters, baseBuffMap, passiveBuffs)
