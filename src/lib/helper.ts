@@ -270,13 +270,6 @@ export function isOnField(
   return characterId === onFieldChar
 }
 
-export function removeBuffByName(array: BuffInstance[], id: string) {
-  const index = array.findIndex((b) => b.id === id)
-  if (index !== -1) {
-    array.splice(index, 1)
-  }
-}
-
 export function canTriggerBuff(ctx: Context, buffId: string) {
   const cooldownEnd = ctx.cooldowns[buffId] || 0
   return ctx.time >= cooldownEnd
@@ -299,14 +292,14 @@ export function findSkillMatch(
   const trigger = buffToCheck.triggeredBy
 
   const skillMatch =
-    trigger?.skill?.includes("all") || trigger?.skill?.includes(skill.id)
+    trigger?.skill?.includes("any") || trigger?.skill?.includes(skill.id)
   const hasCategoryMatch = trigger?.category?.includes(skill.category)
 
   // require mode AND (name OR category)
   if (trigger?.mode) {
-    const modeList = ctx.mode.get(characterId) ?? []
-    const modeListTeam = ctx.mode.get("all") ?? []
-    const allModes = [...modeList, ...modeListTeam]
+    const modeMap = ctx.mode.get(characterId) ?? new Map<string, BuffInstance>()
+    const modeMapTeam = ctx.mode.get("all") ?? new Map<string, BuffInstance>()
+    const allModes = [...modeMap.values(), ...modeMapTeam.values()]
 
     const hasModeMatch = allModes.some((mode) =>
       trigger.mode?.includes(mode.id),
@@ -326,11 +319,11 @@ export function findBuffMatch(
   if (!triggerCondition) return false
 
   const characterId = action.characterId
-  const buffs = ctx.activeBuffs.get(characterId) ?? []
-  const buffsTeam = ctx.activeBuffsTeam
+  const buffs = ctx.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
+  const buffsTeam = ctx.activeBuffsTeam ?? new Map<string, BuffInstance>()
 
-  for (const buffArray of [buffs, buffsTeam]) {
-    for (const activeBuff of buffArray) {
+  for (const buffMap of [buffs, buffsTeam]) {
+    for (const activeBuff of buffMap.values()) {
       const buffMatch = triggerCondition.includes(activeBuff.name)
       return buffMatch
     }

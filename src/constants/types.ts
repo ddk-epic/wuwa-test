@@ -291,16 +291,16 @@ type Message = {
 }
 
 export type Context = {
-  activeBuffs: Map<CHARACTER_KEY, BuffInstance[]>
-  activeBuffsTeam: BuffInstance[]
+  activeBuffs: Map<CHARACTER_KEY, Map<string, BuffInstance>>
+  activeBuffsTeam: Map<string, BuffInstance>
   onFieldChar: CHARACTER_KEY | ""
   buffMap: Map<CHARACTER_KEY, BuffMap>
-  buffNext: BuffInstance[]
-  buffDeferred: BuffInstance[]
+  buffNext: Map<string, BuffInstance>
+  buffDeferred: Map<string, BuffInstance>
   characters: Map<CHARACTER_KEY, Character>
   cooldowns: Record<string, number> // buff.id, cd
   hasSwapped: boolean
-  mode: Map<CHARACTER_KEY | "all", BuffInstance[]>
+  mode: Map<CHARACTER_KEY | "all", Map<string, BuffInstance>>
   prevChar: CHARACTER_KEY | ""
   proc: Proc
   row: number
