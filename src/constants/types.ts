@@ -105,6 +105,9 @@ export type BUFF_TYPE = (typeof BUFF_TYPE_KEYS)[number]
 export const DCOND_KEYS = ["forte", "forte2", "concerto", "resonance"] as const
 export type DCOND_KEY = (typeof DCOND_KEYS)[number]
 
+export const VARIANT = ["canc","swap"] as const
+export type variant = (typeof VARIANT)[number]
+
 export const BUFF_CATEGORY_KEYS = [
   "Buff",
   "BuffNext",
@@ -189,7 +192,7 @@ export type SKILL = {
   cooldown?: number
   onCast?: Partial<EventValues>
   hits: Partial<EventValues>[]
-  variations?: Record<string, SkillVariation>
+  variations?: Partial<Record<variant, SkillVariation>>
 }
 
 export type Skill = Omit<SKILL, "hits" | "variations"> & {

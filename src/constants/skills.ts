@@ -125,7 +125,7 @@ const skillData: Skills = {
           { frame: 70, mv: 0.9759, concerto: 2.86, resonance: 1.43 },
         ],
         variations: {
-          cancel: {
+          canc: {
             frames: 15,
           },
         },
@@ -154,7 +154,7 @@ const skillData: Skills = {
           { frame: 96, mv: 0.3853, resonance: 1.91 },
         ],
         variations: {
-          cancel: {
+          canc: {
             frames: 30,
             hits: [
               { frame: 12, mv: 0.3853, resonance: 1.91 },
@@ -341,7 +341,7 @@ const skillData: Skills = {
         onCast: { concerto: 15 },
         hits: [{ frame: 1, mv: 1.81, resonance: 10 }],
         variations: {
-          cancel: {
+          canc: {
             frames: 24,
           },
         },
@@ -448,7 +448,7 @@ const skillData: Skills = {
           { frame: 11, mv: 0.12, concerto: 1.2, resonance: 0.38 },
         ],
         variations: {
-          cancel: {
+          canc: {
             frames: 17,
           },
         },
@@ -465,7 +465,7 @@ const skillData: Skills = {
           { frame: 12, mv: 0.1173, concerto: 1.18, resonance: 0.37 },
         ],
         variations: {
-          cancel: {
+          canc: {
             frames: 24,
           },
         },
@@ -480,7 +480,7 @@ const skillData: Skills = {
           { frame: 20, mv: 0.3658, forte: 1, concerto: 3.66, resonance: 1.15 },
         ],
         variations: {
-          cancel: {
+          canc: {
             frames: 32,
           },
         },

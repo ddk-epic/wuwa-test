@@ -30,7 +30,7 @@ export const echoData: Record<string, Echo> = {
       { frame: 90, mv: 2.828, resonance: 4.41 },
     ],
     variations: {
-      cancel: {
+      canc: {
         frames: 108,
       },
       swap: {
