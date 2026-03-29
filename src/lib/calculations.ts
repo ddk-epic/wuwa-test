@@ -37,7 +37,7 @@ import { buffs } from "./effects/buffs"
 import { echoBuffs } from "./effects/echo-buffs"
 import { setBuffs } from "./effects/set-buffs"
 import { weaponBuffs } from "./effects/weapon-buffs"
-import { getSkillLevel, totalBuffMap } from "@/constants/maps"
+import { bonusToDeepen, getSkillLevel, totalBuffMap } from "@/constants/maps"
 
 function removeExpiredBuffs(ctx: Context, action: TimelineEntry) {
   const characterId = action.characterId
@@ -158,7 +158,7 @@ function addTriggeredBuffs(
     //  preliminary checks
     if (!isBuffEligible(ctx, action, buffs, buffsTeam, buff)) continue
     const isGlobal = buff.appliesTo === "all"
-    
+
     // handle end time (convert to BuffInstance)
     const endTime = currentTime + buff.duration
     const BuffInstance = buff.stackLimit
@@ -401,6 +401,14 @@ function evaluateBuffs(ctx: Context, action: TimelineEntry) {
           return
         }
 
+        if (modifier.class === "allDeep") {
+          for (const element of ELEMENT_KEYS) {
+            const deepenElement = bonusToDeepen[element]
+            buffMap[deepenElement] += value
+          }
+          return
+        }
+
         buffMap[modifier.class] += value
         // console.log(
         //   ctx.row,
@@ -456,6 +464,14 @@ function evaluateBuffsGlobal(ctx: Context, action: TimelineEntry) {
           if (modifier.class === "allEle") {
             for (const element of ELEMENT_KEYS) {
               buffMap[element] += value
+            }
+            return
+          }
+
+          if (modifier.class === "allDeep") {
+            for (const element of ELEMENT_KEYS) {
+              const deepenElement = bonusToDeepen[element]
+              buffMap[deepenElement] += value
             }
             return
           }
@@ -643,7 +659,7 @@ function prepareBuffs(
     if (buff.duration < 500 * 60) {
       nonPassiveBuffs.push(buff)
     } else {
-      if (buff.source === "self" || buff.appliesTo === "self") continue
+      if (buff.source === "self") continue
       if (!allowedKeys.some((key) => key === buff.appliesTo)) continue
 
       const buffsArray = passiveBuffs.get(buff.source)
