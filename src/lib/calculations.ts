@@ -75,9 +75,9 @@ function removeExpiredBuffs(ctx: Context, action: TimelineEntry) {
   }
 
   // remove buffs
-  for (const buffId of buffsToRemove) {
-    buffs.delete(buffId)
-    buffsTeam.delete(buffId)
+  for (const id of buffsToRemove) {
+    buffs.delete(id)
+    buffsTeam.delete(id)
   }
 
   ctx.activeBuffs.set(characterId, buffs)
@@ -94,6 +94,7 @@ function addOnSwapBuffs(ctx: Context, action: TimelineEntry) {
 
   if (!hasSwapped(ctx.prevChar, characterId) || buffNext.size === 0) return
 
+  const buffNextToRemove = new Set<string>()
   for (const buff of buffNext.values()) {
     const isAlreadyActive = buffs.has(buff.id) || buffsTeam.has(buff.id)
     if (isAlreadyActive) continue
@@ -108,8 +109,12 @@ function addOnSwapBuffs(ctx: Context, action: TimelineEntry) {
     const buffArray = isGlobal ? buffsTeam : buffs
     buffArray.set(buff.id, buffInstance)
     // console.log(
-    //   `add ${BuffInstance.name} to ${isGlobal ? "buffsTeam" : "buffs"}`,
+    //   `add ${buffInstance.name} to ${isGlobal ? "buffsTeam" : "buffs"}`,
     // )
+    buffNextToRemove.add(buff.id)
+  }
+  for (const id of buffNextToRemove) {
+    ctx.buffNext.delete(id)
   }
   ctx.activeBuffs.set(characterId, buffs)
   ctx.activeBuffsTeam = buffsTeam
