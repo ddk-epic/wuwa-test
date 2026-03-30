@@ -258,7 +258,7 @@ export function hasSwapped(
 }
 
 export function isOffFieldBuff(buff: BuffDefinition) {
-  return !!buff.triggeredBy?.condition?.some(
+  return !!buff.trigger?.condition?.some(
     (condition) => condition === "offField",
   )
 }
@@ -279,7 +279,7 @@ export function isMatchingActionType(
   buff: BuffDefinition,
   action: TimelineEntry,
 ) {
-  const buffType = buff.triggeredBy?.type ?? "cast"
+  const buffType = buff.trigger?.type ?? "cast"
   return buffType === action.type
 }
 
@@ -289,7 +289,7 @@ export function findSkillMatch(
   buffToCheck: BuffDefinition | BuffInstance,
 ): boolean {
   const { characterId, skill } = action
-  const trigger = buffToCheck.triggeredBy
+  const trigger = buffToCheck.trigger
 
   const skillMatch =
     trigger?.skill?.includes("any") || trigger?.skill?.includes(skill.id)
@@ -315,7 +315,7 @@ export function findBuffMatch(
   action: TimelineEntry,
   buffToCheck: BuffDefinition | BuffInstance,
 ): boolean {
-  const triggerCondition = buffToCheck.triggeredBy?.condition
+  const triggerCondition = buffToCheck.trigger?.condition
   if (!triggerCondition) return false
 
   const characterId = action.characterId

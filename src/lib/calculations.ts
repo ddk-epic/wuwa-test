@@ -135,7 +135,7 @@ function isBuffEligible(
   const skillMatch = findSkillMatch(ctx, action, buff) // check name/category/mode
   if (!skillMatch) return false
   const buffMatch = findBuffMatch(ctx, action, buff) // check if condition is an active buffs
-  if (buff.triggeredBy?.condition && !buffMatch) return false
+  if (buff.trigger?.condition && !buffMatch) return false
 
   if (!canTriggerBuff(ctx, buff.id)) return false
   if (!isMatchingActionType(buff, action)) return false

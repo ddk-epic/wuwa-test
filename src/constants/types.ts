@@ -126,6 +126,7 @@ export type TriggerValue = {
   category?: (SKILL_CATEGORY_KEY | "echo")[]
   condition?: string[]
   mode?: string[]
+  stacksToAdd?: number
 }
 
 type ModifierValue = {
@@ -146,7 +147,8 @@ export type BuffDefinition = {
   type: BUFF_CATEGORY
   source: CHARACTER_KEY | "self"
   classifications?: BUFF_TYPE[] // For damage proc's
-  triggeredBy?: TriggerValue
+  trigger?: TriggerValue
+  specialTrigger?: TriggerValue
   appliesTo: CHARACTER_KEY | "self" | "all" | "current" | "next"
   modifiers: ModifierValue[]
   // consumedBy?: string[] // For mode and damage proc's
