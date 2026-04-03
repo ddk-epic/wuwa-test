@@ -1,7 +1,7 @@
-import type { Weapon } from "./types"
+import type { Weapon, WEAPON_KEY } from "@/shared/types"
 
 export const weaponData: Record<WEAPON_KEY, Weapon> = {
-    "Blazing Brilliance": {
+  "Blazing Brilliance": {
     name: "Blazing Brilliance",
     type: "Sword",
     rank: 1,
@@ -34,12 +34,3 @@ export const weaponData: Record<WEAPON_KEY, Weapon> = {
     mainStatAmount: 0.1712,
   },
 }
-
-export const WEAPONS = [
-  "Blazing Brilliance",
-  "Emerald of Genesis",
-  "Stringmaster",
-  "Stellar Symphony",
-] as const
-export type WEAPON_KEY = (typeof WEAPONS)[number]
-export type WEAPON_STAT = "atk" | "def" | "hp" | "er" | "crit" | "critDmg"

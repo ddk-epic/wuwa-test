@@ -9,29 +9,32 @@ import {
   computeEventTimeline,
   computeTimeline,
 } from "@/lib/helper"
-import { calculate } from "@/lib/calculations"
 
 import CalculateButton from "@/components/calculate-button"
 import HeaderBar from "@/components/header"
 import SequenceList from "@/components/sequence-list"
 import SkillSidebar from "@/components/skill-picker"
+import EntryDetails from "@/components/entry-details"
+import EventTableModal from "@/components/event-table-modal"
 
 import type {
   ActionListItem,
   Character,
+  CHARACTER_KEY,
   CharacterSkills,
+  ECHO_KEY,
+  ECHO_SET_KEY,
   Result,
   SETTINGS_KEY,
   SKILL,
   TeamSlot,
-  TimelineEntry,
-} from "@/constants/types"
-import characterTemplate, { type CHARACTER_KEY } from "@/constants/characters"
-import { totalBuffMap } from "@/constants/maps"
-import { weaponData, type WEAPON_KEY } from "@/constants/weapons"
-import type { ECHO_KEY, ECHO_SET_KEY } from "@/constants/echoes"
-import EventTableModal from "@/components/event-table-modal"
-import EntryDetails from "@/components/entry-details"
+  TimelineEvent,
+  WEAPON_KEY,
+} from "@/shared/types"
+
+import characterTemplate from "@/definitions/characters"
+import { simulate } from "@/simulation"
+import { weaponData } from "@/definitions/weapons"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -172,9 +175,9 @@ function App() {
 
   const handleCalculate = (
     characters: Character[],
-    actionList: TimelineEntry[],
+    actionList: TimelineEvent[],
   ) => {
-    const rawResult = calculate(characters, actionList, totalBuffMap)
+    const rawResult = simulate(characters, actionList)
     setRawResult(rawResult)
     const finalResult = aggregateResult(rawResult)
     setResult(finalResult)

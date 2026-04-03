@@ -1,0 +1,402 @@
+import { BONUSSTAT_KEYS } from "@/definitions/constants"
+
+import { buffs } from "@/definitions/buffs/characters"
+import { setBuffs } from "@/definitions/buffs/echo-set"
+import { echoBuffs } from "@/definitions/buffs/echoes"
+
+import { baseStatMap, getSkillLevel } from "@/shared/maps"
+import type {
+  Character,
+  CHARACTER_KEY,
+  StateContext,
+  Result,
+  TimelineEvent,
+  BUFF_TYPE,
+  BuffDefinition,
+  BuffInstance,
+  StatMap,
+  BONUSSTAT_KEY,
+} from "@/shared/types"
+
+import { buffHandler } from "@/simulation/buff-resolver"
+import {
+  applyCooldown,
+  getBonus,
+  getDeepen,
+  getDefMultiplier,
+  getResMultiplier,
+} from "./helper"
+import { weaponBuffs } from "@/definitions/buffs/weapon"
+
+function removeExpiredBuffs(
+  state: StateContext,
+  action: TimelineEvent,
+): StateContext {
+  const characterId = action.characterId
+  const activeBuffs =
+    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
+  const activeBuffsGlobal = state.activeBuffsGlobal
+
+  const newBuffs = new Map(activeBuffs)
+  const newBuffsGlobal = new Map(activeBuffsGlobal)
+
+  const expiredBuffs: BuffInstance[] = []
+
+  // remove expired buffs
+  for (const buff of activeBuffs.values()) {
+    if (buff.endTime <= state.time) {
+      expiredBuffs.push(buff)
+      newBuffs.delete(buff.id)
+    }
+  }
+
+  for (const buff of activeBuffsGlobal.values()) {
+    if (buff.endTime <= state.time) {
+      expiredBuffs.push(buff)
+      newBuffsGlobal.delete(buff.id)
+    }
+  }
+
+  // update stat changes after removal
+  let newState = state
+  for (const buff of expiredBuffs) {
+    if (buff.stackLimit) {
+      const buffToUpdate = buffHandler[buff.id]
+      if (!buffToUpdate.onExpire) continue
+      newState = buffToUpdate.onExpire(newState, action, buff)
+    }
+  }
+
+  return {
+    ...newState,
+    activeBuffs: new Map(newState.activeBuffs).set(characterId, newBuffs),
+    activeBuffsGlobal: newBuffsGlobal,
+  }
+}
+
+function calculateDamage(state: StateContext, action: TimelineEvent) {
+  if (action.type === "cast") return 0
+
+  const characterId = action.characterId
+  const skill = action.skill
+  const char = state.characters.get(characterId)
+  const statMap = state.statMap.get(characterId)
+
+  if (!char || !statMap) return 0
+
+  // character
+  const characterLevel = 90
+  const skillLevel = 10
+  const attack = char.atk * (1 + statMap.atk) + char.bonusStats.atkFlat
+  const skillMultiplier =
+    action.skill.mv * getSkillLevel[skillLevel] * (1 + statMap.multiplier)
+  const bonusMultiplier =
+    1 + getBonus(statMap, skill.classifications) + statMap.bonus
+  const deepenMultiplier = 1 + getDeepen(statMap, skill.classifications)
+  const crit = Math.min(statMap.crit, 1)
+  const critDmg = statMap.critDmg
+  const critMultiplier = 1 + crit * (critDmg - 1)
+
+  // enemy
+  const enemyLevel = 100
+  const enemyResistance = 0.2
+  const enemyDefense = 792 + 8 * enemyLevel
+  const resDown = statMap.resIgnore
+  const defDown = statMap.defIgnore
+  const resMultiplier = getResMultiplier(enemyResistance, resDown)
+  const enemyDefenseMultiplier = getDefMultiplier(
+    characterLevel,
+    enemyDefense,
+    defDown,
+  )
+
+  const expectedDamage =
+    attack *
+    skillMultiplier *
+    bonusMultiplier *
+    deepenMultiplier *
+    critMultiplier *
+    resMultiplier *
+    enemyDefenseMultiplier
+
+  // console.table({
+  //   attack,
+  //   mv: skillMultiplier,
+  //   bonus: bonusMultiplier,
+  //   deepen: deepenMultiplier,
+  //   crit,
+  //   critDmg,
+  //   res: resMultiplier,
+  //   def: enemyDefenseMultiplier,
+  // })
+
+  return expectedDamage
+}
+
+function processEvent(
+  state: StateContext,
+  action: TimelineEvent,
+  allBuffs: Map<string, BuffDefinition>,
+): StateContext {
+  const { characterId } = action
+
+  state.onFieldChar =
+    action.type === "cast" ? action.characterId : state.onFieldChar
+  state.time = action.time
+
+  // remove expired buffs
+  state = removeExpiredBuffs(state, action)
+
+  // add triggered buffs
+  for (const buff of allBuffs.values()) {
+    const buffToAdd = buffHandler[buff.id]
+    if (!buffToAdd) continue
+
+    state = buffToAdd.onTrigger(state, action, buff)
+  }
+
+  // evaluate buffs
+  const buffs =
+    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
+  for (const buff of buffs.values()) {
+    const buffToCheck = buffHandler[buff.id]
+    if (!buffToCheck) continue
+
+    if (action.type === "hit") {
+      if (!buffToCheck.onHit) continue
+      state = buffToCheck.onHit(state, action, buff)
+    } else {
+      if (!buffToCheck.onCast) continue
+      state = buffToCheck.onCast(state, action, buff)
+    }
+
+    state = applyCooldown(state, buff)
+  }
+
+  // evaluate team buffs
+  const buffsGlobal = state.activeBuffsGlobal
+  for (const buff of buffsGlobal.values()) {
+    const buffToCheck = buffHandler[buff.id]
+    if (!buffToCheck) continue
+
+    if (action.type === "hit") {
+      if (!buffToCheck.onHit) continue
+      state = buffToCheck.onHit(state, action, buff)
+    } else {
+      if (!buffToCheck.onCast) continue
+      state = buffToCheck.onCast(state, action, buff)
+    }
+
+    state = applyCooldown(state, buff)
+  }
+
+  return state
+}
+
+function getResult(state: StateContext, action: TimelineEvent): Result {
+  const characterId = action.characterId
+
+  const getBuffs =
+    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
+  const resBuffs = [...getBuffs.values()].map((buff) => buff.name)
+  const resBuffsGlobal = [...state.activeBuffsGlobal.values()].map(
+    (buff) => buff.name,
+  )
+
+  const resStatMap = state.statMap.get(characterId) ?? baseStatMap
+
+  const resultObject: Result = {
+    row: state.row,
+    characterId: action.characterId,
+    type: action.type,
+    skill: action.skill,
+    time: state.time,
+    concerto: state.characters.get(characterId)?.dCond.concerto ?? 0,
+    resonance: state.characters.get(characterId)?.dCond.resonance ?? 0,
+    damage: calculateDamage(state, action),
+    proc: { ...state.proc },
+    parent: action.parent,
+    buffs: resBuffs,
+    buffsGlobal: resBuffsGlobal,
+    statMap: { ...resStatMap },
+    message: {},
+  }
+
+  return resultObject
+}
+
+function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
+  const allBuffs = new Map<string, BuffDefinition>()
+  const allBuffIds = new Set<string>()
+
+  for (const character of characters.values()) {
+    const sequence = character.sequence
+
+    // Character buffs
+    const cBuffData = buffs[character.id]
+    if (cBuffData) {
+      for (const buff of cBuffData) {
+        const sequenceRequirement = buff.sequenceReq ?? 0
+        if (sequenceRequirement > sequence) continue
+
+        allBuffIds.add(buff.id)
+        allBuffs.set(buff.id, {
+          ...buff,
+          duration: buff.duration * 60,
+          ...(buff.cooldown && {
+            cooldown: buff.cooldown * 60,
+          }),
+        } satisfies BuffDefinition)
+      }
+    }
+
+    // Weapon buffs
+    const weapon = character.weapon
+    const wBuffData = weaponBuffs[weapon.name]
+
+    if (wBuffData) {
+      const rankIndex = Math.max(0, weapon.rank - 1)
+
+      for (const buff of wBuffData) {
+        allBuffIds.add(buff.id)
+        allBuffs.set(buff.id, {
+          ...buff,
+          duration: buff.duration * 60,
+          modifiers: buff.modifiers && [buff.modifiers[rankIndex] ?? []],
+          appliesTo: character.id,
+          source: character.id,
+        })
+      }
+    }
+
+    // Set buffs
+    const echoSetId = character.echoSet[0]
+    const sBuffData = setBuffs[echoSetId]
+
+    if (sBuffData) {
+      for (const buff of sBuffData) {
+        const appliesTo = buff.appliesTo ? character.id : buff.appliesTo
+
+        allBuffIds.add(buff.id)
+        allBuffs.set(buff.id, {
+          ...buff,
+          duration: buff.duration * 60,
+          source: character.id,
+          appliesTo,
+        })
+      }
+    }
+
+    // Echo buffs
+    const echoName = character.echo
+    const eBuffData = echoBuffs[echoName]
+
+    if (eBuffData) {
+      for (const buff of eBuffData) {
+        const appliesTo = buff.appliesTo ? character.id : buff.appliesTo
+
+        allBuffIds.add(buff.id)
+        allBuffs.set(buff.id, {
+          ...buff,
+          duration: buff.duration * 60,
+          source: character.id,
+          appliesTo,
+        })
+      }
+    }
+  }
+
+  return { allBuffIds, allBuffs }
+}
+
+function getStatMap(
+  characters: Map<CHARACTER_KEY, Character>,
+  statMap: StatMap,
+): Map<CHARACTER_KEY, StatMap> {
+  const newStatMap = new Map<CHARACTER_KEY, StatMap>()
+
+  for (const [characterId, character] of characters) {
+    const personalStatMap: StatMap = { ...statMap }
+
+    // Apply BonusStats
+    for (const key of BONUSSTAT_KEYS) {
+      if (key in personalStatMap) {
+        const sharedKey = key as BONUSSTAT_KEY & BUFF_TYPE
+        personalStatMap[sharedKey] += character.bonusStats[sharedKey]
+      }
+    }
+
+    newStatMap.set(characterId, personalStatMap)
+  }
+
+  return newStatMap
+}
+
+function getContext(
+  characters: Map<CHARACTER_KEY, Character>,
+  statMap: Map<CHARACTER_KEY, StatMap>,
+): StateContext {
+  const activeBuffs = new Map<CHARACTER_KEY, Map<string, BuffInstance>>()
+  for (const [characterId] of characters) {
+    activeBuffs.set(characterId, new Map<string, BuffInstance>())
+  }
+  const activeBuffsGlobal = new Map<string, BuffInstance>()
+
+  const buffDeferred = new Set<string>()
+  const buffNext = new Set<string>()
+
+  const cooldowns = new Map<string, number>()
+
+  const proc = { damage: 0, heal: 0, shield: 0 }
+
+  return {
+    activeBuffs,
+    activeBuffsGlobal,
+    prevChar: "",
+    onFieldChar: "",
+    buffDeferred,
+    buffNext,
+    characters,
+    cooldowns,
+    proc,
+    statMap,
+    row: 1,
+    time: 0,
+    message: {},
+  }
+}
+
+export function simulate(
+  characterData: Character[],
+  actionList: TimelineEvent[],
+): Result[] {
+  const resultList: Result[] = []
+
+  const characters = new Map<CHARACTER_KEY, Character>()
+  characterData.forEach((character) => {
+    characters.set(character.id, character)
+  })
+
+  // get Data
+  const { allBuffIds, allBuffs } = getAllBuffs(characters)
+  console.log("allBuffIds", allBuffIds)
+
+  const statMap = getStatMap(characters, baseStatMap)
+
+  // global mutable context
+  let state = getContext(characters, statMap)
+
+  // calculation loop
+  for (const action of actionList) {
+    state = processEvent(state, action, allBuffs)
+    const result = getResult(state, action)
+
+    // setup for next iteration
+    state.prevChar = state.onFieldChar
+    state.proc = { damage: 0, heal: 0, shield: 0 }
+    state.row += 1
+
+    resultList.push(result)
+  }
+  return resultList
+}

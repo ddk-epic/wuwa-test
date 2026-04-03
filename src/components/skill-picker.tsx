@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react"
+
 import { cn } from "@/lib/utils"
 
 import { SelectSeparator } from "./ui/select"
 
-import type { Character, CharacterSkills, SKILL } from "@/constants/types"
-import { type CHARACTER_KEY } from "@/constants/characters"
-import { ELEMENT_COLORS } from "@/constants/colors"
+import type {
+  Character,
+  CHARACTER_KEY,
+  CharacterSkills,
+  SKILL,
+} from "@/shared/types"
+import { ELEMENT_COLORS } from "@/definitions/colors"
 
 interface SkillSidebarProps {
   characterData: Character[]
@@ -135,14 +140,14 @@ function SkillSidebar({
 
   return (
     <aside className="w-72 h-full flex flex-col shrink-0 bg-card border opacity-85 overflow-hidden">
-        <div className="px-3 py-2 border-b">
-          <p className="text-xs column-header">Skills</p>
-        </div>
-        <CharacterTab />
-        {/* Skill list */}
-        <div className="flex-1 p-1.5 pr-px overflow-y-auto [scrollbar-gutter:stable]">
-          <CharacterSkills />
-        </div>
+      <div className="px-3 py-2 border-b">
+        <p className="text-xs column-header">Skills</p>
+      </div>
+      <CharacterTab />
+      {/* Skill list */}
+      <div className="flex-1 p-1.5 pr-px overflow-y-auto [scrollbar-gutter:stable]">
+        <CharacterSkills />
+      </div>
     </aside>
   )
 }

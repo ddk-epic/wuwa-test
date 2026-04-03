@@ -2,9 +2,9 @@ import { cn, frameToSecond, getStatCellColor, toPercent } from "@/lib/utils"
 
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 
-import { ELEMENT_COLORS, STAT_COLORS } from "@/constants/colors"
-import type { BUFF_TYPE, Result } from "@/constants/types"
-import characterTemplate, { type CHARACTER_KEY } from "@/constants/characters"
+import { ELEMENT_COLORS, STAT_COLORS } from "@/definitions/colors"
+import type { BUFF_TYPE, CHARACTER_KEY, Result } from "@/shared/types"
+import characterTemplate from "@/definitions/characters"
 
 interface CalculationLogProps {
   resultTimeline: Result[]
@@ -145,8 +145,8 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           damage,
           proc,
           buffs,
-          buffsTeam,
-          buffMap,
+          buffsGlobal,
+          statMap,
         } = result
         const character = characterTemplate[characterId as CHARACTER_KEY]
         const element = character.element
@@ -155,8 +155,8 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
         const isCast = result.type === "cast"
         const isHit = result.type === "hit"
         const activeBuffString = buffs.join(", ")
-        const activeTeamBuffString = buffsTeam.join(", ")
-        const stats = Object.entries(buffMap).slice(0, statListLength) as [
+        const activeTeamBuffString = buffsGlobal.join(", ")
+        const stats = Object.entries(statMap).slice(0, statListLength) as [
           BUFF_TYPE,
           number,
         ][]
@@ -220,7 +220,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
               {`(${buffs.length || 0}) ${[activeBuffString]}`}
             </TableCell>
             <TableCell className="text-[14px] shadow-[inset_0_-1px_0_rgb(39,39,42)]">
-              {`(${buffsTeam.length || 0}) ${[activeTeamBuffString]}`}
+              {`(${buffsGlobal.length || 0}) ${[activeTeamBuffString]}`}
             </TableCell>
             {stats.map(([statKey, value]) => (
               <TableCell

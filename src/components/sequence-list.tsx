@@ -12,9 +12,9 @@ import {
   TableRow,
 } from "./ui/table"
 
-import type { ActionListItem, Result } from "@/constants/types"
-import characterTemplate from "@/constants/characters"
-import { ELEMENT_COLORS } from "@/constants/colors"
+import type { ActionListItem, Result } from "@/shared/types"
+import characterTemplate from "@/definitions/characters"
+import { ELEMENT_COLORS } from "@/definitions/colors"
 
 interface SequenceListProps {
   sequence: ActionListItem[]

@@ -11,11 +11,17 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group"
 import Choose from "./choose"
 
-import type { Character, SETTINGS_KEY, TeamSlot } from "@/constants/types"
-import { ELEMENT_COLORS } from "@/constants/colors"
-import { echoData } from "@/constants/echoes"
-import { weaponData } from "@/constants/weapons"
-import characterTemplate, { type CHARACTER_KEY, CHARACTERS } from "@/constants/characters"
+import type {
+  Character,
+  CHARACTER_KEY,
+  SETTINGS_KEY,
+  TeamSlot,
+} from "@/shared/types"
+import { ELEMENT_COLORS } from "@/definitions/colors"
+import { CHARACTERS } from "@/definitions/constants"
+import characterTemplate from "@/definitions/characters"
+import { echoData } from "@/definitions/echoes"
+import { weaponData } from "@/definitions/weapons"
 
 interface AddCharacterModalProps {
   team: TeamSlot[]
@@ -72,16 +78,17 @@ function AddCharacterModal({
               }
             >
               {CHARACTERS.map((id) => {
-              const element = characterTemplate[id]?.element
-              return (
-                <ToggleGroupItem
-                  key={id}
-                  value={id}
-                  className={`p-2.25 border rounded ${ELEMENT_COLORS[element].state}`}
-                >
-                  {id.capitalize()}
-                </ToggleGroupItem>
-              )})}
+                const element = characterTemplate[id]?.element
+                return (
+                  <ToggleGroupItem
+                    key={id}
+                    value={id}
+                    className={`p-2.25 border rounded ${ELEMENT_COLORS[element].state}`}
+                  >
+                    {id.capitalize()}
+                  </ToggleGroupItem>
+                )
+              })}
             </ToggleGroup>
           </div>
           <div className="flex gap-4">

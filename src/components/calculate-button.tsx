@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils"
 
-import type { Character, TimelineEntry } from "@/constants/types"
+import type { Character, TimelineEvent } from "@/shared/types"
 
 interface CalculateButtonProps {
   characterData: Character[]
-  sequence: TimelineEntry[]
+  sequence: TimelineEvent[]
   handleCalculate: (
     characters: Character[],
-    actionList: TimelineEntry[],
+    actionList: TimelineEvent[],
   ) => void
 }
 

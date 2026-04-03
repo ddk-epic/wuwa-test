@@ -10,16 +10,14 @@ import {
   DialogTrigger,
 } from "./ui/dialog"
 
-import type { Result } from "@/constants/types"
+import type { Result } from "@/shared/types"
 import CalculationLog from "./calculation-log"
 
 interface EventTableModalProps {
   resultTimeline: Result[]
 }
 
-function EventTableModal({
-  resultTimeline,
-}: EventTableModalProps) {
+function EventTableModal({ resultTimeline }: EventTableModalProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -42,9 +40,7 @@ function EventTableModal({
           </DialogTitle>
         </DialogHeader>
         <div className="grow overflow-auto">
-          <CalculationLog
-            resultTimeline={resultTimeline}
-          />
+          <CalculationLog resultTimeline={resultTimeline} />
         </div>
       </DialogContent>
     </Dialog>

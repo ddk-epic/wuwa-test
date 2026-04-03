@@ -1,31 +1,5 @@
-import type { BonusStats, Character } from "./types"
-import { weaponData } from "./weapons"
-
-export const CHARACTERS = ["encore", "sanhua", "shorekeeper", "verina"] as const
-export type CHARACTER_KEY = (typeof CHARACTERS)[number]
-
-export const BONUSSTAT_KEYS = [
-  "atkFlat",
-  "hpFlat",
-  "defFlat",
-  "atk",
-  "hp",
-  "def",
-  "er",
-  "crit",
-  "critDmg",
-  "basic",
-  "heavy",
-  "skill",
-  "liberation",
-  "aero",
-  "electro",
-  "fusion",
-  "glacio",
-  "havoc",
-  "spectro",
-] as const
-export type BONUSSTAT_KEY = (typeof BONUSSTAT_KEYS)[number]
+import { weaponData } from "@/definitions/weapons"
+import type { BonusStats, Character, CHARACTER_KEY } from "@/shared/types"
 
 // Encore echo stat bonuses - 43311 critDmg/Ele/Ele
 const bonusStats: BonusStats = {
@@ -51,10 +25,7 @@ const bonusStats: BonusStats = {
   spectro: 0,
 }
 
-const characterTemplate: Record<
-  CHARACTER_KEY,
-  Character
-> = {
+const characterTemplate: Record<CHARACTER_KEY, Character> = {
   encore: {
     id: "encore",
     name: "Encore",
@@ -223,6 +194,34 @@ const characterTemplate: Record<
       havoc: 0,
       spectro: 0,
     },
+    dCond: {
+      forte: 0,
+      forte2: 0,
+      concerto: 0,
+      resonance: 150,
+    },
+  },
+  rover: {
+    id: "rover",
+    name: "Rover",
+    sequence: 0,
+    weaponType: "Sword",
+    weapon: weaponData["Emerald of Genesis"],
+    echo: "Impermanence Heron",
+    echoSet: ["Moonlit Clouds"],
+    build: "43311 Ele/Ele",
+    element: "havoc",
+    bonus1: "atk",
+    bonus2: "havoc",
+    maxForte: 100,
+    maxForte2: 0,
+    /* stats */
+    atk: 34,
+    def: 102,
+    hp: 841,
+    crit: 0.05,
+    critDmg: 1.5,
+    bonusStats,
     dCond: {
       forte: 0,
       forte2: 0,

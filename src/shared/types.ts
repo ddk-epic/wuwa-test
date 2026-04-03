@@ -1,128 +1,38 @@
-import type { BONUSSTAT_KEY, CHARACTER_KEY } from "./characters"
-import type { ECHO_KEY, ECHO_SET_KEY } from "./echoes"
-import type { WEAPON_KEY, WEAPON_STAT } from "./weapons"
+import type {
+  BASE_STATS,
+  BONUSSTAT_KEYS,
+  BUFF_TYPE_KEYS,
+  CATEGORY_KEYS,
+  CHARACTERS,
+  DCOND_KEYS,
+  DEEPEN_KEYS,
+  ECHO,
+  ECHO_SET,
+  ELEMENT_KEYS,
+  SKILL_CATEGORY,
+  VARIANT,
+  WEAPON_STATS,
+  WEAPONS,
+} from "@/definitions/constants"
 
-export const BASE_STATS = ["atk", "def", "hp", "er", "crit", "critDmg"] as const
+export type CHARACTER_KEY = (typeof CHARACTERS)[number]
+export type ECHO_KEY = (typeof ECHO)[number]
+export type ECHO_SET_KEY = (typeof ECHO_SET)[number]
+export type WEAPON_KEY = (typeof WEAPONS)[number]
+export type BONUSSTAT_KEY = (typeof BONUSSTAT_KEYS)[number]
 export type BASE_STAT = (typeof BASE_STATS)[number]
-
-export const ELEMENT_KEYS = [
-  "aero",
-  "electro",
-  "fusion",
-  "glacio",
-  "havoc",
-  "spectro",
-] as const
+export type WEAPON_STAT_KEY = (typeof WEAPON_STATS)[number]
 export type ELEMENT = (typeof ELEMENT_KEYS)[number]
-
-export const SKILL_CATEGORY = [
-  "basic",
-  "forte",
-  "intro",
-  "heavy",
-  "liberation",
-  "outro",
-  "skill",
-] as const
 export type SKILL_CATEGORY_KEY = (typeof SKILL_CATEGORY)[number]
-
-export const CATEGORY_KEYS = ["basic", "heavy", "liberation", "skill"] as const
 export type CATEGORY = (typeof CATEGORY_KEYS)[number]
-
-export const DEEPEN_KEYS = [
-  "baDeep",
-  "heDeep",
-  "liDeep",
-  "skDeep",
-  "aeDeep",
-  "elDeep",
-  "fuDeep",
-  "glDeep",
-  "haDeep",
-  "spDeep",
-] as const
-
 export type DEEPEN_KEY = (typeof DEEPEN_KEYS)[number]
-
-export const BUFF_TYPE_KEYS = [
-  // stats
-  "atk",
-  "def",
-  "hp",
-  "er",
-  "crit",
-  "critDmg",
-  // category bonuses
-  "basic",
-  "heavy",
-  "skill",
-  "liberation",
-  "all",
-  // elemental bonuses
-  "aero",
-  "electro",
-  "fusion",
-  "glacio",
-  "havoc",
-  "spectro",
-  // category deepen
-  "baDeep",
-  "heDeep",
-  "skDeep",
-  "liDeep",
-  "allDeep",
-  // elemental deepen
-  "aeDeep",
-  "elDeep",
-  "fuDeep",
-  "glDeep",
-  "haDeep",
-  "spDeep",
-  // skill specific
-  "bonus",
-  "amp",
-  "multiplier",
-  // special
-  "resIgnore",
-  "defIgnore",
-  "erMulti",
-  "foMulti",
-  "heal",
-  "allEle",
-  "physical",
-  // dCond
-  "forte",
-  "forte2",
-  "concerto",
-  "resonance",
-  // rest
-  "intro",
-  "outro",
-  "echo",
-] as const
 export type BUFF_TYPE = (typeof BUFF_TYPE_KEYS)[number]
-
-export const DCOND_KEYS = ["forte", "forte2", "concerto", "resonance"] as const
 export type DCOND_KEY = (typeof DCOND_KEYS)[number]
-
-export const VARIANT = ["canc","swap"] as const
 export type variant = (typeof VARIANT)[number]
-
-export const BUFF_CATEGORY_KEYS = [
-  "Buff",
-  "BuffNext",
-  "BuffConsume",
-  "Damage",
-  "DCondFlat",
-  "Heal",
-  "Mode",
-] as const
-
-export type BUFF_CATEGORY = (typeof BUFF_CATEGORY_KEYS)[number]
 
 export type TriggerValue = {
   type?: "hit" // defaults to cast
-  skill?: string[]
+  ability?: string[]
   category?: (SKILL_CATEGORY_KEY | "echo")[]
   condition?: string[]
   mode?: string[]
@@ -144,13 +54,12 @@ type ModifierValue = {
 export type BuffDefinition = {
   id: string
   name: string
-  type: BUFF_CATEGORY
-  source: CHARACTER_KEY | "self"
+  source?: CHARACTER_KEY
   classifications?: BUFF_TYPE[] // For damage proc's
   trigger?: TriggerValue
   specialTrigger?: TriggerValue
-  appliesTo: CHARACTER_KEY | "self" | "all" | "current" | "next"
-  modifiers: ModifierValue[]
+  appliesTo?: CHARACTER_KEY | "all" | "current" | "next"
+  modifiers?: ModifierValue[]
   // consumedBy?: string[] // For mode and damage proc's
   duration: number
   cooldown?: number
@@ -164,8 +73,9 @@ export type WeaponBuffDefinition = Omit<
 >
 
 export type BuffInstance = {
-  stackCount?: number
+  stacks?: number
   endTime: number
+  originId: string
 } & BuffDefinition
 
 type EventValues = {
@@ -224,7 +134,7 @@ export type ActionListItem = {
   time: number
 }
 
-export type TimelineEntry = {
+export type TimelineEvent = {
   characterId: CHARACTER_KEY
   type: "cast" | "hit"
   skill: Skill
@@ -239,7 +149,7 @@ export interface Weapon {
   type: string
   rank: number
   atk: number
-  mainStat: WEAPON_STAT
+  mainStat: WEAPON_STAT_KEY
   mainStatAmount: number
 }
 
@@ -283,7 +193,7 @@ export type TeamSlot = {
 
 export type CharacterSkills = Record<string, SKILL[]>
 
-export type BuffMap = Record<BUFF_TYPE, number>
+export type StatMap = Record<BUFF_TYPE, number>
 
 type Proc = {
   damage: number
@@ -295,22 +205,44 @@ type Message = {
   warning?: string
 }
 
-export type Context = {
+export type StateContext = {
   activeBuffs: Map<CHARACTER_KEY, Map<string, BuffInstance>>
-  activeBuffsTeam: Map<string, BuffInstance>
-  onFieldChar: CHARACTER_KEY | ""
-  buffMap: Map<CHARACTER_KEY, BuffMap>
-  buffNext: Map<string, BuffInstance>
-  buffDeferred: Map<string, BuffInstance>
+  activeBuffsGlobal: Map<string, BuffInstance>
+  buffNext: Set<string>
+  buffDeferred: Set<string>
   characters: Map<CHARACTER_KEY, Character>
-  cooldowns: Record<string, number> // buff.id, cd
-  hasSwapped: boolean
-  mode: Map<CHARACTER_KEY | "all", Map<string, BuffInstance>>
+  statMap: Map<CHARACTER_KEY, StatMap>
+  cooldowns: Map<string, number> // buff.id, cd
+  onFieldChar: CHARACTER_KEY | ""
   prevChar: CHARACTER_KEY | ""
   proc: Proc
   row: number
   time: number
   message: Message
+}
+
+export type BuffResolver = {
+  id: string
+  onTrigger: (
+    state: StateContext,
+    action: TimelineEvent,
+    buff: BuffDefinition,
+  ) => StateContext
+  onCast?: (
+    state: StateContext,
+    action: TimelineEvent,
+    buff: BuffInstance,
+  ) => StateContext
+  onHit?: (
+    state: StateContext,
+    action: TimelineEvent,
+    buff: BuffInstance,
+  ) => StateContext
+  onExpire?: (
+    state: StateContext,
+    action: TimelineEvent,
+    buff: BuffInstance,
+  ) => StateContext
 }
 
 export type Result = {
@@ -325,7 +257,7 @@ export type Result = {
   proc: Proc
   parent?: string
   buffs: string[]
-  buffsTeam: string[]
-  buffMap: BuffMap
+  buffsGlobal: string[]
+  statMap: StatMap
   message: Message
 }

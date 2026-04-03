@@ -1,14 +1,15 @@
 import { describe, expect, it } from "vitest"
 
-import type { ActionListItem, Character, CharSettings } from "@/constants/types"
-import skillData from "@/constants/skills"
-import { calculate } from "@/lib/calculations"
 import { computeBaseCharacter, computeEventTimeline } from "@/lib/helper"
-import characterTemplate from "@/constants/characters"
-import { totalBuffMap } from "@/constants/maps"
+
+import type { ActionListItem, Character, CharSettings } from "@/shared/types"
+
+import characterTemplate from "@/definitions/characters"
+import { skillData } from "@/definitions/abilities"
+
+import { simulate } from "@/simulation"
 
 describe("Characters: end-to-end", () => {
-  const baseBuffMap = totalBuffMap
   describe("Encore", () => {
     const characterId = "encore"
     const template = characterTemplate[characterId]
@@ -25,7 +26,7 @@ describe("Characters: end-to-end", () => {
 
     const onCast = 0
 
-    it("Basic: test damage", () => {
+    it("Basic: default test", () => {
       const team = characters
       const skill = skills.basic[1]
 
@@ -40,13 +41,13 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
       const totalDamage = result.reduce((total, row) => total + row.damage, 0)
       const buffsOnCast = result[onCast].buffs
 
       expect(totalDamage).toBeGreaterThan(0)
-      expect.soft(result[onCast].buffMap.atk).toBeGreaterThan(0.6)
+      expect.soft(result[onCast].statMap.atk).toBeGreaterThan(0.6)
       expect.soft(buffsOnCast).toContain("Stringmaster (Ele)")
       expect.soft(buffsOnCast).toContain("Molten Rift 2pc")
     })
@@ -66,7 +67,7 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
       const totalDamage = result.reduce((total, row) => total + row.damage, 0)
       const buffsOnCast = result[onCast].buffs
@@ -110,7 +111,7 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
       const totalDamage = result.reduce((total, row) => total + row.damage, 0)
 
@@ -137,8 +138,9 @@ describe("Characters: end-to-end", () => {
       const team: Character[] = [{ ...characters[0], sequence }]
 
       const skill1 = skills.basic[1]
+      const skill2 = skills.basic[2]
 
-      if (!skill1) return
+      if (!(skill1 && skill2)) return
 
       const actionList: ActionListItem[] = [
         {
@@ -146,14 +148,21 @@ describe("Characters: end-to-end", () => {
           skill: skill1,
           time: 0,
         },
+        {
+          characterId,
+          skill: skill2,
+          time: 30,
+        },
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
       const buffsFirstHit = result[1].buffs
+      const buffsSecondHit = result[3].buffs
 
       expect.soft(buffsFirstHit).toContain("Sheep-counting Lullaby")
+      expect.soft(buffsSecondHit).not.toContain("Sheep-counting Lullaby")
     })
 
     it("S3: test buffs", () => {
@@ -174,9 +183,9 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
-      const buffMapOnHit = result[1].buffMap
+      const buffMapOnHit = result[1].statMap
 
       expect(buffMapOnHit.multiplier).toBeCloseTo(0.4)
     })
@@ -197,12 +206,12 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
-      const buffsTeamOnCast = result[onCast].buffsTeam
-      const buffMapOnCast = result[onCast].buffMap
+      const buffsGlobalOnCast = result[onCast].buffsGlobal
+      const buffMapOnCast = result[onCast].statMap
 
-      expect(buffsTeamOnCast).toContain("Adventure? Let's go!")
+      expect(buffsGlobalOnCast).toContain("Adventure? Let's go!")
       expect(buffMapOnCast.fusion).toBeGreaterThan(1.1) // base is 94% fusion
     })
 
@@ -222,10 +231,10 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
       const buffsOnCast = result[onCast].buffs
-      const buffMapOnCast = result[onCast].buffMap
+      const buffMapOnCast = result[onCast].statMap
 
       expect.soft(buffsOnCast).toContain("Hero Takes the Stage!")
       expect(buffMapOnCast.skill).toBeCloseTo(0.35)
@@ -259,7 +268,7 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
       const buffsOnCast = result[onCast].buffs
 
@@ -284,7 +293,7 @@ describe("Characters: end-to-end", () => {
       expect.soft(result[6].buffs).toContain("Woolies Save the World! x4")
       expect.soft(result[7].buffs).toContain("Woolies Save the World! x5")
 
-      expect(result[7].buffMap.atk).toBeGreaterThan(0.8) // at max stacks: +25% atk
+      expect(result[7].statMap.atk).toBeGreaterThan(0.8) // at max stacks: +25% atk
     })
   })
 
@@ -319,7 +328,7 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
       const totalDamage = result.reduce((total, row) => total + row.damage, 0)
       const buffsOnCast = result[onCast].buffs
@@ -343,10 +352,10 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
       const buffsFirstHit = result[1].buffs
-      const buffMapFirstHit = result[1].buffMap
+      const buffMapFirstHit = result[1].statMap
 
       expect(buffsFirstHit).toContain("Ice Thorn")
       expect(buffsFirstHit).toContain("Condensation")
@@ -374,10 +383,10 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
       const buffsFirstHit = result[1].buffs
-      const buffMapDetonateHit = result[3].buffMap
+      const buffMapDetonateHit = result[3].statMap
 
       expect(buffsFirstHit).toContain("Avalanche")
       expect(buffMapDetonateHit.bonus).toBeCloseTo(0.2)
@@ -399,10 +408,10 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
       const buffsFirstHit = result[1].buffs
-      const buffMapFirstHit = result[1].buffMap
+      const buffMapFirstHit = result[1].statMap
 
       expect(buffsFirstHit).toContain("Solitude's Embrace")
       expect(buffMapFirstHit.crit).toBeGreaterThan(0.8) // base is 67% + 15% fusion
@@ -430,11 +439,11 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
       const buffsOnCast = result[onCast].buffs
       const buffsFirstHit = result[1].buffs
-      const buffMapDetonateHit = result[3].buffMap
+      const buffMapDetonateHit = result[3].statMap
 
       expect(buffsOnCast).toContain("Blade Mastery")
       expect(buffsOnCast).toContain("Blade Mastery (energy)")
@@ -458,10 +467,10 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
-      const buffMapFirstHit = result[1].buffMap
-      const buffMapSecondHit = result[2].buffMap
+      const buffMapFirstHit = result[1].statMap
+      const buffMapSecondHit = result[2].statMap
 
       expect(buffMapFirstHit.critDmg).toBeGreaterThan(3.5)
       expect(buffMapSecondHit.critDmg).toBeGreaterThan(3.5)
@@ -483,13 +492,13 @@ describe("Characters: end-to-end", () => {
       ]
 
       const eventTimeline = computeEventTimeline(actionList)
-      const result = calculate(team, eventTimeline, baseBuffMap)
+      const result = simulate(team, eventTimeline)
 
-      const buffsTeamFirstHit = result[1].buffsTeam
-      const buffsTeamSecondHit = result[2].buffsTeam
+      const buffsGlobalFirstHit = result[1].buffsGlobal
+      const buffsGlobalSecondHit = result[2].buffsGlobal
 
-      expect(buffsTeamFirstHit).toContain("Daybreak Radiance x1")
-      expect(buffsTeamSecondHit).toContain("Daybreak Radiance x2") // TODO: correct procc req
+      expect(buffsGlobalFirstHit).toContain("Daybreak Radiance x1")
+      expect(buffsGlobalSecondHit).toContain("Daybreak Radiance x2") // TODO: correct procc req
     })
   })
 })

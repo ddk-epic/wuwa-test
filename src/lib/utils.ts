@@ -1,8 +1,8 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-import type { BUFF_TYPE } from "@/constants/types"
-import { STAT_COLORS } from "@/constants/colors"
+import type { BUFF_TYPE } from "@/shared/types"
+import { STAT_COLORS } from "@/definitions/colors"
 
 declare global {
   interface String {

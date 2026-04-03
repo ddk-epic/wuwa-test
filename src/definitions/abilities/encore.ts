@@ -1,6 +1,6 @@
-import type { Skills } from "./types"
+import type { Skills } from "@/shared/types"
 
-const skillData: Skills = {
+const encoreAbilities: Skills = {
   encore: {
     intro: {
       1: {
@@ -563,4 +563,4 @@ const skillData: Skills = {
   },
 }
 
-export default skillData
+export default encoreAbilities

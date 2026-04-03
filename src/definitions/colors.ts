@@ -1,4 +1,4 @@
-import type { BUFF_TYPE, ELEMENT } from "./types"
+import type { ELEMENT, BUFF_TYPE } from "@/shared/types"
 
 export const ELEMENT_COLORS: Record<
   ELEMENT | "default",
@@ -50,7 +50,7 @@ export const ELEMENT_COLORS: Record<
 
 export const STAT_COLORS: Record<
   BUFF_TYPE,
-  { rgb: string; minValue: number, maxValue: number; label: string }
+  { rgb: string; minValue: number; maxValue: number; label: string }
 > = {
   // stats (6)
   atk: { rgb: "59 130 246", minValue: 0, maxValue: 1.5, label: "atk" },
@@ -63,7 +63,12 @@ export const STAT_COLORS: Record<
   basic: { rgb: "118 118 118", minValue: 0, maxValue: 1.5, label: "basic" },
   heavy: { rgb: "118 118 118", minValue: 0, maxValue: 1.5, label: "heavy" },
   skill: { rgb: "118 118 118", minValue: 0, maxValue: 1.5, label: "skill" },
-  liberation: { rgb: "118 118 118", minValue: 0, maxValue: 1.5, label: "liber" },
+  liberation: {
+    rgb: "118 118 118",
+    minValue: 0,
+    maxValue: 1.5,
+    label: "liber",
+  },
   all: { rgb: "118 118 118", minValue: 0, maxValue: 1.5, label: "all" },
   // elemental bonuses (6)
   aero: { rgb: "16 185 129", minValue: 0, maxValue: 1.5, label: "aero" },

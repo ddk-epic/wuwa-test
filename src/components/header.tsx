@@ -4,15 +4,13 @@ import { Button } from "./ui/button"
 import DpsSummary from "./dps-summary"
 
 import type {
-  CHARACTER_KEY,
-} from "@/constants/characters"
-import type {
   ActionListItem,
   Character,
+  CHARACTER_KEY,
   Result,
   SETTINGS_KEY,
   TeamSlot,
-} from "@/constants/types"
+} from "@/shared/types"
 import AddCharacterModal from "./add-character-modal"
 
 interface HeaderBarProps {

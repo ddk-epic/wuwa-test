@@ -1,6 +1,6 @@
-import type { BuffMap, CATEGORY, DEEPEN_KEY, ELEMENT } from "./types"
+import type { CATEGORY, DEEPEN_KEY, ELEMENT, StatMap } from "./types"
 
-export const totalBuffMap: BuffMap = {
+export const baseStatMap: StatMap = {
   // base stats
   atk: 0,
   def: 0,

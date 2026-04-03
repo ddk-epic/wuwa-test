@@ -1,4 +1,4 @@
-import type { ActionListItem, Result } from "@/constants/types"
+import type { ActionListItem, Result } from "@/shared/types"
 
 interface DpsSummaryProps {
   sequence: ActionListItem[]
