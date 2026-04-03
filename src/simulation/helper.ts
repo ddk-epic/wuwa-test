@@ -205,10 +205,9 @@ export function applyStackingBuff(
   const existing = personalBuffs.get(buff.id)
 
   // new stack count
-  const newStacks = Math.min(
-    (existing?.stacks ?? 0) + stacksToAdd,
-    buff.stackLimit,
-  )
+  const oldStacks = existing?.stacks ?? 0
+  const newStacks = Math.min(oldStacks + stacksToAdd, buff.stackLimit)
+  const effectiveStacksAdded = newStacks - oldStacks
 
   const newBuffInstance: BuffInstance = {
     ...buff,
@@ -218,7 +217,7 @@ export function applyStackingBuff(
   }
 
   for (const modifier of buff.modifiers) {
-    newPersonalStatMap[modifier.class] += modifier.value * stacksToAdd
+    newPersonalStatMap[modifier.class] += modifier.value * effectiveStacksAdded
   }
 
   const newStatMap = new Map(state.statMap)
@@ -309,24 +308,27 @@ export function removeStackingBuffStatChanges(
   stacksToRemove: number = 1,
 ): StateContext {
   const characterId = action.characterId
+
   const personalBuffs = state.activeBuffs.get(characterId)
   if (!personalBuffs) return state
 
   const existingBuff = personalBuffs.get(buff.id)
   if (!existingBuff) return state
 
-  const newStacks = (existingBuff.stacks ?? 1) - stacksToRemove
+  const currentStacks = existingBuff.stacks ?? 0
+  const stacksRemoved = Math.min(stacksToRemove, currentStacks)
+  const newStacks = currentStacks - stacksRemoved
 
   const personalStatMap = state.statMap.get(characterId) ?? { ...baseStatMap }
   const newPersonalStatMap = { ...personalStatMap }
 
   // Subtract modifiers based on number of stacks being removed
   for (const modifier of existingBuff.modifiers ?? []) {
-    newPersonalStatMap[modifier.class] -=
-      modifier.value * Math.min(stacksToRemove, existingBuff.stacks ?? 1)
+    newPersonalStatMap[modifier.class] -= modifier.value * stacksRemoved
   }
 
   const newPersonalBuffs = new Map(personalBuffs)
+
   if (newStacks > 0) {
     // Update buff with remaining stacks
     newPersonalBuffs.set(buff.id, { ...existingBuff, stacks: newStacks })
