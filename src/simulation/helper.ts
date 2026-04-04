@@ -191,48 +191,17 @@ export function applyStackingBuff(
   buff: BuffInstance,
   stacksToAdd: number = 1,
 ): StateContext {
-  if (!buff.modifiers) return state
-  if (!buff.stackLimit) return state
-
   const characterId = action.characterId
+  const personalBuffs = state.activeBuffs.get(characterId)
+  const existing = personalBuffs?.get(buff.id)
 
-  const personalStatMap = state.statMap.get(characterId) ?? { ...baseStatMap }
-  const newPersonalStatMap = { ...personalStatMap }
-
-  const personalBuffs =
-    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
-
-  const existing = personalBuffs.get(buff.id)
-
-  // new stack count
-  const oldStacks = existing?.stacks ?? 0
-  const newStacks = Math.min(oldStacks + stacksToAdd, buff.stackLimit)
-  const effectiveStacksAdded = newStacks - oldStacks
-
-  const newBuffInstance: BuffInstance = {
-    ...buff,
-    name: `${buff.id} x${newStacks}`,
-    stacks: newStacks,
-    endTime: state.time + buff.duration,
-  }
-
-  for (const modifier of buff.modifiers) {
-    newPersonalStatMap[modifier.class] += modifier.value * effectiveStacksAdded
-  }
-
-  const newStatMap = new Map(state.statMap)
-  newStatMap.set(characterId, newPersonalStatMap)
-
-  const newPersonalBuffs = new Map(personalBuffs)
-  newPersonalBuffs.set(buff.id, newBuffInstance)
-  const newActiveBuffs = new Map(state.activeBuffs)
-  newActiveBuffs.set(characterId, newPersonalBuffs)
-
-  return {
-    ...state,
-    statMap: newStatMap,
-    activeBuffs: newActiveBuffs,
-  }
+  const currentStacks = existing?.stacks ?? 0
+  return setStackingBuffStacks(
+    state,
+    action,
+    buff,
+    currentStacks + stacksToAdd,
+  )
 }
 
 export function createBuffGlobal(
@@ -301,37 +270,44 @@ export function applyBuffGlobal(
   }
 }
 
-export function removeStackingBuffStatChanges(
+export function setStackingBuffStacks(
   state: StateContext,
   action: TimelineEvent,
   buff: BuffInstance,
-  stacksToRemove: number = 1,
+  targetStacks: number,
 ): StateContext {
+  if (!buff.modifiers || !buff.stackLimit) return state
+
   const characterId = action.characterId
 
   const personalBuffs = state.activeBuffs.get(characterId)
   if (!personalBuffs) return state
 
   const existingBuff = personalBuffs.get(buff.id)
-  if (!existingBuff) return state
+  const currentStacks = existingBuff?.stacks ?? 0
 
-  const currentStacks = existingBuff.stacks ?? 0
-  const stacksRemoved = Math.min(stacksToRemove, currentStacks)
-  const newStacks = currentStacks - stacksRemoved
+  const clampedStacks = Math.max(0, Math.min(targetStacks, buff.stackLimit))
+
+  const stackDelta = clampedStacks - currentStacks
+  if (stackDelta === 0) return state
 
   const personalStatMap = state.statMap.get(characterId) ?? { ...baseStatMap }
   const newPersonalStatMap = { ...personalStatMap }
 
-  // Subtract modifiers based on number of stacks being removed
-  for (const modifier of existingBuff.modifiers ?? []) {
-    newPersonalStatMap[modifier.class] -= modifier.value * stacksRemoved
+  // Apply delta (positive = add, negative = remove)
+  for (const modifier of buff.modifiers) {
+    newPersonalStatMap[modifier.class] += modifier.value * stackDelta
   }
 
   const newPersonalBuffs = new Map(personalBuffs)
 
-  if (newStacks > 0) {
-    // Update buff with remaining stacks
-    newPersonalBuffs.set(buff.id, { ...existingBuff, stacks: newStacks })
+  if (clampedStacks > 0) {
+    newPersonalBuffs.set(buff.id, {
+      ...(existingBuff ?? buff),
+      stacks: clampedStacks,
+      name: `${buff.id} x${clampedStacks}`,
+      endTime: state.time + buff.duration,
+    })
   } else {
     return state
   }
@@ -347,6 +323,25 @@ export function removeStackingBuffStatChanges(
     activeBuffs: newActiveBuffs,
     statMap: newStatMap,
   }
+}
+
+export function removeStackingBuffStatChanges(
+  state: StateContext,
+  action: TimelineEvent,
+  buff: BuffInstance,
+  stacksToRemove: number = 1,
+): StateContext {
+  const characterId = action.characterId
+  const personalBuffs = state.activeBuffs.get(characterId)
+  const existing = personalBuffs?.get(buff.id)
+
+  const currentStacks = existing?.stacks ?? 0
+  return setStackingBuffStacks(
+    state,
+    action,
+    buff,
+    currentStacks - stacksToRemove,
+  )
 }
 
 export function removeStackingBuff(
