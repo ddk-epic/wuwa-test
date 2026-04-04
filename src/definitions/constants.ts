@@ -1,14 +1,9 @@
 export const CHARACTERS = [
-  "rover",
   "encore",
   "sanhua",
   "shorekeeper",
   "verina",
 ] as const
-
-export const ECHO = ["Impermanence Heron", "Inferno Rider"] as const
-
-export const ECHO_SET = ["Molten Rift", "Moonlit Clouds"] as const
 
 export const WEAPONS = [
   "Blazing Brilliance",
@@ -16,6 +11,10 @@ export const WEAPONS = [
   "Stringmaster",
   "Stellar Symphony",
 ] as const
+
+export const ECHO = ["Impermanence Heron", "Inferno Rider"] as const
+
+export const ECHO_SET = ["Molten Rift", "Moonlit Clouds"] as const
 
 export const BONUSSTAT_KEYS = [
   "atkFlat",
