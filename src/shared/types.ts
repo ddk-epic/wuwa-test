@@ -1,18 +1,18 @@
-import type {
-  BASE_STATS,
-  BONUSSTAT_KEYS,
-  BUFF_TYPE_KEYS,
-  CATEGORY_KEYS,
+import {
   CHARACTERS,
-  DCOND_KEYS,
-  DEEPEN_KEYS,
-  ECHO,
-  ECHO_SET,
-  ELEMENT_KEYS,
   SKILL_CATEGORY,
-  VARIANT,
-  WEAPON_STATS,
-  WEAPONS,
+  type BASE_STATS,
+  type BONUSSTAT_KEYS,
+  type BUFF_TYPE_KEYS,
+  type CATEGORY_KEYS,
+  type DCOND_KEYS,
+  type DEEPEN_KEYS,
+  type ECHO,
+  type ECHO_SET,
+  type ELEMENT_KEYS,
+  type VARIANT,
+  type WEAPON_STATS,
+  type WEAPONS,
 } from "@/definitions/constants"
 
 export type CHARACTER_KEY = (typeof CHARACTERS)[number]
@@ -118,15 +118,12 @@ export type Skill = Omit<SKILL, "hits" | "variations"> & {
 
 export type Echo = SKILL & { set: string }
 
-type SkillSequence = {
-  1: SKILL | null
+export type SkillSequence = {
+  1: SKILL | null // 1 always exists
 } & Record<number, SKILL | null>
 
-type SkillCategory = Record<SKILL_CATEGORY_KEY, SkillSequence>
-
-export interface Skills {
-  [char: string]: SkillCategory
-}
+export type SkillCategory = Record<SKILL_CATEGORY_KEY, SkillSequence>
+export type Skills = Record<CHARACTER_KEY, SkillCategory>
 
 export type ActionListItem = {
   characterId: CHARACTER_KEY
