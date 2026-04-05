@@ -6,3 +6,5 @@ export const echoData: Record<string, Echo> = {
   "Inferno Rider": fusionEchoes["Inferno Rider"],
   "Impermanence Heron": otherEchoes["Impermanence Heron"],
 }
+
+export default echoData

@@ -1,8 +1,9 @@
 import { BONUSSTAT_KEYS } from "@/definitions/constants"
 
-import { buffs } from "@/definitions/buffs/characters"
-import { setBuffs } from "@/definitions/buffs/echo-set"
-import { echoBuffs } from "@/definitions/buffs/echoes"
+import buffs from "@/definitions/buffs/characters"
+import weaponBuffs from "@/definitions/buffs/weapon"
+import setBuffs from "@/definitions/buffs/echo-set"
+import echoBuffs from "@/definitions/buffs/echoes"
 
 import { baseStatMap, getSkillLevel } from "@/shared/maps"
 import type {
@@ -18,7 +19,8 @@ import type {
   BONUSSTAT_KEY,
 } from "@/shared/types"
 
-import { buffHandler } from "@/simulation/resolver"
+import buffHandler from "@/simulation/resolver"
+
 import {
   applyCooldown,
   getBonus,
@@ -27,7 +29,6 @@ import {
   getResMultiplier,
   hasSwapped,
 } from "./helper"
-import { weaponBuffs } from "@/definitions/buffs/weapon"
 
 function removeExpiredBuffs(
   state: StateContext,

@@ -7,3 +7,5 @@ export const setBuffs: Record<ECHO_SET_KEY, BuffDefinition[]> = {
   "Molten Rift": fusionSets["Molten Rift"],
   "Moonlit Clouds": otherSets["Moonlit Clouds"],
 }
+
+export default setBuffs

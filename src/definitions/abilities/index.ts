@@ -11,3 +11,5 @@ export const skillData: Skills = {
   shorekeeper,
   verina,
 }
+
+export default skillData

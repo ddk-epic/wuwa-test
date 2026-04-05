@@ -2,8 +2,8 @@ import { cn, frameToSecond, getStatCellColor, toPercent } from "@/lib/utils"
 
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 
-import { ELEMENT_COLORS, STAT_COLORS } from "@/definitions/colors"
 import type { BUFF_TYPE, CHARACTER_KEY, Result } from "@/shared/types"
+import { ELEMENT_COLORS, STAT_COLORS } from "@/definitions/colors"
 import characterTemplate from "@/definitions/characters"
 
 interface CalculationLogProps {

@@ -20,8 +20,8 @@ import type {
 import { ELEMENT_COLORS } from "@/definitions/colors"
 import { CHARACTERS } from "@/definitions/constants"
 import characterTemplate from "@/definitions/characters"
-import { echoData } from "@/definitions/echoes"
-import { weaponData } from "@/definitions/weapons"
+import echoData from "@/definitions/echoes"
+import weaponData from "@/definitions/weapons"
 
 interface AddCharacterModalProps {
   team: TeamSlot[]

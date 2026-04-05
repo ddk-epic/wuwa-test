@@ -7,3 +7,5 @@ export const echoBuffs: Record<ECHO_KEY, BuffDefinition[]> = {
   "Inferno Rider": fusionEchoes["Inferno Rider"],
   "Impermanence Heron": otherEchoes["Impermanence Heron"],
 }
+
+export default echoBuffs

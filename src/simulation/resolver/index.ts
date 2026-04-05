@@ -6,3 +6,5 @@ export const buffHandler: Record<string, BuffResolver> = {
   ...encoreResolver,
   ...sanhuaResolver,
 }
+
+export default buffHandler

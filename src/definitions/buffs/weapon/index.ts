@@ -9,3 +9,5 @@ export const weaponBuffs: Record<WEAPON_KEY, WeaponBuffDefinition[]> = {
   "Stellar Symphony": rectifier["Stellar Symphony"],
   Stringmaster: rectifier["Stringmaster"],
 }
+
+export default weaponBuffs

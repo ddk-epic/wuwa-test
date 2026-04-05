@@ -9,3 +9,5 @@ export const buffs: Record<string, BuffDefinition[]> = {
   sanhua,
   shorekeeper,
 }
+
+export default buffs

@@ -8,3 +8,5 @@ export const weaponData: Record<WEAPON_KEY, Weapon> = {
   Stringmaster: rectifiers["Stringmaster"],
   "Stellar Symphony": rectifiers["Stellar Symphony"]
 }
+
+export default weaponData
