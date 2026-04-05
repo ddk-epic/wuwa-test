@@ -18,13 +18,14 @@ import type {
   BONUSSTAT_KEY,
 } from "@/shared/types"
 
-import { buffHandler } from "@/simulation/buff-resolver"
+import { buffHandler } from "@/simulation/resolver"
 import {
   applyCooldown,
   getBonus,
   getDeepen,
   getDefMultiplier,
   getResMultiplier,
+  hasSwapped,
 } from "./helper"
 import { weaponBuffs } from "@/definitions/buffs/weapon"
 
@@ -40,18 +41,31 @@ function removeExpiredBuffs(
   const newBuffs = new Map(activeBuffs)
   const newBuffsGlobal = new Map(activeBuffsGlobal)
 
+  function shouldRemoveBuff(
+    state: StateContext,
+    _action: TimelineEvent,
+    buff: BuffInstance,
+  ): boolean {
+    // expiration
+    if (buff.endTime <= state.time) return true
+    // outro buffs
+    if (buff.appliesTo === "next" && hasSwapped(state)) return true
+
+    return false
+  }
+
   const expiredBuffs: BuffInstance[] = []
 
   // remove expired buffs
   for (const buff of activeBuffs.values()) {
-    if (buff.endTime <= state.time) {
+    if (shouldRemoveBuff(state, action, buff)) {
       expiredBuffs.push(buff)
       newBuffs.delete(buff.id)
     }
   }
 
   for (const buff of activeBuffsGlobal.values()) {
-    if (buff.endTime <= state.time) {
+    if (shouldRemoveBuff(state, action, buff)) {
       expiredBuffs.push(buff)
       newBuffsGlobal.delete(buff.id)
     }
@@ -60,17 +74,80 @@ function removeExpiredBuffs(
   // update stat changes after removal
   let newState = state
   for (const buff of expiredBuffs) {
-    if (buff.stackLimit) {
-      const buffToUpdate = buffHandler[buff.id]
-      if (!buffToUpdate.onExpire) continue
-      newState = buffToUpdate.onExpire(newState, action, buff)
-    }
+    const buffToUpdate = buffHandler[buff.id]
+    if (!buffToUpdate.onExpire) continue
+    newState = buffToUpdate.onExpire(newState, action, buff)
   }
 
   return {
     ...newState,
     activeBuffs: new Map(newState.activeBuffs).set(characterId, newBuffs),
     activeBuffsGlobal: newBuffsGlobal,
+  }
+}
+
+function handleEnergyShare(
+  state: StateContext,
+  action: TimelineEvent,
+): StateContext {
+  const { characterId: activeCharacterId, skill } = action
+  const value = skill.resonance
+
+  const newCharacters = new Map<CHARACTER_KEY, Character>()
+
+  for (const [characterId, character] of state.characters) {
+    const activeMultiplier = characterId === activeCharacterId ? 1 : 0.5
+
+    newCharacters.set(characterId, {
+      ...character,
+      dCond: {
+        ...character.dCond,
+        resonance: character.dCond.resonance + value * activeMultiplier,
+      },
+    })
+  }
+
+  return {
+    ...state,
+    characters: newCharacters,
+  }
+}
+
+function evaluateDCond(
+  state: StateContext,
+  action: TimelineEvent,
+): StateContext {
+  const characterId = action.characterId
+  const character = state.characters.get(characterId)
+  const skill = action.skill
+
+  if (!character) return state
+
+  let newState = handleEnergyShare(state, action)
+
+  const newCharacters = new Map(newState.characters)
+  const newCharacter = newCharacters.get(characterId)
+
+  if (!newCharacter) return newState
+
+  // resonance reset
+  let resonance = newCharacter.dCond.resonance
+  if (action.type === "cast" && skill.category === "liberation") {
+    resonance = 0
+  }
+
+  newCharacters.set(characterId, {
+    ...newCharacter,
+    dCond: {
+      ...newCharacter.dCond,
+      resonance,
+      concerto: newCharacter.dCond.concerto + skill.concerto,
+    },
+  })
+
+  return {
+    ...newState,
+    characters: newCharacters,
   }
 }
 
@@ -147,6 +224,15 @@ function processEvent(
   // remove expired buffs
   state = removeExpiredBuffs(state, action)
 
+  // add onSwap buffs
+  for (const buffId of state.buffNext) {
+    const buffToAdd = buffHandler[buffId]
+    const buff = allBuffs.get(buffId)
+    if (!buffToAdd.onSwap || !buff) continue
+
+    state = buffToAdd.onSwap(state, action, buff)
+  }
+
   // add triggered buffs
   for (const buff of allBuffs.values()) {
     const buffToAdd = buffHandler[buff.id]
@@ -189,6 +275,9 @@ function processEvent(
 
     state = applyCooldown(state, buff)
   }
+
+  // update dCond
+  state = evaluateDCond(state, action)
 
   return state
 }
@@ -342,7 +431,7 @@ function getContext(
   }
   const activeBuffsGlobal = new Map<string, BuffInstance>()
 
-  const buffDeferred = new Set<string>()
+  const buffDeferred = new Map<string, BuffInstance>()
   const buffNext = new Set<string>()
 
   const cooldowns = new Map<string, number>()
@@ -358,6 +447,7 @@ function getContext(
     buffNext,
     characters,
     cooldowns,
+    procQueue: [],
     proc,
     statMap,
     row: 1,
