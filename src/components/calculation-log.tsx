@@ -185,8 +185,8 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             <TableCell
               className={cn(
                 "sticky left-44 z-10 bg-card shadow-[inset_0_-1px_0_rgb(39,39,42)]",
-                isCast ? elementColorText : "",
-                isHit ? "text-xs" : "",
+                isCast && elementColorText,
+                isHit && "text-xs"
               )}
             >
               {skill.name}
@@ -203,7 +203,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             <TableCell
               className={cn(
                 "bg-zinc-800/50 pr-3! text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]",
-                damage !== 0 ? elementColorText : "",
+                proc.damage !== 0 && elementColorText,
               )}
             >
               {damage > 0 ? Math.round(damage) : "--"}
@@ -211,7 +211,8 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             <TableCell
               className={cn(
                 "bg-zinc-800/50 pr-2! text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]",
-                proc.damage !== 0 ? elementColorText : "",
+                proc.damage !== 0 && isCast && elementColorText,
+                proc.damage !== 0 && isHit && "text-xs text-muted-foreground",
               )}
             >
               {proc.damage > 0 ? Math.round(proc.damage) : ""}

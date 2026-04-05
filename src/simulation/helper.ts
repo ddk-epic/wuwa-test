@@ -3,6 +3,7 @@ import {
   DCOND_KEYS,
   ELEMENT_KEYS,
 } from "../definitions/constants"
+
 import { baseStatMap, bonusToDeepen } from "../shared/maps"
 import type {
   BUFF_TYPE,
@@ -12,6 +13,7 @@ import type {
   DCOND_KEY,
   DEEPEN_KEY,
   ELEMENT,
+  Skill,
   StateContext,
   StatMap,
   TimelineEvent,
@@ -33,16 +35,23 @@ export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
 // =============== BUFF CHECKS ================
 // ============================================
 
-export function isAlreadyActive(
-  state: StateContext,
-  action: TimelineEvent,
-  buff: BuffDefinition,
-): boolean {
-  const characterId = action.characterId
-  const activeBuffs = state.activeBuffs.get(characterId)
-  if (!activeBuffs) return false
+// export function isAlreadyActive(
+//   state: StateContext,
+//   action: TimelineEvent,
+//   buff: BuffDefinition,
+// ): boolean {
+//   const characterId = action.characterId
+//   const activeBuffs = state.activeBuffs.get(characterId)
+//   if (!activeBuffs) return false
 
-  return activeBuffs.has(buff.id)
+//   return activeBuffs.has(buff.id)
+// }
+export function isOnField(state: StateContext, action: TimelineEvent) {
+  return state.onFieldChar === action.characterId
+}
+
+export function hasSwapped(state: StateContext) {
+  return state.onFieldChar !== state.prevChar
 }
 
 export function isBuffTarget(
@@ -113,6 +122,79 @@ export function isOnCooldown(
 // ============================================
 // =============== BUFF UTILS =================
 // ============================================
+export function applyResonanceFlat(
+  state: StateContext,
+  action: TimelineEvent,
+  buff: BuffInstance,
+): StateContext {
+  if (!buff.modifiers) return state
+
+  const characterId = action.characterId
+
+  const character = state.characters.get(characterId)
+  if (!character) return state
+  const newCharacter = { ...character, dCond: { ...character.dCond } }
+
+  for (const modifier of buff.modifiers) {
+    if (isDCondKey(modifier.class)) {
+      newCharacter.dCond[modifier.class] += modifier.value
+    }
+  }
+
+  return {
+    ...state,
+    characters: new Map(state.characters).set(characterId, newCharacter),
+  }
+}
+
+export function applyCooldown(
+  state: StateContext,
+  buff: BuffDefinition,
+): StateContext {
+  if (!buff.cooldown) return state
+
+  const newCooldowns = new Map(state.cooldowns)
+  newCooldowns.set(buff.id, state.time + buff.cooldown)
+
+  console.log(
+    state.row,
+    `cooldowns(${buff.id} -> ${state.time + buff.cooldown})`,
+  )
+
+  return {
+    ...state,
+    cooldowns: newCooldowns,
+  }
+}
+
+export function addToBuffNext(
+  state: StateContext,
+  buff: BuffDefinition,
+): StateContext {
+  if (buff.appliesTo !== "next") return state
+
+  // console.log(state.row, `add buff ${buff.name} to buffNext`)
+
+  return {
+    ...state,
+    buffNext: new Set<string>(state.buffNext).add(buff.id),
+  }
+}
+
+export function addToBuffDeferred(
+  state: StateContext,
+  buff: BuffDefinition,
+): StateContext {
+  // console.log(state.row, `add buff ${buff.name} to buffDeferred`)
+
+  return {
+    ...state,
+    buffDeferred: new Map<string, BuffDefinition>(state.buffDeferred).set(
+      buff.id,
+      buff,
+    ),
+  }
+}
 
 export function createBuff(
   state: StateContext,
@@ -142,12 +224,48 @@ export function createBuff(
   const newPersonalBuffs = new Map(activeBuffs)
   newPersonalBuffs.set(buff.id, buffInstance)
 
-  const newActiveBuffs = new Map(state.activeBuffs)
-  newActiveBuffs.set(characterId, newPersonalBuffs)
+  return {
+    ...state,
+    activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
+  }
+}
+
+export function createBuffNext(
+  state: StateContext,
+  action: TimelineEvent,
+  buff: BuffDefinition,
+): StateContext {
+  if (buff.appliesTo !== "next") return state
+
+  const characterId = action.characterId
+
+  const activeBuffs =
+    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
+
+  const existing = activeBuffs.get(buff.id)
+
+  const buffInstance: BuffInstance = {
+    ...buff,
+    endTime: state.time + buff.duration, // refresh duration on re-trigger
+    ...(buff.stackLimit && {
+      stacks: Math.min(existing?.stacks ?? 0, buff.stackLimit),
+    }),
+    originId: existing?.originId ?? getOriginId(action),
+  }
+
+  // remove buffNext entry
+  const newBuffNext = new Set(state.buffNext)
+  newBuffNext.delete(buff.id)
+
+  // console.log(state.row, `add buff ${buff.name}`)
+
+  const newPersonalBuffs = new Map(activeBuffs)
+  newPersonalBuffs.set(buff.id, buffInstance)
 
   return {
     ...state,
-    activeBuffs: newActiveBuffs,
+    activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
+    buffNext: newBuffNext,
   }
 }
 
@@ -176,12 +294,9 @@ export function applyBuff(
     // )
   }
 
-  const newStatMap = new Map(state.statMap)
-  newStatMap.set(characterId, newPersonalStatMap)
-
   return {
     ...state,
-    statMap: newStatMap,
+    statMap: new Map(state.statMap).set(characterId, newPersonalStatMap),
   }
 }
 
@@ -196,12 +311,7 @@ export function applyStackingBuff(
   const existing = personalBuffs?.get(buff.id)
 
   const currentStacks = existing?.stacks ?? 0
-  return setStackingBuffStacks(
-    state,
-    action,
-    buff,
-    currentStacks + stacksToAdd,
-  )
+  return setStackingBuffStacks(state, action, buff, currentStacks + stacksToAdd)
 }
 
 export function createBuffGlobal(
@@ -224,12 +334,9 @@ export function createBuffGlobal(
 
   console.log(state.row, `add buff ${buff.name}`)
 
-  const newBuffsGlobal = new Map(activeBuffsGlobal)
-  newBuffsGlobal.set(buff.id, buffInstance)
-
   return {
     ...state,
-    activeBuffsGlobal: newBuffsGlobal,
+    activeBuffsGlobal: new Map(activeBuffsGlobal).set(buff.id, buffInstance),
   }
 }
 
@@ -283,8 +390,8 @@ export function setStackingBuffStacks(
   const personalBuffs = state.activeBuffs.get(characterId)
   if (!personalBuffs) return state
 
-  const existingBuff = personalBuffs.get(buff.id)
-  const currentStacks = existingBuff?.stacks ?? 0
+  const existing = personalBuffs.get(buff.id)
+  const currentStacks = existing?.stacks ?? 0
 
   const clampedStacks = Math.max(0, Math.min(targetStacks, buff.stackLimit))
 
@@ -303,7 +410,7 @@ export function setStackingBuffStacks(
 
   if (clampedStacks > 0) {
     newPersonalBuffs.set(buff.id, {
-      ...(existingBuff ?? buff),
+      ...(existing ?? buff),
       stacks: clampedStacks,
       name: `${buff.id} x${clampedStacks}`,
       endTime: state.time + buff.duration,
@@ -312,16 +419,38 @@ export function setStackingBuffStacks(
     return state
   }
 
-  const newActiveBuffs = new Map(state.activeBuffs)
-  newActiveBuffs.set(characterId, newPersonalBuffs)
+  return {
+    ...state,
+    activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
+    statMap: new Map(state.statMap).set(characterId, newPersonalStatMap),
+  }
+}
 
-  const newStatMap = new Map(state.statMap)
-  newStatMap.set(characterId, newPersonalStatMap)
+export function removeBuffStatChanges(
+  state: StateContext,
+  action: TimelineEvent,
+  buff: BuffInstance,
+): StateContext {
+  if (!buff.modifiers) return state
+
+  const characterId = action.characterId
+
+  const personalBuffs = state.activeBuffs.get(characterId)
+  if (!personalBuffs) return state
+
+  const existing = personalBuffs.get(buff.id)
+  if (!existing) return state
+
+  const personalStatMap = state.statMap.get(characterId) ?? { ...baseStatMap }
+  const newPersonalStatMap = { ...personalStatMap }
+
+  for (const modifier of buff.modifiers) {
+    newPersonalStatMap[modifier.class] -= Math.max(modifier.value, 0)
+  }
 
   return {
     ...state,
-    activeBuffs: newActiveBuffs,
-    statMap: newStatMap,
+    statMap: new Map(state.statMap).set(characterId, newPersonalStatMap),
   }
 }
 
@@ -354,87 +483,98 @@ export function removeStackingBuff(
   const personalBuffs = state.activeBuffs.get(characterId)
   if (!personalBuffs) return state
 
-  const existingBuff = personalBuffs.get(buff.id)
-  if (!existingBuff) return state
+  const existing = personalBuffs.get(buff.id)
+  if (!existing) return state
 
-  const newStacks = (existingBuff.stacks ?? 1) - stacksToRemove
+  const newStacks = (existing.stacks ?? 1) - stacksToRemove
 
   const personalStatMap = state.statMap.get(characterId) ?? { ...baseStatMap }
   const newPersonalStatMap = { ...personalStatMap }
 
   // Subtract modifiers based on number of stacks being removed
-  for (const modifier of existingBuff.modifiers ?? []) {
+  for (const modifier of existing.modifiers ?? []) {
     newPersonalStatMap[modifier.class] -=
-      modifier.value * Math.min(stacksToRemove, existingBuff.stacks ?? 1)
+      modifier.value * Math.min(stacksToRemove, existing.stacks ?? 1)
   }
 
   const newPersonalBuffs = new Map(personalBuffs)
   if (newStacks > 0) {
     // Update buff with remaining stacks
-    newPersonalBuffs.set(buff.id, { ...existingBuff, stacks: newStacks })
+    newPersonalBuffs.set(buff.id, { ...existing, stacks: newStacks })
   } else {
     // Remove buff entirely
     newPersonalBuffs.delete(buff.id)
   }
 
-  const newActiveBuffs = new Map(state.activeBuffs)
-  newActiveBuffs.set(characterId, newPersonalBuffs)
-
-  const newStatMap = new Map(state.statMap)
-  newStatMap.set(characterId, newPersonalStatMap)
-
   return {
     ...state,
-    activeBuffs: newActiveBuffs,
-    statMap: newStatMap,
+    activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
+    statMap: new Map(state.statMap).set(characterId, newPersonalStatMap),
   }
 }
 
-export function applyResonanceFlat(
+export function resolveDamageProcs(
   state: StateContext,
   action: TimelineEvent,
   buff: BuffInstance,
+  consumeById: string[],
 ): StateContext {
-  if (!buff.modifiers) return state
+  if (!buff.appliesTo) return state
 
   const characterId = action.characterId
 
-  const character = state.characters.get(characterId)
-  if (!character) return state
-  const newCharacter = { ...character, dCond: { ...character.dCond } }
+  const newActiveBuffs =
+    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
 
-  for (const modifier of buff.modifiers) {
-    if (isDCondKey(modifier.class)) {
-      newCharacter.dCond[modifier.class] += modifier.value
+  const toConsume: BuffInstance[] = []
+
+  for (const id of consumeById) {
+    const found = newActiveBuffs.get(id)
+    if (found) {
+      toConsume.push(found)
     }
   }
 
-  const newCharacters = new Map(state.characters)
-  newCharacters.set(characterId, newCharacter)
+  const newQueuedEvents: TimelineEvent[] = [...state.procQueue]
 
-  return {
-    ...state,
-    characters: newCharacters,
+  for (const buffToBeConsumed of toConsume) {
+    if (!buffToBeConsumed.modifiers) continue
+
+    const mod = buffToBeConsumed.modifiers[0]
+    const { skill, time } = action
+
+    const damageProc: Skill = {
+      id: buffToBeConsumed.id,
+      name: `${buffToBeConsumed.id} Proc`,
+      category: skill.category,
+      classifications: buffToBeConsumed.classifications ?? [],
+      mv: mod.value,
+      frames: 0,
+      hits: 1,
+      forte: mod.forte ?? 0,
+      forte2: mod.forte2 ?? 0,
+      concerto: mod.concerto ?? 0,
+      resonance: mod.resonance ?? 0,
+    }
+
+    const procEvent: TimelineEvent = {
+      characterId,
+      type: "hit",
+      skill: damageProc,
+      time,
+    }
+
+    newQueuedEvents.push(procEvent)
   }
-}
 
-export function applyCooldown(
-  state: StateContext,
-  buff: BuffDefinition,
-): StateContext {
-  if (!buff.cooldown) return state
-
-  const newCooldowns = new Map(state.cooldowns)
-  newCooldowns.set(buff.id, state.time + buff.cooldown)
-
-  console.log(
-    state.row,
-    `cooldowns(${buff.id} -> ${state.time + buff.cooldown})`,
-  )
+  for (const buffToBeConsumed of toConsume) {
+    newActiveBuffs.delete(buffToBeConsumed.id)
+  }
 
   return {
     ...state,
-    cooldowns: newCooldowns,
+    activeBuffs: new Map(state.activeBuffs).set(characterId, newActiveBuffs),
+    procQueue: newQueuedEvents,
   }
 }
 

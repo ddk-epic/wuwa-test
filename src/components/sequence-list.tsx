@@ -97,7 +97,7 @@ function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
               <TableCell
                 className={cn(
                   "pr-3 text-start text-sm text-foreground truncate",
-                  skill.category === "liberation" ? elementColorText : "",
+                  skill.category === "liberation" && elementColorText,
                 )}
               >
                 {skill.name}
@@ -114,7 +114,7 @@ function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
               <TableCell
                 className={cn(
                   "px-2 text-right text-sm",
-                  !!row && row.damage !== 0 ? elementColorText : "",
+                  !!row && row.damage !== 0 && elementColorText,
                 )}
               >
                 {!!row && row.damage !== 0

@@ -279,6 +279,24 @@ function processEvent(
 
   // update dCond
   state = evaluateDCond(state, action)
+    
+  // evaluate queued proc events
+  while (state.procQueue.length > 0) {
+    const event = state.procQueue[0]
+    const damage = calculateDamage(state, event)
+
+    state = {
+      ...state,
+      procQueue: state.procQueue.slice(1),
+      proc: {
+        ...state.proc,
+        damage: state.proc.damage + damage,
+      },
+    }
+
+    // console.log(state.row, event.skill.name)
+  }
+  state = { ...state, procQueue: [] }
 
   return state
 }

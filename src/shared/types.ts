@@ -31,7 +31,6 @@ export type DCOND_KEY = (typeof DCOND_KEYS)[number]
 export type variant = (typeof VARIANT)[number]
 
 export type TriggerValue = {
-  type?: "hit" // defaults to cast
   ability?: string[]
   category?: (SKILL_CATEGORY_KEY | "echo")[]
   condition?: string[]
@@ -57,7 +56,6 @@ export type BuffDefinition = {
   source?: CHARACTER_KEY
   classifications?: BUFF_TYPE[] // For damage proc's
   trigger?: TriggerValue
-  specialTrigger?: TriggerValue
   appliesTo?: CHARACTER_KEY | "all" | "current" | "next"
   modifiers?: ModifierValue[]
   // consumedBy?: string[] // For mode and damage proc's
@@ -67,10 +65,7 @@ export type BuffDefinition = {
   stackInterval?: number
   sequenceReq?: number
 }
-export type WeaponBuffDefinition = Omit<
-  BuffDefinition,
-  "consumedBy" | "sequenceReq"
->
+export type WeaponBuffDefinition = Omit<BuffDefinition, "sequenceReq">
 
 export type BuffInstance = {
   stacks?: number
@@ -206,12 +201,13 @@ export type StateContext = {
   activeBuffs: Map<CHARACTER_KEY, Map<string, BuffInstance>>
   activeBuffsGlobal: Map<string, BuffInstance>
   buffNext: Set<string>
-  buffDeferred: Set<string>
+  buffDeferred: Map<string, BuffDefinition>
   characters: Map<CHARACTER_KEY, Character>
   statMap: Map<CHARACTER_KEY, StatMap>
   cooldowns: Map<string, number> // buff.id, cd
   onFieldChar: CHARACTER_KEY | ""
   prevChar: CHARACTER_KEY | ""
+  procQueue: TimelineEvent[]
   proc: Proc
   row: number
   time: number
@@ -234,6 +230,11 @@ export type BuffResolver = {
     state: StateContext,
     action: TimelineEvent,
     buff: BuffInstance,
+  ) => StateContext
+  onSwap?: (
+    state: StateContext,
+    action: TimelineEvent,
+    buff: BuffDefinition,
   ) => StateContext
   onExpire?: (
     state: StateContext,

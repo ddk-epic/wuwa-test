@@ -1,28 +1,16 @@
-import {
-  CATEGORY_KEYS,
-  DCOND_KEYS,
-  ELEMENT_KEYS,
-  type ActionListItem,
-  type BUFF_TYPE,
-  type BuffDefinition,
-  type BuffInstance,
-  type BuffMap,
-  type CATEGORY,
-  type Character,
-  type CharSettings,
-  type Context,
-  type DCOND_KEY,
-  type DEEPEN_KEY,
-  type ELEMENT,
-  type Result,
-  type SKILL,
-  type TimelineEntry,
-} from "@/constants/types"
-import type { CHARACTER_KEY } from "@/constants/characters"
-import { echoData } from "@/constants/echoes"
-import skillData from "@/constants/skills"
-import characterTemplate from "@/constants/characters"
-import { bonusToDeepen } from "@/constants/maps"
+import skillData from "@/definitions/abilities"
+import characterTemplate from "@/definitions/characters"
+import echoData from "@/definitions/echoes"
+
+import type {
+  ActionListItem,
+  Character,
+  CHARACTER_KEY,
+  CharSettings,
+  Result,
+  SKILL,
+  TimelineEvent,
+} from "@/shared/types"
 
 export function computeBaseCharacter(
   characterId: CHARACTER_KEY,
@@ -162,8 +150,8 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
 
 export function computeEventTimeline(
   sequence: ActionListItem[],
-): TimelineEntry[] {
-  const timeline: TimelineEntry[] = []
+): TimelineEvent[] {
+  const timeline: TimelineEvent[] = []
 
   for (const action of sequence) {
     // main timeline entry
@@ -172,7 +160,7 @@ export function computeEventTimeline(
     const parentId = String(time)
 
     const onCast = skill.onCast
-    const parentItem: TimelineEntry = {
+    const parentItem: TimelineEvent = {
       characterId,
       type: "cast",
       skill: {
@@ -194,7 +182,7 @@ export function computeEventTimeline(
       const { frame, mv, forte, forte2, concerto, resonance } = hit
       const hitFrame = frame ?? 0
 
-      const hitItem: TimelineEntry = {
+      const hitItem: TimelineEvent = {
         characterId,
         type: "hit",
         skill: {
@@ -242,178 +230,13 @@ export function aggregateResult(eventTimeline: Result[]): Result[] {
       parent.damage += row.damage
       parent.concerto = row.concerto
       parent.resonance = row.resonance
+
       parent.buffs = row.buffs
-      parent.buffMap = row.buffMap
+      parent.statMap = row.statMap
+
+      parent.proc.damage += row.proc.damage
     }
   }
 
   return result
-}
-
-export function hasSwapped(
-  prevChar: CHARACTER_KEY | "",
-  currentChar: CHARACTER_KEY,
-) {
-  return prevChar !== currentChar
-}
-
-export function isOffFieldBuff(buff: BuffDefinition) {
-  return !!buff.trigger?.condition?.some(
-    (condition) => condition === "offField",
-  )
-}
-
-export function isOnField(
-  characterId: CHARACTER_KEY,
-  onFieldChar: CHARACTER_KEY | "",
-) {
-  return characterId === onFieldChar
-}
-
-export function canTriggerBuff(ctx: Context, buffId: string) {
-  const cooldownEnd = ctx.cooldowns[buffId] || 0
-  return ctx.time >= cooldownEnd
-}
-
-export function isMatchingActionType(
-  buff: BuffDefinition,
-  action: TimelineEntry,
-) {
-  const buffType = buff.trigger?.type ?? "cast"
-  return buffType === action.type
-}
-
-export function findSkillMatch(
-  ctx: Context,
-  action: TimelineEntry,
-  buffToCheck: BuffDefinition | BuffInstance,
-): boolean {
-  const { characterId, skill } = action
-  const trigger = buffToCheck.trigger
-
-  const skillMatch =
-    trigger?.skill?.includes("any") || trigger?.skill?.includes(skill.id)
-  const hasCategoryMatch = trigger?.category?.includes(skill.category)
-
-  // require mode AND (name OR category)
-  if (trigger?.mode) {
-    const modeMap = ctx.mode.get(characterId) ?? new Map<string, BuffInstance>()
-    const modeMapTeam = ctx.mode.get("all") ?? new Map<string, BuffInstance>()
-    const allModes = [...modeMap.values(), ...modeMapTeam.values()]
-
-    const hasModeMatch = allModes.some((mode) =>
-      trigger.mode?.includes(mode.id),
-    )
-    return hasModeMatch && (!!skillMatch || !!hasCategoryMatch)
-  }
-
-  return !!skillMatch || !!hasCategoryMatch
-}
-
-export function findBuffMatch(
-  ctx: Context,
-  action: TimelineEntry,
-  buffToCheck: BuffDefinition | BuffInstance,
-): boolean {
-  const triggerCondition = buffToCheck.trigger?.condition
-  if (!triggerCondition) return false
-
-  const characterId = action.characterId
-  const buffs = ctx.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
-  const buffsTeam = ctx.activeBuffsTeam ?? new Map<string, BuffInstance>()
-
-  for (const buffMap of [buffs, buffsTeam]) {
-    for (const activeBuff of buffMap.values()) {
-      const buffMatch = triggerCondition.includes(activeBuff.name)
-      return buffMatch
-    }
-  }
-
-  return false
-}
-
-export const buffHandler = {
-  stacking: (buff: BuffInstance, time: number) => {
-    if (!buff.stackLimit || buff.stackCount == null) return null
-
-    const newStacks = Math.min(buff.stackCount + 1, buff.stackLimit)
-    buff.stackCount = newStacks
-    buff.endTime = time + buff.duration
-    buff.name = `${buff.id} x${newStacks}`
-
-    const newModifiers = buff.modifiers.map((modifier) => ({
-      ...modifier,
-      stackValue: newStacks * modifier.value,
-    }))
-
-    return newModifiers
-  },
-}
-
-export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
-  return (DCOND_KEYS as readonly string[]).includes(key)
-}
-
-export function getBonus(
-  buffMap: BuffMap,
-  classifications: BUFF_TYPE[],
-): number {
-  let result = 0
-
-  const bonusKeys = classifications.filter(
-    (key): key is CATEGORY | ELEMENT =>
-      (CATEGORY_KEYS as readonly string[]).includes(key) ||
-      (ELEMENT_KEYS as readonly string[]).includes(key),
-  )
-
-  for (const key of bonusKeys) {
-    result += buffMap[key]
-  }
-
-  return result
-}
-
-export function getDeepen(
-  buffMap: BuffMap,
-  classifications: BUFF_TYPE[],
-): number {
-  let result = 0
-
-  const bonusKeys = classifications.filter(
-    (key): key is CATEGORY | ELEMENT =>
-      (CATEGORY_KEYS as readonly string[]).includes(key) ||
-      (ELEMENT_KEYS as readonly string[]).includes(key),
-  )
-
-  for (const key of bonusKeys) {
-    const deepenKey = bonusToDeepen[key] as DEEPEN_KEY
-    result += buffMap[deepenKey]
-  }
-
-  return result
-}
-
-export function getResMultiplier(enemyRes: number, resDown: number): number {
-  const effectiveRes = enemyRes - resDown
-
-  if (effectiveRes < 0.8) {
-    return 1 - effectiveRes
-  }
-
-  if (effectiveRes <= 0) {
-    return 1 - effectiveRes / 2
-  }
-
-  return 1 / (1 + effectiveRes * 5)
-}
-
-export function getDefMultiplier(
-  characterLevel: number,
-  enemyDef: number,
-  defDown: number,
-): number {
-  const base = 800 + characterLevel * 8
-  const effectiveDefense = enemyDef * (1 - defDown)
-
-  return base / (base + effectiveDefense)
 }
