@@ -3,18 +3,20 @@ import {
   isBuffTarget,
   isAbility,
   createBuff,
-  applyBuff,
+  applyBuffStatChanges,
   isCategory,
   isOnHitEvent,
-  applyStackingBuff,
+  applyStackingBuffStatChanges,
   isOnCooldown,
   applyResonanceFlat,
   isOnCastEvent,
   isBuffGlobal,
-  createBuffGlobal,
-  applyBuffGlobal,
+  createGlobalBuff,
+  applyGlobalBuffStatChanges,
   hasCondition,
   removeStackingBuffStatChanges,
+  removeBuffStatChanges,
+  removeGlobalBuffStatChanges,
 } from "../helper"
 
 const encoreResolver: Record<string, BuffResolver> = {
@@ -27,7 +29,10 @@ const encoreResolver: Record<string, BuffResolver> = {
       return createBuff(state, action, buff)
     },
     onCast: (state, action, buff) => {
-      return applyBuff(state, action, buff)
+      return applyBuffStatChanges(state, action, buff)
+    },
+    onExpire: (state, action, buff) => {
+      return removeBuffStatChanges(state, action, buff)
     },
   },
   "Woolies Cheer Dance": {
@@ -39,7 +44,10 @@ const encoreResolver: Record<string, BuffResolver> = {
       return createBuff(state, action, buff)
     },
     onCast: (state, action, buff) => {
-      return applyBuff(state, action, buff)
+      return applyBuffStatChanges(state, action, buff)
+    },
+    onExpire: (state, action, buff) => {
+      return removeBuffStatChanges(state, action, buff)
     },
   },
   "Cosmos Rave": {
@@ -49,9 +57,6 @@ const encoreResolver: Record<string, BuffResolver> = {
       if (!isAbility(action, buff)) return state
 
       return createBuff(state, action, buff)
-    },
-    onCast: (state, action, buff) => {
-      return applyBuff(state, action, buff)
     },
   },
   "Wooly's Fairy Tale": {
@@ -64,7 +69,10 @@ const encoreResolver: Record<string, BuffResolver> = {
       return createBuff(state, action, buff)
     },
     onHit: (state, action, buff) => {
-      return applyStackingBuff(state, action, buff)
+      return applyStackingBuffStatChanges(state, action, buff)
+    },
+    onExpire: (state, action, buff) => {
+      return removeStackingBuffStatChanges(state, action, buff)
     },
   },
   "Sheep-counting Lullaby": {
@@ -91,7 +99,10 @@ const encoreResolver: Record<string, BuffResolver> = {
       return createBuff(state, action, buff)
     },
     onCast: (state, action, buff) => {
-      return applyBuff(state, action, buff)
+      return applyBuffStatChanges(state, action, buff)
+    },
+    onExpire: (state, action, buff) => {
+      return removeBuffStatChanges(state, action, buff)
     },
   },
   "Adventure? Let's go!": {
@@ -100,10 +111,14 @@ const encoreResolver: Record<string, BuffResolver> = {
       if (!isBuffGlobal(buff)) return state
       if (!isAbility(action, buff)) return state
 
-      return createBuffGlobal(state, action, buff)
+      return createGlobalBuff(state, action, buff)
     },
     onCast: (state, action, buff) => {
-      return applyBuffGlobal(state, action, buff)
+      return applyGlobalBuffStatChanges(state, action, buff)
+    },
+
+    onExpire: (state, action, buff) => {
+      return removeGlobalBuffStatChanges(state, action, buff)
     },
   },
   "Hero Takes the Stage!": {
@@ -114,7 +129,10 @@ const encoreResolver: Record<string, BuffResolver> = {
       return createBuff(state, action, buff)
     },
     onCast: (state, action, buff) => {
-      return applyBuff(state, action, buff)
+      return applyBuffStatChanges(state, action, buff)
+    },
+    onExpire: (state, action, buff) => {
+      return removeBuffStatChanges(state, action, buff)
     },
   },
   "Woolies Save the World!": {
@@ -127,7 +145,7 @@ const encoreResolver: Record<string, BuffResolver> = {
       return createBuff(state, action, buff)
     },
     onHit: (state, action, buff) => {
-      return applyStackingBuff(state, action, buff)
+      return applyStackingBuffStatChanges(state, action, buff)
     },
     onExpire: (state, action, buff) => {
       return removeStackingBuffStatChanges(state, action, buff)

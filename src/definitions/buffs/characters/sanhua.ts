@@ -131,7 +131,7 @@ const sanhua: BuffDefinition[] = [
     appliesTo: "sanhua",
     modifiers: [{ class: "bonus", value: 1.2 }],
     sequenceReq: 4,
-    duration: 0.1,
+    duration: 0.5,
   },
   {
     id: "Unraveling Fate",
@@ -141,19 +141,20 @@ const sanhua: BuffDefinition[] = [
     appliesTo: "sanhua",
     modifiers: [{ class: "critDmg", value: 1, concerto: 7.5 }], // 2 Detonate hits
     sequenceReq: 5,
-    duration: 0.1,
+    duration: 0.5,
   },
   {
     id: "Daybreak Radiance",
     name: "Daybreak Radiance",
     source: "sanhua",
-    trigger: { ability: ["Detonate"] }, // TODO: actual proc logic
+    trigger: { ability: ["Detonate"] },
     appliesTo: "all",
     modifiers: [{ class: "atk", value: 0.1 }],
     stackLimit: 2,
     stackInterval: 0,
     sequenceReq: 6,
     duration: 20,
+    cooldown: 0.5, // to stop double proc
   },
 ]
 
