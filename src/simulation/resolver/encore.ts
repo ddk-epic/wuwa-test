@@ -1,24 +1,23 @@
 import type { BuffResolver } from "@/shared/types"
-
 import {
+  isBuffTarget,
+  isAbility,
   createBuff,
   applyBuff,
-  isAbility,
   isCategory,
-  applyResonanceFlat,
-  applyStackingBuff,
   isOnHitEvent,
-  applyBuffGlobal,
+  applyStackingBuff,
   isOnCooldown,
-  createBuffGlobal,
+  applyResonanceFlat,
   isOnCastEvent,
-  isBuffTarget,
   isBuffGlobal,
+  createBuffGlobal,
+  applyBuffGlobal,
   hasCondition,
   removeStackingBuffStatChanges,
-} from "@/simulation/helper"
+} from "../helper"
 
-export const buffHandler: Record<string, BuffResolver> = {
+const encoreResolver: Record<string, BuffResolver> = {
   "Angry Cosmos": {
     id: "Angry Cosmos",
     onTrigger: (state, action, buff) => {
@@ -135,3 +134,5 @@ export const buffHandler: Record<string, BuffResolver> = {
     },
   },
 }
+
+export default encoreResolver
