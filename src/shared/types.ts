@@ -70,7 +70,7 @@ export type WeaponBuffDefinition = Omit<BuffDefinition, "sequenceReq">
 export type BuffInstance = {
   stacks?: number
   endTime: number
-  originId: string
+  usesLeft: number
 } & BuffDefinition
 
 type EventValues = {
