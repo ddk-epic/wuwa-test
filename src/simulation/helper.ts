@@ -67,6 +67,10 @@ export function hasSwapped(state: StateContext) {
   return state.onFieldChar !== state.prevChar
 }
 
+export function isBuffSource(state: StateContext, buff: BuffDefinition) {
+  return state.action.characterId === buff.source
+}
+
 export function isBuffTarget(
   state: StateContext,
   buff: BuffDefinition,
