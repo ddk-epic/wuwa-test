@@ -329,7 +329,6 @@ function getResult(state: StateContext): Result {
 
 function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
   const allBuffs = new Map<string, BuffDefinition>()
-  const allBuffIds = new Set<string>()
 
   for (const character of characters.values()) {
     const sequence = character.sequence
@@ -341,7 +340,6 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
         const sequenceRequirement = buff.sequenceReq ?? 0
         if (sequenceRequirement > sequence) continue
 
-        allBuffIds.add(buff.id)
         allBuffs.set(buff.id, {
           ...buff,
           duration: buff.duration * 60,
@@ -360,7 +358,6 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
       const rankIndex = Math.max(0, weapon.rank - 1)
 
       for (const buff of wBuffData) {
-        allBuffIds.add(buff.id)
         allBuffs.set(buff.id, {
           ...buff,
           duration: buff.duration * 60,
@@ -377,14 +374,11 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
 
     if (sBuffData) {
       for (const buff of sBuffData) {
-        const appliesTo = buff.appliesTo ? character.id : buff.appliesTo
-
-        allBuffIds.add(buff.id)
         allBuffs.set(buff.id, {
           ...buff,
           duration: buff.duration * 60,
           source: character.id,
-          appliesTo,
+          appliesTo: buff.appliesTo ?? character.id,
         })
       }
     }
@@ -395,20 +389,17 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
 
     if (eBuffData) {
       for (const buff of eBuffData) {
-        const appliesTo = buff.appliesTo ? character.id : buff.appliesTo
-
-        allBuffIds.add(buff.id)
         allBuffs.set(buff.id, {
           ...buff,
           duration: buff.duration * 60,
           source: character.id,
-          appliesTo,
+          appliesTo: buff.appliesTo ?? character.id,
         })
       }
     }
   }
 
-  return { allBuffIds, allBuffs }
+  return allBuffs
 }
 
 function getStatMap(
@@ -427,6 +418,7 @@ function getStatMap(
         personalStatMap[sharedKey] += character.bonusStats[sharedKey]
       }
     }
+    console.log(character.id,character.bonusStats)
 
     newStatMap.set(characterId, personalStatMap)
   }
@@ -500,8 +492,8 @@ export function simulate(
   })
 
   // get Data
-  const { allBuffIds, allBuffs } = getAllBuffs(characters)
-  console.log("allBuffIds", allBuffIds)
+  const allBuffs = getAllBuffs(characters)
+  console.log("allBuffs", allBuffs)
 
   const statMap = getStatMap(characters, baseStatMap)
 
