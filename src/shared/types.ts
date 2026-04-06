@@ -198,6 +198,7 @@ type Message = {
 }
 
 export type StateContext = {
+  action: Omit<TimelineEvent, "time">
   activeBuffs: Map<CHARACTER_KEY, Map<string, BuffInstance>>
   activeBuffsGlobal: Map<string, BuffInstance>
   buffNext: Set<string>
@@ -216,31 +217,11 @@ export type StateContext = {
 
 export type BuffResolver = {
   id: string
-  onTrigger: (
-    state: StateContext,
-    action: TimelineEvent,
-    buff: BuffDefinition,
-  ) => StateContext
-  onCast?: (
-    state: StateContext,
-    action: TimelineEvent,
-    buff: BuffInstance,
-  ) => StateContext
-  onHit?: (
-    state: StateContext,
-    action: TimelineEvent,
-    buff: BuffInstance,
-  ) => StateContext
-  onSwap?: (
-    state: StateContext,
-    action: TimelineEvent,
-    buff: BuffDefinition,
-  ) => StateContext
-  onExpire?: (
-    state: StateContext,
-    action: TimelineEvent,
-    buff: BuffInstance,
-  ) => StateContext
+  onTrigger: (state: StateContext, buff: BuffDefinition) => StateContext
+  onSwap?: (state: StateContext, buff: BuffDefinition) => StateContext
+  onCast?: (state: StateContext, buff: BuffInstance) => StateContext
+  onHit?: (state: StateContext, buff: BuffInstance) => StateContext
+  onExpire?: (state: StateContext, buff: BuffInstance) => StateContext
 }
 
 export type Result = {

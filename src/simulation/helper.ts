@@ -24,10 +24,6 @@ import type {
 // ================== UTILS ===================
 // ============================================
 
-export function getOriginId(action: TimelineEvent) {
-  return `${action.skill.id}-${action.time}`
-}
-
 export function hasUsesLeft(buff: BuffInstance): boolean {
   return buff.usesLeft > 0
 }
@@ -51,8 +47,9 @@ export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
 
 //   return activeBuffs.has(buff.id)
 // }
-export function isOnField(state: StateContext, action: TimelineEvent) {
-  return state.onFieldChar === action.characterId
+
+export function isOnField(state: StateContext) {
+  return state.onFieldChar === state.action.characterId
 }
 
 export function hasSwapped(state: StateContext) {
@@ -60,57 +57,45 @@ export function hasSwapped(state: StateContext) {
 }
 
 export function isBuffTarget(
-  action: TimelineEvent,
+  state: StateContext,
   buff: BuffDefinition,
 ): boolean {
-  const target = action.characterId
-
-  return buff.appliesTo === target
+  return state.action.characterId === buff.appliesTo
 }
 
 export function isBuffGlobal(buff: BuffDefinition) {
   return buff.appliesTo === "all"
 }
 
-export function isAbility(
-  action: TimelineEvent,
-  buff: BuffDefinition,
-): boolean {
-  const trigger = action.skill.id
+export function isAbility(state: StateContext, buff: BuffDefinition): boolean {
+  const trigger = state.action.skill.id
 
   return !!buff.trigger?.ability?.includes(trigger)
 }
 
-export function isCategory(
-  action: TimelineEvent,
-  buff: BuffDefinition,
-): boolean {
-  const trigger = action.skill.category
+export function isCategory(state: StateContext, buff: BuffDefinition): boolean {
+  const trigger = state.action.skill.category
 
   return !!buff.trigger?.category?.includes(trigger)
 }
 
-export function hasCondition(
-  state: StateContext,
-  action: TimelineEvent,
-  buff: BuffDefinition,
-) {
+export function hasCondition(state: StateContext, buff: BuffDefinition) {
   const condition = buff.trigger?.condition
   if (!condition) return false
 
-  const buffs = state.activeBuffs.get(action.characterId)
+  const buffs = state.activeBuffs.get(state.action.characterId)
   if (buffs && condition.some((c) => buffs.has(c))) return true
 
   const buffsGlobal = state.activeBuffsGlobal
   if (condition.some((c) => buffsGlobal.has(c))) return true
 }
 
-export function isOnCastEvent(action: TimelineEvent): boolean {
-  return action.type === "cast"
+export function isOnCastEvent(state: StateContext): boolean {
+  return state.action.type === "cast"
 }
 
-export function isOnHitEvent(action: TimelineEvent): boolean {
-  return action.type === "hit"
+export function isOnHitEvent(state: StateContext): boolean {
+  return state.action.type === "hit"
 }
 
 export function isOnCooldown(
@@ -124,13 +109,8 @@ export function isOnCooldown(
   return false
 }
 
-export function getStacksFromBuff(
-  state: StateContext,
-  action: TimelineEvent,
-  _buff: BuffInstance,
-  buffById: string,
-) {
-  const characterId = action.characterId
+export function getStacksFromBuff(state: StateContext, buffById: string) {
+  const characterId = state.action.characterId
 
   const foundBuff = state.activeBuffs.get(characterId)?.get(buffById)
   if (!foundBuff) return
@@ -143,12 +123,11 @@ export function getStacksFromBuff(
 // ============================================
 export function applyResonanceFlat(
   state: StateContext,
-  action: TimelineEvent,
   buff: BuffInstance,
 ): StateContext {
   if (!buff.modifiers) return state
 
-  const characterId = action.characterId
+  const { characterId } = state.action
 
   const character = state.characters.get(characterId)
   if (!character) return state
@@ -188,11 +167,10 @@ export function applyCooldown(
 
 export function addConsumeStacksToBuff(
   state: StateContext,
-  action: TimelineEvent,
   buff: BuffInstance,
   consumeById: string[],
 ) {
-  const characterId = action.characterId
+  const { characterId } = state.action
   const activeBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
 
@@ -249,12 +227,11 @@ export function addToBuffDeferred(
 // create
 export function createBuff(
   state: StateContext,
-  action: TimelineEvent,
   buff: BuffDefinition,
 ): StateContext {
   if (!buff.appliesTo) return state
 
-  const characterId = action.characterId
+  const { characterId } = state.action
 
   const activeBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
@@ -283,12 +260,11 @@ export function createBuff(
 
 export function createBuffNext(
   state: StateContext,
-  action: TimelineEvent,
   buff: BuffDefinition,
 ): StateContext {
   if (buff.appliesTo !== "next") return state
 
-  const characterId = action.characterId
+  const { characterId } = state.action
 
   const activeBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
@@ -322,7 +298,6 @@ export function createBuffNext(
 
 export function createGlobalBuff(
   state: StateContext,
-  _action: TimelineEvent,
   buff: BuffDefinition,
 ): StateContext {
   const activeBuffsGlobal = state.activeBuffsGlobal
@@ -391,10 +366,9 @@ function applyBuffStatChangesToCharacter(
 
 export function applyBuffStatChanges(
   state: StateContext,
-  action: TimelineEvent,
   buff: BuffInstance,
 ): StateContext {
-  const character = state.characters.get(action.characterId)
+  const character = state.characters.get(state.action.characterId)
   if (!character) return state
 
   return applyBuffStatChangesToCharacter(state, character, buff)
@@ -402,7 +376,6 @@ export function applyBuffStatChanges(
 
 export function applyGlobalBuffStatChanges(
   state: StateContext,
-  _action: TimelineEvent,
   buff: BuffInstance,
 ): StateContext {
   let newState = state
@@ -445,10 +418,9 @@ function removeBuffStatChangesFromCharacter(
 
 export function removeBuffStatChanges(
   state: StateContext,
-  action: TimelineEvent,
   buff: BuffInstance,
 ): StateContext {
-  const character = state.characters.get(action.characterId)
+  const character = state.characters.get(state.action.characterId)
   if (!character) return state
 
   return removeBuffStatChangesFromCharacter(state, character, buff)
@@ -456,7 +428,6 @@ export function removeBuffStatChanges(
 
 export function removeGlobalBuffStatChanges(
   state: StateContext,
-  _action: TimelineEvent,
   buff: BuffInstance,
 ): StateContext {
   let newState = state
@@ -520,13 +491,12 @@ function setStackingBuffStacks(
 
 export function applyStackingBuffStatChanges(
   state: StateContext,
-  action: TimelineEvent,
   buff: BuffInstance,
   stacksToAdd: number = 1,
 ): StateContext {
-  if (action.type === "cast") return state
+  if (state.action.type === "cast") return state
 
-  const character = state.characters.get(action.characterId)
+  const character = state.characters.get(state.action.characterId)
   if (!character) return state
 
   const personalBuffs = state.activeBuffs.get(character.id)
@@ -543,7 +513,6 @@ export function applyStackingBuffStatChanges(
 
 export function applyGlobalStackingBuffStatChanges(
   state: StateContext,
-  _action: TimelineEvent,
   buff: BuffInstance,
   stacksToAdd: number = 1,
 ): StateContext {
@@ -567,11 +536,10 @@ export function applyGlobalStackingBuffStatChanges(
 
 export function removeStackingBuffStatChanges(
   state: StateContext,
-  action: TimelineEvent,
   buff: BuffInstance,
   stacksToRemove: number = 1,
 ): StateContext {
-  const characterId = action.characterId
+  const { characterId } = state.action
   const character = state.characters.get(characterId)
   if (!character) return state
 
@@ -589,7 +557,6 @@ export function removeStackingBuffStatChanges(
 
 export function removeGlobalStackingBuffStatChanges(
   state: StateContext,
-  _action: TimelineEvent,
   buff: BuffInstance,
   stacksToRemove: number = 1,
 ): StateContext {
@@ -612,13 +579,12 @@ export function removeGlobalStackingBuffStatChanges(
 // other
 export function resolveDamageProcs(
   state: StateContext,
-  action: TimelineEvent,
   buff: BuffInstance,
   consumeById: string[],
 ): StateContext {
   if (!buff.appliesTo) return state
 
-  const characterId = action.characterId
+  const { characterId } = state.action
 
   const newActiveBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
@@ -638,7 +604,7 @@ export function resolveDamageProcs(
     if (!buffToBeConsumed.modifiers) continue
 
     const mod = buffToBeConsumed.modifiers[0]
-    const { skill, time } = action
+    const { skill } = state.action
 
     const damageProc: Skill = {
       id: buffToBeConsumed.id,
@@ -658,7 +624,7 @@ export function resolveDamageProcs(
       characterId,
       type: "hit",
       skill: damageProc,
-      time,
+      time: state.time,
     }
 
     newQueuedEvents.push(procEvent)

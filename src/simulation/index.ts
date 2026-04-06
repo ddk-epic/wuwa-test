@@ -30,11 +30,8 @@ import {
   hasSwapped,
 } from "./helper"
 
-function removeExpiredBuffs(
-  state: StateContext,
-  action: TimelineEvent,
-): StateContext {
-  const characterId = action.characterId
+function removeExpiredBuffs(state: StateContext): StateContext {
+  const { characterId } = state.action
   const activeBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
   const activeBuffsGlobal = state.activeBuffsGlobal
@@ -42,11 +39,7 @@ function removeExpiredBuffs(
   const newBuffs = new Map(activeBuffs)
   const newBuffsGlobal = new Map(activeBuffsGlobal)
 
-  function shouldRemoveBuff(
-    state: StateContext,
-    _action: TimelineEvent,
-    buff: BuffInstance,
-  ): boolean {
+  function shouldRemoveBuff(state: StateContext, buff: BuffInstance): boolean {
     // expiration
     if (buff.endTime <= state.time) return true
     // outro buffs
@@ -59,14 +52,14 @@ function removeExpiredBuffs(
 
   // remove expired buffs
   for (const buff of activeBuffs.values()) {
-    if (shouldRemoveBuff(state, action, buff)) {
+    if (shouldRemoveBuff(state, buff)) {
       expiredBuffs.push(buff)
       newBuffs.delete(buff.id)
     }
   }
 
   for (const buff of activeBuffsGlobal.values()) {
-    if (shouldRemoveBuff(state, action, buff)) {
+    if (shouldRemoveBuff(state, buff)) {
       expiredBuffs.push(buff)
       newBuffsGlobal.delete(buff.id)
     }
@@ -77,7 +70,7 @@ function removeExpiredBuffs(
   for (const buff of expiredBuffs) {
     const buffToUpdate = buffHandler[buff.id]
     if (!buffToUpdate.onExpire) continue
-    newState = buffToUpdate.onExpire(newState, action, buff)
+    newState = buffToUpdate.onExpire(newState, buff)
   }
 
   return {
@@ -87,11 +80,8 @@ function removeExpiredBuffs(
   }
 }
 
-function handleEnergyShare(
-  state: StateContext,
-  action: TimelineEvent,
-): StateContext {
-  const { characterId: activeCharacterId, skill } = action
+function handleEnergyShare(state: StateContext): StateContext {
+  const { characterId: activeCharacterId, skill } = state.action
   const value = skill.resonance
 
   const newCharacters = new Map<CHARACTER_KEY, Character>()
@@ -124,7 +114,7 @@ function evaluateDCond(
 
   if (!character) return state
 
-  let newState = handleEnergyShare(state, action)
+  let newState = handleEnergyShare(state)
 
   const newCharacters = new Map(newState.characters)
   const newCharacter = newCharacters.get(characterId)
@@ -152,11 +142,13 @@ function evaluateDCond(
   }
 }
 
-function calculateDamage(state: StateContext, action: TimelineEvent) {
-  if (action.type === "cast") return 0
+function calculateDamage(
+  state: StateContext,
+  action: TimelineEvent | Omit<TimelineEvent, "time">,
+) {
+  const { characterId, type, skill } = action
+  if (type === "cast") return 0
 
-  const characterId = action.characterId
-  const skill = action.skill
   const char = state.characters.get(characterId)
   const statMap = state.statMap.get(characterId)
 
@@ -167,7 +159,7 @@ function calculateDamage(state: StateContext, action: TimelineEvent) {
   const skillLevel = 10
   const attack = char.atk * (1 + statMap.atk) + char.bonusStats.atkFlat
   const skillMultiplier =
-    action.skill.mv * getSkillLevel[skillLevel] * (1 + statMap.multiplier)
+    skill.mv * getSkillLevel[skillLevel] * (1 + statMap.multiplier)
   const bonusMultiplier =
     1 + getBonus(statMap, skill.classifications) + statMap.bonus
   const deepenMultiplier = 1 + getDeepen(statMap, skill.classifications)
@@ -216,14 +208,16 @@ function processEvent(
   action: TimelineEvent,
   allBuffs: Map<string, BuffDefinition>,
 ): StateContext {
-  const { characterId } = action
+  const characterId = action.characterId
+  const { time, ...rest } = action
 
-  state.onFieldChar =
-    action.type === "cast" ? action.characterId : state.onFieldChar
-  state.time = action.time
+  state.action = rest
+  state.time = time
+
+  state.onFieldChar = action.type === "cast" ? characterId : state.onFieldChar
 
   // remove expired buffs
-  state = removeExpiredBuffs(state, action)
+  state = removeExpiredBuffs(state)
 
   // add onSwap buffs
   for (const buffId of state.buffNext) {
@@ -231,7 +225,7 @@ function processEvent(
     const buff = allBuffs.get(buffId)
     if (!buffToAdd.onSwap || !buff) continue
 
-    state = buffToAdd.onSwap(state, action, buff)
+    state = buffToAdd.onSwap(state, buff)
   }
 
   // add triggered buffs
@@ -239,7 +233,7 @@ function processEvent(
     const buffToAdd = buffHandler[buff.id]
     if (!buffToAdd) continue
 
-    state = buffToAdd.onTrigger(state, action, buff)
+    state = buffToAdd.onTrigger(state, buff) // TODO: implement to keep the buff with highest stacks
   }
 
   // evaluate buffs
@@ -251,10 +245,10 @@ function processEvent(
 
     if (action.type === "hit") {
       if (!buffToCheck.onHit) continue
-      state = buffToCheck.onHit(state, action, buff)
+      state = buffToCheck.onHit(state, buff)
     } else {
       if (!buffToCheck.onCast) continue
-      state = buffToCheck.onCast(state, action, buff)
+      state = buffToCheck.onCast(state, buff)
     }
 
     state = applyCooldown(state, buff)
@@ -268,10 +262,10 @@ function processEvent(
 
     if (action.type === "hit") {
       if (!buffToCheck.onHit) continue
-      state = buffToCheck.onHit(state, action, buff)
+      state = buffToCheck.onHit(state, buff)
     } else {
       if (!buffToCheck.onCast) continue
-      state = buffToCheck.onCast(state, action, buff)
+      state = buffToCheck.onCast(state, buff)
     }
 
     state = applyCooldown(state, buff)
@@ -279,7 +273,7 @@ function processEvent(
 
   // update dCond
   state = evaluateDCond(state, action)
-    
+
   // evaluate queued proc events
   while (state.procQueue.length > 0) {
     const event = state.procQueue[0]
@@ -301,8 +295,8 @@ function processEvent(
   return state
 }
 
-function getResult(state: StateContext, action: TimelineEvent): Result {
-  const characterId = action.characterId
+function getResult(state: StateContext): Result {
+  const { characterId, type, skill, parent } = state.action
 
   const getBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
@@ -315,15 +309,15 @@ function getResult(state: StateContext, action: TimelineEvent): Result {
 
   const resultObject: Result = {
     row: state.row,
-    characterId: action.characterId,
-    type: action.type,
-    skill: action.skill,
+    characterId,
+    type,
+    skill,
     time: state.time,
     concerto: state.characters.get(characterId)?.dCond.concerto ?? 0,
     resonance: state.characters.get(characterId)?.dCond.resonance ?? 0,
-    damage: calculateDamage(state, action),
+    damage: calculateDamage(state, state.action),
     proc: { ...state.proc },
-    parent: action.parent,
+    parent,
     buffs: resBuffs,
     buffsGlobal: resBuffsGlobal,
     statMap: { ...resStatMap },
@@ -444,6 +438,24 @@ function getContext(
   characters: Map<CHARACTER_KEY, Character>,
   statMap: Map<CHARACTER_KEY, StatMap>,
 ): StateContext {
+  const action: Omit<TimelineEvent, "time"> = {
+    characterId: "encore",
+    type: "cast",
+    skill: {
+      id: "",
+      name: "",
+      category: "intro",
+      classifications: ["fusion", "intro"],
+      frames: 92,
+      mv: 0,
+      hits: 0,
+      forte: 0,
+      forte2: 0,
+      concerto: 0,
+      resonance: 0,
+    },
+  }
+
   const activeBuffs = new Map<CHARACTER_KEY, Map<string, BuffInstance>>()
   for (const [characterId] of characters) {
     activeBuffs.set(characterId, new Map<string, BuffInstance>())
@@ -458,6 +470,7 @@ function getContext(
   const proc = { damage: 0, heal: 0, shield: 0 }
 
   return {
+    action,
     activeBuffs,
     activeBuffsGlobal,
     prevChar: "",
@@ -498,7 +511,7 @@ export function simulate(
   // calculation loop
   for (const action of actionList) {
     state = processEvent(state, action, allBuffs)
-    const result = getResult(state, action)
+    const result = getResult(state)
 
     // setup for next iteration
     state.prevChar = state.onFieldChar
