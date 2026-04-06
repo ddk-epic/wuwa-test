@@ -122,7 +122,9 @@ function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
                   : placeholder}
               </TableCell>
               <TableCell className="px-2 font-mono text-right">
-                {!!row ? Math.round(row.proc.damage) : placeholder}
+                {!!row
+                  ? Math.round(row.proc.damage).toLocaleString("en-US")
+                  : placeholder}
               </TableCell>
               <TableCell className="w-4 p-0 pr-1">
                 <Button

@@ -186,7 +186,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
               className={cn(
                 "sticky left-44 z-10 bg-card shadow-[inset_0_-1px_0_rgb(39,39,42)]",
                 isCast && elementColorText,
-                isHit && "text-xs"
+                isHit && "text-xs",
               )}
             >
               {skill.name}
@@ -206,7 +206,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
                 damage !== 0 && elementColorText,
               )}
             >
-              {damage > 0 ? Math.round(damage) : "--"}
+              {damage > 0 ? Math.round(damage).toLocaleString("en-US") : "--"}
             </TableCell>
             <TableCell
               className={cn(
@@ -215,7 +215,9 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
                 proc.damage !== 0 && isHit && "text-xs text-muted-foreground",
               )}
             >
-              {proc.damage > 0 ? Math.round(proc.damage) : ""}
+              {proc.damage > 0
+                ? Math.round(proc.damage).toLocaleString("en-US")
+                : ""}
             </TableCell>
             <TableCell className="text-[14px] shadow-[inset_0_-1px_0_rgb(39,39,42)]">
               {`(${buffs.length || 0}) ${[activeBuffString]}`}
