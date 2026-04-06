@@ -233,7 +233,7 @@ function processEvent(
     const buffToAdd = buffHandler[buff.id]
     if (!buffToAdd) continue
 
-    state = buffToAdd.onTrigger(state, buff) // TODO: implement to keep the buff with highest stacks
+    state = buffToAdd.onTrigger(state, buff)
   }
 
   // evaluate buffs

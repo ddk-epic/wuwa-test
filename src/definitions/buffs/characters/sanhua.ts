@@ -154,7 +154,6 @@ const sanhua: BuffDefinition[] = [
     stackInterval: 0,
     sequenceReq: 6,
     duration: 20,
-    cooldown: 0.5, // to stop double proc
   },
 ]
 

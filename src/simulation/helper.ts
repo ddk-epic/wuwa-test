@@ -109,18 +109,38 @@ export function isOnCooldown(
   return false
 }
 
-export function getStacksFromBuff(state: StateContext, buffById: string) {
-  const characterId = state.action.characterId
-
-  const foundBuff = state.activeBuffs.get(characterId)?.get(buffById)
-  if (!foundBuff) return
-
-  return foundBuff.stacks ?? 0
-}
-
 // ============================================
 // =============== BUFF UTILS =================
 // ============================================
+export function addToBuffNext(
+  state: StateContext,
+  buff: BuffDefinition,
+): StateContext {
+  if (buff.appliesTo !== "next") return state
+
+  // console.log(state.row, `add buff ${buff.name} to buffNext`)
+
+  return {
+    ...state,
+    buffNext: new Set<string>(state.buffNext).add(buff.id),
+  }
+}
+
+export function addToBuffDeferred(
+  state: StateContext,
+  buff: BuffDefinition,
+): StateContext {
+  // console.log(state.row, `add buff ${buff.name} to buffDeferred`)
+
+  return {
+    ...state,
+    buffDeferred: new Map<string, BuffDefinition>(state.buffDeferred).set(
+      buff.id,
+      buff,
+    ),
+  }
+}
+
 export function applyResonanceFlat(
   state: StateContext,
   buff: BuffInstance,
@@ -147,22 +167,43 @@ export function applyResonanceFlat(
 
 export function applyCooldown(
   state: StateContext,
-  buff: BuffDefinition,
+  buff: BuffInstance,
 ): StateContext {
-  if (!buff.cooldown) return state
-
   const newCooldowns = new Map(state.cooldowns)
-  newCooldowns.set(buff.id, state.time + buff.cooldown)
 
-  console.log(
-    state.row,
-    `cooldowns(${buff.id} -> ${state.time + buff.cooldown})`,
-  )
+  // buff cd
+  if (buff.cooldown) {
+    newCooldowns.set(buff.id, state.time + buff.cooldown)
+
+    console.log(
+      state.row,
+      `cooldowns(${buff.id} -> ${state.time + buff.cooldown})`,
+    )
+  }
+
+  // stacking buff cd
+  if (buff.stackInterval && buff.stackInterval > 0) {
+    newCooldowns.set(buff.id, state.time + buff.stackInterval)
+
+    console.log(
+      state.row,
+      `cooldowns(${buff.id} -> ${state.time + buff.stackInterval})`,
+    )
+  }
 
   return {
     ...state,
     cooldowns: newCooldowns,
   }
+}
+
+export function getStacksFromBuff(state: StateContext, buffById: string) {
+  const characterId = state.action.characterId
+
+  const foundBuff = state.activeBuffs.get(characterId)?.get(buffById)
+  if (!foundBuff) return
+
+  return foundBuff.stacks ?? 0
 }
 
 export function addConsumeStacksToBuff(
@@ -195,35 +236,9 @@ export function addConsumeStacksToBuff(
   }
 }
 
-export function addToBuffNext(
-  state: StateContext,
-  buff: BuffDefinition,
-): StateContext {
-  if (buff.appliesTo !== "next") return state
-
-  // console.log(state.row, `add buff ${buff.name} to buffNext`)
-
-  return {
-    ...state,
-    buffNext: new Set<string>(state.buffNext).add(buff.id),
-  }
-}
-
-export function addToBuffDeferred(
-  state: StateContext,
-  buff: BuffDefinition,
-): StateContext {
-  // console.log(state.row, `add buff ${buff.name} to buffDeferred`)
-
-  return {
-    ...state,
-    buffDeferred: new Map<string, BuffDefinition>(state.buffDeferred).set(
-      buff.id,
-      buff,
-    ),
-  }
-}
-
+// ============================================
+// ================ BUFF MAIN =================
+// ============================================
 // create
 export function createBuff(
   state: StateContext,
@@ -238,19 +253,24 @@ export function createBuff(
 
   const existing = activeBuffs.get(buff.id)
 
-  const buffInstance: BuffInstance = {
-    ...buff,
-    endTime: state.time + buff.duration, // refresh duration on re-trigger
-    ...(buff.stackLimit && {
-      stacks: Math.min(existing?.stacks ?? 0, buff.stackLimit),
-    }),
-    usesLeft: existing?.usesLeft ?? 1,
-  }
+  const newBuffInstance: BuffInstance = existing
+    ? {
+        ...existing,
+        endTime: state.time + buff.duration, // refresh duration on re-trigger
+      }
+    : {
+        ...buff,
+        endTime: state.time + buff.duration,
+        ...(buff.stackLimit && {
+          stacks: 0,
+        }),
+        usesLeft: 1,
+      }
 
   // console.log(state.row, `add buff ${buff.name}`)
 
   const newPersonalBuffs = new Map(activeBuffs)
-  newPersonalBuffs.set(buff.id, buffInstance)
+  newPersonalBuffs.set(buff.id, newBuffInstance)
 
   return {
     ...state,
@@ -304,20 +324,25 @@ export function createGlobalBuff(
 
   const existing = activeBuffsGlobal.get(buff.id)
 
-  const buffInstance: BuffInstance = {
-    ...buff,
-    endTime: state.time + buff.duration, // refresh duration on re-trigger
-    ...(buff.stackLimit && {
-      stacks: Math.min(existing?.stacks ?? 0, buff.stackLimit),
-    }),
-    usesLeft: 1,
-  }
+    const newBuffInstance: BuffInstance = existing
+    ? {
+        ...existing,
+        endTime: state.time + buff.duration, // refresh duration on re-trigger
+      }
+    : {
+        ...buff,
+        endTime: state.time + buff.duration,
+        ...(buff.stackLimit && {
+          stacks: 0,
+        }),
+        usesLeft: 1,
+      }
 
   // console.log(state.row, `add buff ${buff.name}`)
 
   return {
     ...state,
-    activeBuffsGlobal: new Map(activeBuffsGlobal).set(buff.id, buffInstance),
+    activeBuffsGlobal: new Map(activeBuffsGlobal).set(buff.id, newBuffInstance),
   }
 }
 
@@ -385,6 +410,7 @@ export function applyGlobalBuffStatChanges(
   return newState
 }
 
+// remove
 function removeBuffStatChangesFromCharacter(
   state: StateContext,
   character: Character,
