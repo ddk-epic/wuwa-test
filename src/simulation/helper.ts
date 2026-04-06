@@ -411,16 +411,29 @@ function applyBuffStatChangesToCharacter(
   const newPersonalStatMap = { ...personalStatMap }
 
   for (const modifier of buff.modifiers) {
-    newPersonalStatMap[modifier.class] += modifier.value
-
     if (modifier.concerto) newCharacter.dCond.concerto += modifier.concerto
     if (modifier.resonance) newCharacter.dCond.resonance += modifier.resonance
+
+    if (modifier.class === "allEle") {
+      for (const element of ELEMENT_KEYS) {
+        newPersonalStatMap[element] += modifier.value
+      }
+      continue
+    }
+
+    if (modifier.class === "allDeep") {
+      for (const element of ELEMENT_KEYS) {
+        const deepenElement = bonusToDeepen[element]
+        newPersonalStatMap[deepenElement] += modifier.value
+      }
+      continue
+    }
+
+    newPersonalStatMap[modifier.class] += modifier.value
   }
 
   // update buffs
-  const personalBuffs =
-    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
-  const newPersonalBuffs = new Map(personalBuffs)
+  const newPersonalBuffs = new Map(state.activeBuffs.get(characterId))
   newPersonalBuffs.set(buff.id, newBuff)
 
   return {
@@ -472,8 +485,29 @@ function removeBuffStatChangesFromCharacter(
   const newPersonalStatMap = { ...personalStatMap }
 
   for (const modifier of buff.modifiers) {
+    if (modifier.class === "allEle") {
+      for (const element of ELEMENT_KEYS) {
+        newPersonalStatMap[element] = Math.max(
+          newPersonalStatMap[element] - modifier.value, // clamp to >= 0
+          0,
+        )
+      }
+      continue
+    }
+
+    if (modifier.class === "allDeep") {
+      for (const element of ELEMENT_KEYS) {
+        const deepenElement = bonusToDeepen[element]
+        newPersonalStatMap[deepenElement] = Math.max(
+          newPersonalStatMap[deepenElement] - modifier.value, // clamp to >= 0
+          0,
+        )
+      }
+      continue
+    }
+
     newPersonalStatMap[modifier.class] = Math.max(
-      newPersonalStatMap[modifier.class] - modifier.value, // clamp to >0
+      newPersonalStatMap[modifier.class] - modifier.value, // clamp to >= 0
       0,
     )
   }
