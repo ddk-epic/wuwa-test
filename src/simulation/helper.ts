@@ -28,6 +28,17 @@ export function hasUsesLeft(buff: BuffInstance): boolean {
   return buff.usesLeft > 0
 }
 
+export function addNewCooldown(
+  cooldownMap: Map<string, number>,
+  buffId: string,
+  endTime: number,
+): Map<string, number> {
+  const existingCd = cooldownMap.get(buffId) ?? 0
+  if (existingCd >= endTime) return cooldownMap
+
+  return new Map(cooldownMap).set(buffId, endTime)
+}
+
 export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
   return (DCOND_KEYS as readonly string[]).includes(key)
 }
@@ -73,21 +84,44 @@ export function isAbility(state: StateContext, buff: BuffDefinition): boolean {
   return !!buff.trigger?.ability?.includes(trigger)
 }
 
-export function isCategory(state: StateContext, buff: BuffDefinition): boolean {
+export function isCategory(
+  state: StateContext,
+  buff: BuffDefinition,
+  target: string | "buff" = "buff",
+): boolean {
   const trigger = state.action.skill.category
 
-  return !!buff.trigger?.category?.includes(trigger)
+  if (target === "buff") {
+    return !!buff.trigger?.category?.includes(trigger)
+  }
+
+  return target === trigger
 }
 
-export function hasCondition(state: StateContext, buff: BuffDefinition) {
+export function hasCondition(
+  state: StateContext,
+  buff: BuffDefinition,
+  getBuffBy: "id" | "name" = "id",
+) {
   const condition = buff.trigger?.condition
   if (!condition) return false
 
-  const buffs = state.activeBuffs.get(state.action.characterId)
-  if (buffs && condition.some((c) => buffs.has(c))) return true
+  if (getBuffBy === "id") {
+    const buffs = state.activeBuffs.get(state.action.characterId)
+    if (buffs && condition.some((c) => buffs.has(c))) return true
 
-  const buffsGlobal = state.activeBuffsGlobal
-  if (condition.some((c) => buffsGlobal.has(c))) return true
+    const globalBuffs = state.activeBuffsGlobal
+    if (condition.some((c) => globalBuffs.has(c))) return true
+  }
+
+  const buffs = state.activeBuffs.get(state.action.characterId)
+  if (buffs && [...buffs].some(([_, b]) => condition.includes(b.name)))
+    return true
+
+  const globalBuffs = state.activeBuffsGlobal
+  if ([...globalBuffs].some(([_, b]) => condition.includes(b.name))) return true
+
+  return false
 }
 
 export function isOnCastEvent(state: StateContext): boolean {
@@ -169,26 +203,34 @@ export function applyCooldown(
   state: StateContext,
   buff: BuffInstance,
 ): StateContext {
-  const newCooldowns = new Map(state.cooldowns)
+  let newCooldowns = new Map(state.cooldowns)
 
   // buff cd
   if (buff.cooldown) {
-    newCooldowns.set(buff.id, state.time + buff.cooldown)
-
-    console.log(
-      state.row,
-      `cooldowns(${buff.id} -> ${state.time + buff.cooldown})`,
+    newCooldowns = addNewCooldown(
+      newCooldowns,
+      buff.id,
+      state.time + buff.cooldown,
     )
+
+    // console.log(
+    //   state.row,
+    //   `cooldowns(${buff.id} -> ${state.time + buff.cooldown})`,
+    // )
   }
 
   // stacking buff cd
   if (buff.stackInterval && buff.stackInterval > 0) {
-    newCooldowns.set(buff.id, state.time + buff.stackInterval)
-
-    console.log(
-      state.row,
-      `cooldowns(${buff.id} -> ${state.time + buff.stackInterval})`,
+    newCooldowns = addNewCooldown(
+      newCooldowns,
+      buff.id,
+      state.time + buff.stackInterval,
     )
+
+    // console.log(
+    //   state.row,
+    //   `cooldowns(${buff.id} -> ${state.time + buff.stackInterval})`,
+    // )
   }
 
   return {
@@ -324,7 +366,7 @@ export function createGlobalBuff(
 
   const existing = activeBuffsGlobal.get(buff.id)
 
-    const newBuffInstance: BuffInstance = existing
+  const newBuffInstance: BuffInstance = existing
     ? {
         ...existing,
         endTime: state.time + buff.duration, // refresh duration on re-trigger
@@ -603,6 +645,44 @@ export function removeGlobalStackingBuffStatChanges(
 }
 
 // other
+export function updateBuffIdentity(
+  state: StateContext,
+  buff: BuffDefinition,
+  buffToBeConsumedId: string,
+): StateContext {
+  const { characterId } = state.action
+
+  const activeBuffs =
+    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
+
+  const existing = activeBuffs.get(buffToBeConsumedId)
+  if (!existing) return state
+
+  const newBuffInstance: BuffInstance = {
+    ...existing,
+    id: buff.id,
+    name: buff.name,
+    endTime: state.time + buff.duration, // refresh duration on re-trigger
+    usesLeft: 1,
+  }
+
+  const newCooldowns = addNewCooldown(
+    state.cooldowns,
+    existing.id,
+    state.time + buff.duration,
+  )
+
+  const newPersonalBuffs = new Map(activeBuffs)
+  newPersonalBuffs.delete(existing.id)
+  newPersonalBuffs.set(buff.id, newBuffInstance)
+
+  return {
+    ...state,
+    activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
+    cooldowns: newCooldowns,
+  }
+}
+
 export function resolveDamageProcs(
   state: StateContext,
   buff: BuffInstance,

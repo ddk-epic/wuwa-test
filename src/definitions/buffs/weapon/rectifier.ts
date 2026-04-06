@@ -3,8 +3,8 @@ import type { WeaponBuffDefinition } from "@/shared/types"
 const rectifier: Record<string, WeaponBuffDefinition[]> = {
   "Stellar Symphony": [
     {
-      id: "Stringmaster (Ele)",
-      name: "Stringmaster (Ele)",
+      id: "Stellar Symphony",
+      name: "Stellar Symphony",
       modifiers: [
         { class: "allEle", value: 0.12 },
         { class: "allEle", value: 0.15 },
@@ -46,7 +46,7 @@ const rectifier: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Stringmaster (Off-field)",
       name: "Stringmaster (Off-field)",
-      trigger: { category: ["skill"], condition: ["offField"] },
+      trigger: { category: ["skill"] },
       modifiers: [
         { class: "atk", value: 0.12 },
         { class: "atk", value: 0.15 },
@@ -56,7 +56,7 @@ const rectifier: Record<string, WeaponBuffDefinition[]> = {
       ],
       stackLimit: 2,
       stackInterval: 0,
-      duration: 1,
+      duration: 0.5,
     },
   ],
 }

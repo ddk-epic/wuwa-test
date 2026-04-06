@@ -1,6 +1,6 @@
 import type { WeaponBuffDefinition } from "@/shared/types"
 
-const swords: Record<string, WeaponBuffDefinition[]> = {
+const sword: Record<string, WeaponBuffDefinition[]> = {
   "Blazing Brilliance": [
     {
       id: "Blazing Brilliance (ATK)",
@@ -17,7 +17,7 @@ const swords: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Blazing Brilliance (Skill)",
       name: "Blazing Brilliance (Skill)",
-      trigger: { type: "hit", ability: ["any"] },
+      trigger: {ability: ["any"] },
       modifiers: [
         { class: "skill", value: 0.04 },
         { class: "skill", value: 0.05 },
@@ -32,14 +32,7 @@ const swords: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Blazing Brilliance (MAX)",
       name: "Blazing Brilliance (MAX)",
-      trigger: { condition: ["Blazing Brilliance (Skill) x14"] },
-      modifiers: [
-        { class: "skill", value: 0.04 * 14 },
-        { class: "skill", value: 0.05 * 14 },
-        { class: "skill", value: 0.06 * 14 },
-        { class: "skill", value: 0.07 * 14 },
-        { class: "skill", value: 0.08 * 14 },
-      ],
+      trigger: { condition: ["Blazing Brilliance (Skill) x13"] },
       duration: 10,
     },
   ],
@@ -74,4 +67,4 @@ const swords: Record<string, WeaponBuffDefinition[]> = {
   ],
 }
 
-export default swords
+export default sword
