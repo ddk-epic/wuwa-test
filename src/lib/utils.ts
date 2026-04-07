@@ -63,13 +63,20 @@ export function getStatCellColor(statKey: BUFF_TYPE, value: number) {
   const { rgb, minValue, maxValue } = STAT_COLORS[statKey]
   const [r, g, b] = rgb.split(" ").map(Number)
 
-  const baseFactor = 0.4
+  if (value === 0)
+    return {
+      backgroundColor: `rgba(${r}, ${g}, ${b}, 0.15)`,
+    }
+
+  const baseAlpha = 0.25 // minimum visibility
+  const maxAlpha = 0.7
 
   const normalized = (value - minValue) / (maxValue - minValue)
-  const intensity = Math.min(Math.max(normalized, 0), 1) // clamped
+  const intensity = Math.min(Math.max(normalized, 0), 1)
 
-  const mix = (channel: number) =>
-    Math.round(channel * (baseFactor + (1 - baseFactor) * intensity) + 20)
+  const alpha = Math.min(maxAlpha, baseAlpha + (1 - baseAlpha) * intensity)
 
-  return { backgroundColor: `rgb(${mix(r)} ${mix(g)} ${mix(b)})` }
+  return {
+    backgroundColor: `rgba(${r}, ${g}, ${b}, ${alpha})`,
+  }
 }

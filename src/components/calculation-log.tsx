@@ -47,26 +47,26 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           </TableHead>
           <TableHead
             colSpan={5}
-            style={getStatCellColor("basic", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Damage Bonuses
           </TableHead>
           <TableHead
             colSpan={6}
+            style={getStatCellColor("basic", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Elemental Bonuses
           </TableHead>
           <TableHead
             colSpan={5}
-            style={getStatCellColor("basic", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Damage Deepen
           </TableHead>
           <TableHead
             colSpan={6}
+            style={getStatCellColor("basic", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
             Elemental Deepen
@@ -90,16 +90,16 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           <TableHead className="sticky left-0 top-6 z-30 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             #
           </TableHead>
-          <TableHead className="sticky left-5.75 top-6 z-30 min-w-28 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+          <TableHead className="sticky left-5.75 top-6 z-30 min-w-23 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             Character
           </TableHead>
-          <TableHead className="sticky left-33.75 top-6 z-30 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+          <TableHead className="sticky left-28.75 top-6 z-30 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             {/* Category */}
           </TableHead>
-          <TableHead className="sticky left-44 top-6 z-30 min-w-64 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+          <TableHead className="sticky left-39 top-6 z-30 min-w-54 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             Skill
           </TableHead>
-          <TableHead className="sticky left-108 top-6 z-30 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+          <TableHead className="sticky left-93 top-6 z-30 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             Time
           </TableHead>
           <TableHead className="sticky left-0 top-6 z-20 column-header py-1 bg-zinc-800 text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
@@ -176,7 +176,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             </TableCell>
             <TableCell
               className={cn(
-                "sticky left-33.75 z-10 pt-2! bg-card align-middle text-[12px] font-mono uppercase tracking-wider shadow-[inset_0_-1px_0_rgb(39,39,42)]",
+                "sticky left-28.75 z-10 pt-2! bg-card align-middle text-[12px] font-mono uppercase tracking-wider shadow-[inset_0_-1px_0_rgb(39,39,42)]",
                 isHit ? "text-transparent" : "text-muted-foreground",
               )}
             >
@@ -184,14 +184,14 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             </TableCell>
             <TableCell
               className={cn(
-                "sticky left-44 z-10 bg-card shadow-[inset_0_-1px_0_rgb(39,39,42)]",
+                "sticky left-39 z-10 bg-card shadow-[inset_0_-1px_0_rgb(39,39,42)]",
                 isCast && elementColorText,
                 isHit && "text-xs",
               )}
             >
               {skill.name}
             </TableCell>
-            <TableCell className="sticky left-108 z-10 bg-card shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+            <TableCell className="sticky left-93 z-10 bg-card shadow-[inset_0_-1px_0_rgb(39,39,42)]">
               {frameToSecond(time)}
             </TableCell>
             <TableCell className="bg-zinc-800/50 text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]">
@@ -229,7 +229,10 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
               <TableCell
                 key={`${row}-${statKey}`}
                 style={getStatCellColor(statKey, value)}
-                className="pl-0 pr-2.5 text-right bg-zinc-800/50"
+                className={cn(
+                  "pl-0 pr-2.5 text-right bg-zinc-800/50",
+                  value === 0 && "text-muted-foreground",
+                )}
               >
                 {toPercent(value)}
               </TableCell>

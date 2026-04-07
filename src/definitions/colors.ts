@@ -60,16 +60,16 @@ export const STAT_COLORS: Record<
   crit: { rgb: "59 130 246", minValue: 0.5, maxValue: 1, label: "crit" },
   critDmg: { rgb: "59 130 246", minValue: 2, maxValue: 3.5, label: "cDmg" },
   // category bonuses (5)
-  basic: { rgb: "118 118 118", minValue: 0, maxValue: 1.5, label: "basic" },
-  heavy: { rgb: "118 118 118", minValue: 0, maxValue: 1.5, label: "heavy" },
-  skill: { rgb: "118 118 118", minValue: 0, maxValue: 1.5, label: "skill" },
+  basic: { rgb: "98 98 98", minValue: 0, maxValue: 1.5, label: "basic" },
+  heavy: { rgb: "98 98 98", minValue: 0, maxValue: 1.5, label: "heavy" },
+  skill: { rgb: "98 98 98", minValue: 0, maxValue: 1.5, label: "skill" },
   liberation: {
-    rgb: "118 118 118",
+    rgb: "98 98 98",
     minValue: 0,
     maxValue: 1.5,
     label: "liber",
   },
-  all: { rgb: "118 118 118", minValue: 0, maxValue: 1.5, label: "all" },
+  all: { rgb: "98 98 98", minValue: 0, maxValue: 1.5, label: "all" },
   // elemental bonuses (6)
   aero: { rgb: "16 185 129", minValue: 0, maxValue: 1.5, label: "aero" },
   electro: { rgb: "139 92 246", minValue: 0, maxValue: 1.5, label: "electro" },
@@ -78,11 +78,11 @@ export const STAT_COLORS: Record<
   havoc: { rgb: "190 18 60", minValue: 0, maxValue: 1.5, label: "havoc" },
   spectro: { rgb: "253 224 71", minValue: 0, maxValue: 1.5, label: "spectro" },
   // category deepen (5)
-  baDeep: { rgb: "118 118 118", minValue: 0, maxValue: 0.2, label: "basic" },
-  heDeep: { rgb: "118 118 118", minValue: 0, maxValue: 0.2, label: "heavy" },
-  skDeep: { rgb: "118 118 118", minValue: 0, maxValue: 0.2, label: "skill" },
-  liDeep: { rgb: "118 118 118", minValue: 0, maxValue: 0.2, label: "liber" },
-  allDeep: { rgb: "118 118 118", minValue: 0, maxValue: 0.2, label: "all" },
+  baDeep: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "basic" },
+  heDeep: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "heavy" },
+  skDeep: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "skill" },
+  liDeep: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "liber" },
+  allDeep: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "all" },
   // elemental deepen (6)
   aeDeep: { rgb: "16 185 129", minValue: 0, maxValue: 0.2, label: "aero" },
   elDeep: { rgb: "139 92 246", minValue: 0, maxValue: 0.2, label: "electro" },
@@ -95,8 +95,8 @@ export const STAT_COLORS: Record<
   amp: { rgb: "6 182 212", minValue: 0, maxValue: 0.2, label: "amp" },
   multiplier: { rgb: "6 182 212", minValue: 0, maxValue: 0.2, label: "multi" },
   // special (2)
-  resIgnore: { rgb: "118 118 118", minValue: 0, maxValue: 0.2, label: "-res" },
-  defIgnore: { rgb: "118 118 118", minValue: 0, maxValue: 0.2, label: "-def" },
+  resIgnore: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "-res" },
+  defIgnore: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "-def" },
   // --------------------------------------------------
   erMulti: { rgb: "1 1 1", minValue: 0, maxValue: 1, label: "er%" },
   foMulti: { rgb: "1 1 1", minValue: 0, maxValue: 1, label: "forte%" },

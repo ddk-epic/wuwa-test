@@ -33,7 +33,7 @@ function EventTableModal({ resultTimeline }: EventTableModalProps) {
           <CalendarSearch />
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-[80vw] h-full max-h-[90vh] flex flex-col p-0 bg-card overflow-hidden">
+      <DialogContent className="max-w-[92vw] h-full max-h-[97vh] flex flex-col p-0 bg-card overflow-hidden">
         <DialogHeader className="items-center pt-3">
           <DialogTitle className="text-lg font-medium">
             Rotation Log
