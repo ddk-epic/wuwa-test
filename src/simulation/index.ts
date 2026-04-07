@@ -159,9 +159,10 @@ function calculateDamage(
   const skillLevel = 10
   const attack = char.atk * (1 + statMap.atk) + char.bonusStats.atkFlat
   const skillMultiplier =
-    skill.mv * getSkillLevel[skillLevel] * (1 + statMap.multiplier)
+    skill.mv * getSkillLevel[skillLevel] * (1 + statMap.multiplier) +
+    statMap.bonus
   const bonusMultiplier =
-    1 + getBonus(statMap, skill.classifications) + statMap.bonus
+    1 + getBonus(statMap, skill.classifications) + statMap.all
   const deepenMultiplier = 1 + getDeepen(statMap, skill.classifications)
   const crit = Math.min(statMap.crit, 1)
   const critDmg = statMap.critDmg
@@ -231,7 +232,10 @@ function processEvent(
   // add triggered buffs
   for (const buff of allBuffs.values()) {
     const buffToAdd = buffHandler[buff.id]
-    if (!buffToAdd) continue
+    if (!buffToAdd) {
+      console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
+      continue
+    }
 
     state = buffToAdd.onTrigger(state, buff)
   }
@@ -346,6 +350,9 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
           ...(buff.cooldown && {
             cooldown: buff.cooldown * 60,
           }),
+          ...(buff.stackInterval && {
+            stackInterval: buff.stackInterval * 60,
+          }),
         } satisfies BuffDefinition)
       }
     }
@@ -364,6 +371,9 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
           modifiers: buff.modifiers && [buff.modifiers[rankIndex] ?? []],
           appliesTo: character.id,
           source: character.id,
+          ...(buff.stackInterval && {
+            stackInterval: buff.stackInterval * 60,
+          }),
         })
       }
     }
@@ -418,7 +428,6 @@ function getStatMap(
         personalStatMap[sharedKey] += character.bonusStats[sharedKey]
       }
     }
-    console.log(character.id,character.bonusStats)
 
     newStatMap.set(characterId, personalStatMap)
   }

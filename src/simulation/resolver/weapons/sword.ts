@@ -38,6 +38,8 @@ const swordResolver: Record<string, BuffResolver> = {
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
+      if (isOnCooldown(state, buff)) return state
+
       const stacksToAdd = isCategory(state, buff, "skill") ? 5 : 1
       return applyStackingBuffStatChanges(state, buff, stacksToAdd)
     },

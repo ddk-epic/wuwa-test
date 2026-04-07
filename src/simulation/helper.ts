@@ -142,9 +142,9 @@ export function isOnCooldown(
 ): boolean {
   const cdEndTime = state.cooldowns.get(buff.id)
 
-  if (cdEndTime) return cdEndTime > state.time
+  if (!cdEndTime) return false
 
-  return false
+  return cdEndTime >= state.time
 }
 
 // ============================================
@@ -207,34 +207,17 @@ export function applyCooldown(
   state: StateContext,
   buff: BuffInstance,
 ): StateContext {
-  let newCooldowns = new Map(state.cooldowns)
+  if (isOnCooldown(state, buff)) return state
 
-  // buff cd
+  const newCooldowns = new Map(state.cooldowns)
+
+  // apply new cooldowns
   if (buff.cooldown) {
-    newCooldowns = addNewCooldown(
-      newCooldowns,
-      buff.id,
-      state.time + buff.cooldown,
-    )
-
-    // console.log(
-    //   state.row,
-    //   `cooldowns(${buff.id} -> ${state.time + buff.cooldown})`,
-    // )
+    newCooldowns.set(buff.id, state.time + buff.cooldown)
   }
 
-  // stacking buff cd
   if (buff.stackInterval && buff.stackInterval > 0) {
-    newCooldowns = addNewCooldown(
-      newCooldowns,
-      buff.id,
-      state.time + buff.stackInterval,
-    )
-
-    // console.log(
-    //   state.row,
-    //   `cooldowns(${buff.id} -> ${state.time + buff.stackInterval})`,
-    // )
+    newCooldowns.set(buff.id, state.time + buff.stackInterval)
   }
 
   return {
@@ -282,7 +265,10 @@ export function addConsumeStacksToBuff(
   }
 }
 
-export function removeCondition(state: StateContext, buff: BuffDefinition): StateContext {
+export function removeCondition(
+  state: StateContext,
+  buff: BuffDefinition,
+): StateContext {
   const { characterId } = state.action
 
   const activeBuffs =
@@ -297,12 +283,12 @@ export function removeCondition(state: StateContext, buff: BuffDefinition): Stat
 
   for (const condition of buffConditionId) {
     if (newPersonalBuffs.has(condition)) {
-    newPersonalBuffs.delete(condition)
-    hasChanged = true
+      newPersonalBuffs.delete(condition)
+      hasChanged = true
     }
     if (newGlobalBuffs.has(condition)) {
-    newPersonalBuffs.delete(condition)
-    hasChanged = true
+      newPersonalBuffs.delete(condition)
+      hasChanged = true
     }
   }
 
@@ -311,7 +297,7 @@ export function removeCondition(state: StateContext, buff: BuffDefinition): Stat
   return {
     ...state,
     activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
-    activeBuffsGlobal: newGlobalBuffs
+    activeBuffsGlobal: newGlobalBuffs,
   }
 }
 

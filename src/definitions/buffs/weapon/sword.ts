@@ -27,7 +27,7 @@ const sword: Record<string, WeaponBuffDefinition[]> = {
       ],
       stackLimit: 14,
       stackInterval: 0.5,
-      duration: 10,
+      duration: 999,
     },
     {
       id: "Blazing Brilliance (MAX)",

@@ -18,7 +18,6 @@ import {
   removeGlobalStackingBuffStatChanges,
   addConsumeStacksToBuff,
   getStacksFromBuff,
-  isOnCooldown,
 } from "../../helper"
 
 const sanhuaResolver: Record<string, BuffResolver> = {
@@ -203,7 +202,6 @@ const sanhuaResolver: Record<string, BuffResolver> = {
     onTrigger: (state, buff) => {
       if (!isAbility(state, buff)) return state
       if (!isOnHitEvent(state)) return state
-      if (isOnCooldown(state, buff)) return state
 
       return createGlobalBuff(state, buff)
     },
