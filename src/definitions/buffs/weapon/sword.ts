@@ -32,7 +32,7 @@ const sword: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Blazing Brilliance (MAX)",
       name: "Blazing Brilliance (MAX)",
-      trigger: { condition: ["Blazing Brilliance (Skill) x13"] },
+      trigger: { condition: ["Blazing Brilliance (Skill) x14"] },
       duration: 12,
     },
   ],

@@ -5,17 +5,23 @@ import sanhuaResolver from "./characters/sanhua"
 import rectifierResolver from "./weapons/rectifier"
 import swordResolver from "./weapons/sword"
 
+import fusionEchoResolver from "./echo/fusion"
+import otherEchoResolver from "./echo/other"
+
 import fusionSetResolver from "./echo-set/fusion"
 import otherSetResolver from "./echo-set/other"
 
 export const buffHandler: Record<string, BuffResolver> = {
-  // characters
+  /* characters */
   ...encoreResolver,
   ...sanhuaResolver,
-  // weapons
+  /* weapons */
   ...rectifierResolver,
   ...swordResolver,
-  // echo sets
+  /* echo */
+  ...fusionEchoResolver,
+  ...otherEchoResolver,
+  /* echo sets */
   ...fusionSetResolver,
   ...otherSetResolver,
 }

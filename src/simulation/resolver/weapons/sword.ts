@@ -10,6 +10,7 @@ import {
   hasCondition,
   updateBuffIdentity,
   isOnCooldown,
+  isOnHitEvent,
 } from "@/simulation/helper"
 
 const swordResolver: Record<string, BuffResolver> = {
@@ -32,6 +33,7 @@ const swordResolver: Record<string, BuffResolver> = {
     onTrigger: (state, buff) => {
       if (!isBuffTarget(state, buff)) return state
       if (isOnCooldown(state, buff)) return state
+      if (!isOnHitEvent(state)) return state
 
       return createBuff(state, buff)
     },
@@ -75,6 +77,7 @@ const swordResolver: Record<string, BuffResolver> = {
     onTrigger: (state, buff) => {
       if (!isBuffTarget(state, buff)) return state
       if (!isCategory(state, buff)) return state
+      if (!isOnHitEvent(state)) return state
 
       return createBuff(state, buff)
     },

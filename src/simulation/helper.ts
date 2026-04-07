@@ -256,7 +256,7 @@ export function addConsumeStacksToBuff(
   state: StateContext,
   buff: BuffInstance,
   consumeById: string[],
-) {
+): StateContext {
   const { characterId } = state.action
   const activeBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
@@ -279,6 +279,39 @@ export function addConsumeStacksToBuff(
   return {
     ...state,
     activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
+  }
+}
+
+export function removeCondition(state: StateContext, buff: BuffDefinition): StateContext {
+  const { characterId } = state.action
+
+  const activeBuffs =
+    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
+  const newPersonalBuffs = new Map(activeBuffs)
+  const newGlobalBuffs = new Map(state.activeBuffsGlobal)
+
+  const buffConditionId = buff.trigger?.condition
+  if (!buffConditionId || buffConditionId.length === 0) return state
+
+  let hasChanged = false
+
+  for (const condition of buffConditionId) {
+    if (newPersonalBuffs.has(condition)) {
+    newPersonalBuffs.delete(condition)
+    hasChanged = true
+    }
+    if (newGlobalBuffs.has(condition)) {
+    newPersonalBuffs.delete(condition)
+    hasChanged = true
+    }
+  }
+
+  if (!hasChanged) return state
+
+  return {
+    ...state,
+    activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
+    activeBuffsGlobal: newGlobalBuffs
   }
 }
 

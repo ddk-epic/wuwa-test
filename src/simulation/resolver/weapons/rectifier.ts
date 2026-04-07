@@ -9,6 +9,7 @@ import {
   removeStackingBuffStatChanges,
   isOnField,
   getStacksFromBuff,
+  isOnHitEvent,
 } from "@/simulation/helper"
 
 const rectifierResolver: Record<string, BuffResolver> = {
@@ -31,6 +32,7 @@ const rectifierResolver: Record<string, BuffResolver> = {
     onTrigger: (state, buff) => {
       if (!isBuffTarget(state, buff)) return state
       if (!isCategory(state, buff)) return state
+      if (!isOnHitEvent(state)) return state
 
       return createBuff(state, buff)
     },
@@ -47,6 +49,7 @@ const rectifierResolver: Record<string, BuffResolver> = {
       if (!isBuffTarget(state, buff)) return state
       if (!isCategory(state, buff)) return state
       if (isOnField(state)) return state
+      if (!isOnHitEvent(state)) return state
 
       return createBuff(state, buff)
     },
