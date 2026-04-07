@@ -3,8 +3,8 @@ import type { WeaponBuffDefinition } from "@/shared/types"
 const sword: Record<string, WeaponBuffDefinition[]> = {
   "Blazing Brilliance": [
     {
-      id: "Blazing Brilliance (ATK)",
-      name: "Blazing Brilliance (ATK)",
+      id: "Blazing Brilliance (Atk)",
+      name: "Blazing Brilliance (Atk)",
       modifiers: [
         { class: "atk", value: 0.12 },
         { class: "atk", value: 0.15 },
@@ -17,7 +17,7 @@ const sword: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Blazing Brilliance (Skill)",
       name: "Blazing Brilliance (Skill)",
-      trigger: {ability: ["any"] },
+      trigger: { ability: ["any"] },
       modifiers: [
         { class: "skill", value: 0.04 },
         { class: "skill", value: 0.05 },
@@ -33,7 +33,7 @@ const sword: Record<string, WeaponBuffDefinition[]> = {
       id: "Blazing Brilliance (MAX)",
       name: "Blazing Brilliance (MAX)",
       trigger: { condition: ["Blazing Brilliance (Skill) x13"] },
-      duration: 10,
+      duration: 12,
     },
   ],
   "Emerald of Genesis": [
@@ -50,8 +50,8 @@ const sword: Record<string, WeaponBuffDefinition[]> = {
       duration: 99999,
     },
     {
-      id: "Emerald of Genesis (ATK)",
-      name: "Emerald of Genesis (ATK)",
+      id: "Emerald of Genesis (Atk)",
+      name: "Emerald of Genesis (Atk)",
       trigger: { category: ["skill"] },
       modifiers: [
         { class: "skill", value: 0.06 },

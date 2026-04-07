@@ -13,8 +13,8 @@ import {
 } from "@/simulation/helper"
 
 const swordResolver: Record<string, BuffResolver> = {
-  "Blazing Brilliance (ATK)": {
-    id: "Blazing Brilliance (ATK)",
+  "Blazing Brilliance (Atk)": {
+    id: "Blazing Brilliance (Atk)",
     onTrigger: (state, buff) => {
       if (!isBuffTarget(state, buff)) return state
 
@@ -70,8 +70,8 @@ const swordResolver: Record<string, BuffResolver> = {
       return removeBuffStatChanges(state, buff)
     },
   },
-  "Emerald of Genesis (ATK)": {
-    id: "Emerald of Genesis (ATK)",
+  "Emerald of Genesis (Atk)": {
+    id: "Emerald of Genesis (Atk)",
     onTrigger: (state, buff) => {
       if (!isBuffTarget(state, buff)) return state
       if (!isCategory(state, buff)) return state

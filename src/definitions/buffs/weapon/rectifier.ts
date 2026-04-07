@@ -29,8 +29,8 @@ const rectifier: Record<string, WeaponBuffDefinition[]> = {
       duration: 99999,
     },
     {
-      id: "Stringmaster (ATK)",
-      name: "Stringmaster (ATK)",
+      id: "Stringmaster (Atk)",
+      name: "Stringmaster (Atk)",
       trigger: { category: ["skill"] },
       modifiers: [
         { class: "atk", value: 0.12 },

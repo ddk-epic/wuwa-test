@@ -26,8 +26,8 @@ const rectifierResolver: Record<string, BuffResolver> = {
       return removeBuffStatChanges(state, buff)
     },
   },
-  "Stringmaster (ATK)": {
-    id: "Stringmaster (ATK)",
+  "Stringmaster (Atk)": {
+    id: "Stringmaster (Atk)",
     onTrigger: (state, buff) => {
       if (!isBuffTarget(state, buff)) return state
       if (!isCategory(state, buff)) return state
@@ -51,7 +51,7 @@ const rectifierResolver: Record<string, BuffResolver> = {
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
-      const buffById = "Stringmaster (ATK)"
+      const buffById = "Stringmaster (Atk)"
       const stacksToAdd = getStacksFromBuff(state, buffById)
       return applyStackingBuffStatChanges(state, buff, stacksToAdd)
     },
