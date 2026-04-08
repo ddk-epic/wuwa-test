@@ -70,26 +70,28 @@ export const STAT_COLORS: Record<
     label: "liber",
   },
   all: { rgb: "98 98 98", minValue: 0, maxValue: 1.5, label: "all" },
-  // elemental bonuses (6)
+  // elemental bonuses (7)
   aero: { rgb: "16 185 129", minValue: 0, maxValue: 1.5, label: "aero" },
   electro: { rgb: "139 92 246", minValue: 0, maxValue: 1.5, label: "electro" },
   fusion: { rgb: "239 68 68", minValue: 0, maxValue: 1.5, label: "fusion" },
   glacio: { rgb: "14 165 233", minValue: 0, maxValue: 1.5, label: "glacio" },
   havoc: { rgb: "190 18 60", minValue: 0, maxValue: 1.5, label: "havoc" },
   spectro: { rgb: "253 224 71", minValue: 0, maxValue: 1.5, label: "spectro" },
+  allEle: { rgb: "98 98 98", minValue: 0, maxValue: 0.5, label: "all" },
   // category deepen (5)
   baDeep: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "basic" },
   heDeep: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "heavy" },
   skDeep: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "skill" },
   liDeep: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "liber" },
   allDeep: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "all" },
-  // elemental deepen (6)
+  // elemental deepen (7)
   aeDeep: { rgb: "16 185 129", minValue: 0, maxValue: 0.2, label: "aero" },
   elDeep: { rgb: "139 92 246", minValue: 0, maxValue: 0.2, label: "electro" },
   fuDeep: { rgb: "249 115 22", minValue: 0, maxValue: 0.2, label: "fusion" },
   glDeep: { rgb: "14 165 233", minValue: 0, maxValue: 0.2, label: "glacio" },
   haDeep: { rgb: "190 18 60", minValue: 0, maxValue: 0.2, label: "havoc" },
   spDeep: { rgb: "253 224 71", minValue: 0, maxValue: 0.2, label: "spectro" },
+  allEleDeep: { rgb: "98 98 98", minValue: 0, maxValue: 0.2, label: "all" },
   // skill specific (3)
   bonus: { rgb: "6 182 212", minValue: 0, maxValue: 0.2, label: "bonus" },
   amp: { rgb: "6 182 212", minValue: 0, maxValue: 0.2, label: "amp" },
@@ -101,7 +103,6 @@ export const STAT_COLORS: Record<
   erMulti: { rgb: "1 1 1", minValue: 0, maxValue: 1, label: "er%" },
   foMulti: { rgb: "1 1 1", minValue: 0, maxValue: 1, label: "forte%" },
   heal: { rgb: "1 1 1", minValue: 0, maxValue: 1, label: "heal%" },
-  allEle: { rgb: "1 1 1", minValue: 0, maxValue: 1, label: "allEle" },
   physical: { rgb: "1 1 1", minValue: 0, maxValue: 1, label: "physical" },
   // dCond
   forte: { rgb: "1 1 1", minValue: 0, maxValue: 1, label: "forte" },

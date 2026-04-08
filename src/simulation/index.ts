@@ -162,8 +162,12 @@ function calculateDamage(
     skill.mv * getSkillLevel[skillLevel] * (1 + statMap.multiplier) +
     statMap.bonus
   const bonusMultiplier =
-    1 + getBonus(statMap, skill.classifications) + statMap.all
-  const deepenMultiplier = 1 + getDeepen(statMap, skill.classifications)
+    1 + getBonus(statMap, skill.classifications) + statMap.all + statMap.allEle
+  const deepenMultiplier =
+    1 +
+    getDeepen(statMap, skill.classifications) +
+    statMap.allDeep +
+    statMap.allEleDeep
   const crit = Math.min(statMap.crit, 1)
   const critDmg = statMap.critDmg
   const critMultiplier = 1 + crit * (critDmg - 1)

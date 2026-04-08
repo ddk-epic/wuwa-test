@@ -21,6 +21,7 @@ export const baseStatMap: StatMap = {
   glacio: 0,
   havoc: 0,
   spectro: 0,
+  allEle: 0,
   // category deepen
   baDeep: 0,
   heDeep: 0,
@@ -34,6 +35,7 @@ export const baseStatMap: StatMap = {
   glDeep: 0,
   haDeep: 0,
   spDeep: 0,
+  allEleDeep: 0,
   // skill specific
   bonus: 0,
   amp: 0,
@@ -44,7 +46,6 @@ export const baseStatMap: StatMap = {
   erMulti: 0,
   foMulti: 0,
   heal: 0,
-  allEle: 0,
   physical: 0,
   // dCond
   forte: 0,

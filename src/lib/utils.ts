@@ -60,7 +60,10 @@ export function toPercent(value: number, decimals = 1): string {
 }
 
 export function getStatCellColor(statKey: BUFF_TYPE, value: number) {
+  if (!STAT_COLORS[statKey]) return
+
   const { rgb, minValue, maxValue } = STAT_COLORS[statKey]
+
   const [r, g, b] = rgb.split(" ").map(Number)
 
   if (value === 0)

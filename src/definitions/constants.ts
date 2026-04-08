@@ -84,40 +84,42 @@ export const DEEPEN_KEYS = [
 ] as const
 
 export const BUFF_TYPE_KEYS = [
-  // stats
+  // stats (6)
   "atk",
   "def",
   "hp",
   "er",
   "crit",
   "critDmg",
-  // category bonuses
+  // category bonuses (5)
   "basic",
   "heavy",
   "skill",
   "liberation",
   "all",
-  // elemental bonuses
+  // elemental bonuses (7)
   "aero",
   "electro",
   "fusion",
   "glacio",
   "havoc",
   "spectro",
-  // category deepen
+  "allEle",
+  // category deepen (5)
   "baDeep",
   "heDeep",
   "skDeep",
   "liDeep",
   "allDeep",
-  // elemental deepen
+  // elemental deepen (7)
   "aeDeep",
   "elDeep",
   "fuDeep",
   "glDeep",
   "haDeep",
   "spDeep",
-  // skill specific
+  "allEleDeep",
+  // skill specific (3)
   "bonus",
   "amp",
   "multiplier",
@@ -127,7 +129,6 @@ export const BUFF_TYPE_KEYS = [
   "erMulti",
   "foMulti",
   "heal",
-  "allEle",
   "physical",
   // dCond
   "forte",

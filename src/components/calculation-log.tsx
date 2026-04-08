@@ -11,7 +11,7 @@ interface CalculationLogProps {
 }
 
 function CalculationLog({ resultTimeline }: CalculationLogProps) {
-  const statListLength = 33
+  const statListLength = 35
   const statKeys = Object.keys(STAT_COLORS).slice(0, statListLength)
 
   if (!resultTimeline) return null
@@ -52,7 +52,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             Damage Bonuses
           </TableHead>
           <TableHead
-            colSpan={6}
+            colSpan={7}
             style={getStatCellColor("basic", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
@@ -65,7 +65,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             Damage Deepen
           </TableHead>
           <TableHead
-            colSpan={6}
+            colSpan={7}
             style={getStatCellColor("basic", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
           >
