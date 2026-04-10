@@ -10,9 +10,8 @@ import {
 const fusionSetResolver: Record<string, BuffResolver> = {
   "Molten Rift 2pc": {
     id: "Molten Rift 2pc",
+    triggerRules: [isBuffTarget],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-
       return createBuff(state, buff)
     },
     onCast: (state, buff) => {
@@ -24,10 +23,8 @@ const fusionSetResolver: Record<string, BuffResolver> = {
   },
   "Molten Rift 5pc": {
     id: "Molten Rift 5pc",
+    triggerRules: [isBuffTarget, isCategory],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isCategory(state, buff)) return state
-
       return createBuff(state, buff)
     },
     onCast: (state, buff) => {

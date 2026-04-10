@@ -34,7 +34,7 @@ export type TriggerValue = {
   ability?: string[]
   category?: (SKILL_CATEGORY_KEY | "echo")[]
   condition?: string[]
-  mode?: string[]
+  secondary?: ("heal" | "shield")[] // secondary effects
   stacksToAdd?: number
 }
 
@@ -73,7 +73,7 @@ export type BuffInstance = {
   usesLeft: number
 } & BuffDefinition
 
-type EventValues = {
+type EventValue = {
   frame: number
   mv: number
   forte: number
@@ -82,11 +82,12 @@ type EventValues = {
   resonance: number
   scaling: "def" | "hp" // default to atk
   heal: number
+  flat: number
 }
 
 type SkillVariation = {
   frames?: number // in frames
-  hits?: Partial<EventValues>[]
+  hits?: Partial<EventValue>[]
 }
 
 export type SKILL = {
@@ -97,8 +98,8 @@ export type SKILL = {
   frames: number // in frames
   freezetime?: number
   cooldown?: number
-  onCast?: Partial<EventValues>
-  hits: Partial<EventValues>[]
+  onCast?: Partial<EventValue>
+  hits: Partial<EventValue>[]
   variations?: Partial<Record<variant, SkillVariation>>
 }
 
@@ -217,6 +218,8 @@ export type StateContext = {
 
 export type BuffResolver = {
   id: string
+  triggerRules: ((state: StateContext, buff: BuffDefinition) => boolean)[]
+  expireRules?: ((state: StateContext, buff: BuffInstance) => boolean)[]
   onTrigger: (state: StateContext, buff: BuffDefinition) => StateContext
   onSwap?: (state: StateContext, buff: BuffDefinition) => StateContext
   onCast?: (state: StateContext, buff: BuffInstance) => StateContext

@@ -27,7 +27,7 @@ import {
   getDeepen,
   getDefMultiplier,
   getResMultiplier,
-  hasSwapped,
+  isExpired,
 } from "./helper"
 
 function removeExpiredBuffs(state: StateContext): StateContext {
@@ -39,38 +39,40 @@ function removeExpiredBuffs(state: StateContext): StateContext {
   const newBuffs = new Map(activeBuffs)
   const newBuffsGlobal = new Map(activeBuffsGlobal)
 
-  function shouldRemoveBuff(state: StateContext, buff: BuffInstance): boolean {
-    // expiration
-    if (buff.endTime <= state.time) return true
-    // outro buffs
-    if (buff.appliesTo === "next" && hasSwapped(state)) return true
+  // outro buffs
+  // if (buff.appliesTo === "next" && hasSwapped(state)) return true
 
-    return false
-  }
-
-  const expiredBuffs: BuffInstance[] = []
-
-  // remove expired buffs
+  let newState = state
   for (const buff of activeBuffs.values()) {
-    if (shouldRemoveBuff(state, buff)) {
-      expiredBuffs.push(buff)
-      newBuffs.delete(buff.id)
+    const buffToUpdate = buffHandler[buff.id]
+    if (!buffToUpdate) continue
+
+    const shouldExpire =
+      buffToUpdate.expireRules?.some((rule) => rule(newState, buff)) ??
+      isExpired(newState, buff) // basic expiration fallback
+    if (!shouldExpire) continue
+
+    newBuffs.delete(buff.id)
+
+    if (buffToUpdate.onExpire) {
+      newState = buffToUpdate.onExpire(newState, buff)
     }
   }
 
   for (const buff of activeBuffsGlobal.values()) {
-    if (shouldRemoveBuff(state, buff)) {
-      expiredBuffs.push(buff)
-      newBuffsGlobal.delete(buff.id)
-    }
-  }
-
-  // update stat changes after removal
-  let newState = state
-  for (const buff of expiredBuffs) {
     const buffToUpdate = buffHandler[buff.id]
-    if (!buffToUpdate.onExpire) continue
-    newState = buffToUpdate.onExpire(newState, buff)
+    if (!buffToUpdate) continue
+
+    const shouldExpire =
+      buffToUpdate.expireRules?.some((rule) => rule(newState, buff)) ??
+      isExpired(newState, buff)
+    if (!shouldExpire) continue
+
+    newBuffs.delete(buff.id)
+
+    if (buffToUpdate.onExpire) {
+      newState = buffToUpdate.onExpire(newState, buff)
+    }
   }
 
   return {
@@ -240,6 +242,10 @@ function processEvent(
       console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
       continue
     }
+    const shouldTrigger = buffToAdd?.triggerRules?.every((rule) =>
+      rule(state, buff),
+    )
+    if (!shouldTrigger) continue
 
     state = buffToAdd.onTrigger(state, buff)
   }

@@ -4,7 +4,7 @@ import {
   isAbility,
   createBuff,
   isOnHitEvent,
-  applyResonanceFlat,
+  applyDCondFlat,
   applyBuffStatChanges,
   removeBuffStatChanges,
   isCategory,
@@ -12,38 +12,32 @@ import {
   createBuffNext,
   hasCondition,
   removeCondition,
+  addArg,
 } from "@/simulation/helper"
 
 const otherEchoResolver: Record<string, BuffResolver> = {
   "Impermanence Heron (energy)": {
     id: "Impermanence Heron (energy)",
+    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
     onTrigger: (state, buff) => {
       // TODO: trigger on [hit 3]
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-      if (!isOnHitEvent(state)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
-      return applyResonanceFlat(state, buff)
+      return applyDCondFlat(state, buff)
     },
   },
   "Impermanence Heron (Dormant)": {
     id: "Impermanence Heron (Dormant)",
+    triggerRules: [isBuffTarget, isAbility],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-
       return createBuff(state, buff)
     },
   },
   "Impermanence Heron": {
     id: "Impermanence Heron",
+    triggerRules: [isCategory, addArg(hasCondition, "name")],
     onTrigger: (state, buff) => {
-      if (!isCategory(state, buff)) return state
-      if (!hasCondition(state, buff, "name")) return state
-
       let newState = removeCondition(state, buff)
       return addToBuffNext(newState, buff)
     },

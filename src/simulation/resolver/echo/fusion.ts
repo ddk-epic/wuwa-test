@@ -10,11 +10,9 @@ import {
 const fusionEchoResolver: Record<string, BuffResolver> = {
   "Inferno Rider (Fusion/Basic)": {
     id: "Inferno Rider (Fusion/Basic)",
+    triggerRules: [isBuffTarget, isAbility],
     onTrigger: (state, buff) => {
       // TODO: trigger on [hit 3]
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {

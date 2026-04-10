@@ -13,9 +13,8 @@ import {
 const otherSetResolver: Record<string, BuffResolver> = {
   "Moonlit Clouds 2pc": {
     id: "Moonlit Clouds 2pc",
+    triggerRules: [isBuffTarget],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-
       return createBuff(state, buff)
     },
     onCast: (state, buff) => {
@@ -27,10 +26,8 @@ const otherSetResolver: Record<string, BuffResolver> = {
   },
   "Moonlit Clouds 5pc": {
     id: "Moonlit Clouds 5pc",
+    triggerRules: [isBuffSource, isCategory],
     onTrigger: (state, buff) => {
-      if (!isBuffSource(state, buff)) return state
-      if (!isCategory(state, buff)) return state
-
       return addToBuffNext(state, buff)
     },
     onCast: (state, buff) => {

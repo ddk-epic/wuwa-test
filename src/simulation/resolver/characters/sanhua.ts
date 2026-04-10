@@ -12,7 +12,7 @@ import {
   removeBuffStatChanges,
   addToBuffDeferred,
   resolveDamageProcs,
-  applyResonanceFlat,
+  applyDCondFlat,
   createGlobalBuff,
   applyGlobalStackingBuffStatChanges,
   removeGlobalStackingBuffStatChanges,
@@ -23,10 +23,8 @@ import {
 const sanhuaResolver: Record<string, BuffResolver> = {
   Condensation: {
     id: "Condensation",
+    triggerRules: [isBuffTarget, isCategory],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isCategory(state, buff)) return state
-
       return createBuff(state, buff)
     },
     onCast: (state, buff) => {
@@ -38,21 +36,15 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   Avalanche: {
     id: "Avalanche",
+    triggerRules: [isBuffTarget, isAbility],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-
       return createBuff(state, buff)
     },
   },
   "Avalanche (bonus)": {
     id: "Avalanche (bonus)",
+    triggerRules: [isBuffTarget, isAbility, hasCondition, isOnHitEvent],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-      if (!hasCondition(state, buff)) return state
-      if (!isOnHitEvent(state)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
@@ -64,9 +56,8 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   Silversnow: {
     id: "Silversnow",
+    triggerRules: [isAbility],
     onTrigger: (state, buff) => {
-      if (!isAbility(state, buff)) return state
-
       return addToBuffNext(state, buff)
     },
     onCast: (state, buff) => {
@@ -81,44 +72,32 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Ice Prism": {
     id: "Ice Prism",
+    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-      if (!isOnHitEvent(state)) return state
-
       let newState = createBuff(state, buff)
       return addToBuffDeferred(newState, buff)
     },
   },
   "Ice Thorn": {
     id: "Ice Thorn",
+    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-      if (!isOnHitEvent(state)) return state
-
       let newState = createBuff(state, buff)
       return addToBuffDeferred(newState, buff)
     },
   },
   "Ice Glacier": {
     id: "Ice Glacier",
+    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-      if (!isOnHitEvent(state)) return state
-
       let newState = createBuff(state, buff)
       return addToBuffDeferred(newState, buff)
     },
   },
   Detonate: {
     id: "Detonate",
+    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-      if (!isOnHitEvent(state)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
@@ -131,11 +110,8 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Solitude's Embrace": {
     id: "Solitude's Embrace",
+    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-      if (!isOnHitEvent(state)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
@@ -147,32 +123,25 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Blade Mastery": {
     id: "Blade Mastery",
+    triggerRules: [isBuffTarget, isAbility],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-
       return createBuff(state, buff)
     },
   },
   "Blade Mastery (energy)": {
     id: "Blade Mastery (energy)",
+    triggerRules: [isBuffTarget, isAbility],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
-      return applyResonanceFlat(state, buff)
+      return applyDCondFlat(state, buff)
     },
   },
   "Blade Mastery (bonus)": {
     id: "Blade Mastery (bonus)",
+    triggerRules: [isBuffTarget, isAbility, hasCondition],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-      if (!hasCondition(state, buff)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
@@ -184,10 +153,8 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Unraveling Fate": {
     id: "Unraveling Fate",
+    triggerRules: [isBuffTarget, isAbility],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isAbility(state, buff)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
@@ -199,10 +166,8 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Daybreak Radiance": {
     id: "Daybreak Radiance",
+    triggerRules: [isAbility, isOnHitEvent],
     onTrigger: (state, buff) => {
-      if (!isAbility(state, buff)) return state
-      if (!isOnHitEvent(state)) return state
-
       return createGlobalBuff(state, buff)
     },
     onHit: (state, buff) => {

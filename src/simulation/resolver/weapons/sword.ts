@@ -11,14 +11,15 @@ import {
   updateBuffIdentity,
   isOnCooldown,
   isOnHitEvent,
+  not,
+  addArg,
 } from "@/simulation/helper"
 
 const swordResolver: Record<string, BuffResolver> = {
   "Blazing Brilliance (Atk)": {
     id: "Blazing Brilliance (Atk)",
+    triggerRules: [isBuffTarget],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
@@ -30,11 +31,8 @@ const swordResolver: Record<string, BuffResolver> = {
   },
   "Blazing Brilliance (Skill)": {
     id: "Blazing Brilliance (Skill)",
+    triggerRules: [isBuffTarget, not(isOnCooldown), isOnHitEvent],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (isOnCooldown(state, buff)) return state
-      if (!isOnHitEvent(state)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
@@ -48,12 +46,11 @@ const swordResolver: Record<string, BuffResolver> = {
     },
   },
   "Blazing Brilliance (MAX)": {
+    // TODO: make MAX conversation innate
     id: "Blazing Brilliance (MAX)",
+    triggerRules: [isBuffTarget, addArg(hasCondition, "name")],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!hasCondition(state, buff, "name")) return state
       const buffToBeConsumedId = "Blazing Brilliance (Skill)"
-
       return updateBuffIdentity(state, buff, buffToBeConsumedId)
     },
     onExpire: (state, buff) => {
@@ -62,9 +59,8 @@ const swordResolver: Record<string, BuffResolver> = {
   },
   "Emerald of Genesis (ER)": {
     id: "Emerald of Genesis (ER)",
+    triggerRules: [isBuffTarget],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-
       return createBuff(state, buff)
     },
     onCast: (state, buff) => {
@@ -76,11 +72,8 @@ const swordResolver: Record<string, BuffResolver> = {
   },
   "Emerald of Genesis (Atk)": {
     id: "Emerald of Genesis (Atk)",
+    triggerRules: [isBuffTarget, isCategory, isOnHitEvent],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isCategory(state, buff)) return state
-      if (!isOnHitEvent(state)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {

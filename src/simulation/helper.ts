@@ -24,6 +24,20 @@ import type {
 // ================== UTILS ===================
 // ============================================
 
+// generic function inverter for rules
+export function not<TState, TBuff>(
+  rule: (state: TState, buff: TBuff) => boolean,
+): (state: TState, buff: TBuff) => boolean {
+  return (state, buff) => !rule(state, buff)
+}
+
+export function addArg<TState, TBuff, TArg>(
+  rule: (state: TState, buff: TBuff, arg: TArg) => boolean,
+  arg: TArg,
+): (state: TState, buff: TBuff) => boolean {
+  return (state, buff) => rule(state, buff, arg)
+}
+
 export function hasUsesLeft(buff: BuffInstance): boolean {
   return buff.usesLeft > 0
 }
@@ -59,6 +73,10 @@ export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
 //   return activeBuffs.has(buff.id)
 // }
 
+export function isExpired(state: StateContext, buff: BuffInstance): boolean {
+  return buff.endTime <= state.time
+}
+
 export function isOnField(state: StateContext) {
   return state.onFieldChar === state.action.characterId
 }
@@ -78,7 +96,7 @@ export function isBuffTarget(
   return state.action.characterId === buff.appliesTo
 }
 
-export function isBuffGlobal(buff: BuffDefinition) {
+export function isBuffGlobal(_state: StateContext, buff: BuffDefinition) {
   return buff.appliesTo === "all"
 }
 
@@ -160,7 +178,7 @@ export function addToBuffNext(
 
   return {
     ...state,
-    buffNext: new Set<string>(state.buffNext).add(buff.id),
+    buffNext: new Set(state.buffNext).add(buff.id),
   }
 }
 
@@ -179,7 +197,7 @@ export function addToBuffDeferred(
   }
 }
 
-export function applyResonanceFlat(
+export function applyDCondFlat(
   state: StateContext,
   buff: BuffInstance,
 ): StateContext {
@@ -381,6 +399,37 @@ export function createBuffNext(
   }
 }
 
+export function createGlobalBuffNext(
+  state: StateContext,
+  buff: BuffDefinition,
+): StateContext {
+  if (buff.appliesTo !== "next") return state
+
+  const existing = state.activeBuffsGlobal.get(buff.id)
+
+  const buffInstance: BuffInstance = {
+    ...buff,
+    endTime: state.time + buff.duration, // refresh duration on re-trigger
+    ...(buff.stackLimit && {
+      stacks: Math.min(existing?.stacks ?? 0, buff.stackLimit),
+    }),
+    usesLeft: existing?.usesLeft ?? 1,
+  }
+
+  // remove buffNext entry
+  const newBuffNext = new Set(state.buffNext)
+  newBuffNext.delete(buff.id)
+
+  return {
+    ...state,
+    activeBuffsGlobal: new Map(state.activeBuffsGlobal).set(
+      buff.id,
+      buffInstance,
+    ),
+    buffNext: newBuffNext,
+  }
+}
+
 export function createGlobalBuff(
   state: StateContext,
   buff: BuffDefinition,
@@ -446,7 +495,7 @@ function applyBuffStatChangesToCharacter(
   const newPersonalBuffs = new Map(state.activeBuffs.get(characterId))
   newPersonalBuffs.set(buff.id, newBuff)
   const newBuffs = new Map(state.activeBuffs).set(characterId, newPersonalBuffs)
-    const newGlobalBuffs = new Map(state.activeBuffsGlobal).set(buff.id, newBuff)
+  const newGlobalBuffs = new Map(state.activeBuffsGlobal).set(buff.id, newBuff)
 
   return {
     ...state,

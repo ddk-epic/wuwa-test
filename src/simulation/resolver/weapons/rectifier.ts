@@ -10,14 +10,16 @@ import {
   isOnField,
   getStacksFromBuff,
   isOnHitEvent,
+  applyDCondFlat,
+  isOnCooldown,
+  not,
 } from "@/simulation/helper"
 
 const rectifierResolver: Record<string, BuffResolver> = {
   "Stringmaster (Ele)": {
     id: "Stringmaster (Ele)",
+    triggerRules: [isBuffTarget],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-
       return createBuff(state, buff)
     },
     onCast: (state, buff) => {
@@ -29,11 +31,8 @@ const rectifierResolver: Record<string, BuffResolver> = {
   },
   "Stringmaster (Atk)": {
     id: "Stringmaster (Atk)",
+    triggerRules: [isBuffTarget, isCategory, isOnHitEvent],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isCategory(state, buff)) return state
-      if (!isOnHitEvent(state)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
@@ -45,12 +44,8 @@ const rectifierResolver: Record<string, BuffResolver> = {
   },
   "Stringmaster (Off-field)": {
     id: "Stringmaster (Off-field)",
+    triggerRules: [isBuffTarget, isCategory, not(isOnField), isOnHitEvent],
     onTrigger: (state, buff) => {
-      if (!isBuffTarget(state, buff)) return state
-      if (!isCategory(state, buff)) return state
-      if (isOnField(state)) return state
-      if (!isOnHitEvent(state)) return state
-
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
@@ -68,6 +63,16 @@ const rectifierResolver: Record<string, BuffResolver> = {
   //     return state
   //   },
   // },
+  Variation: {
+    id: "Variation",
+    triggerRules: [isBuffTarget, isCategory, not(isOnCooldown)],
+    onTrigger: (state, buff) => {
+      return createBuff(state, buff)
+    },
+    onCast: (state, buff) => {
+      return applyDCondFlat(state, buff)
+    },
+  },
 }
 
 export default rectifierResolver
