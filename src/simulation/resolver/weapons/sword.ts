@@ -12,7 +12,7 @@ import {
   isOnCooldown,
   isOnHitEvent,
   not,
-  addArg,
+  addArgs,
 } from "@/simulation/helper"
 
 const swordResolver: Record<string, BuffResolver> = {
@@ -48,7 +48,7 @@ const swordResolver: Record<string, BuffResolver> = {
   "Blazing Brilliance (MAX)": {
     // TODO: make MAX conversation innate
     id: "Blazing Brilliance (MAX)",
-    triggerRules: [isBuffTarget, addArg(hasCondition, "name")],
+    triggerRules: [isBuffTarget, addArgs(hasCondition, "name")],
     onTrigger: (state, buff) => {
       const buffToBeConsumedId = "Blazing Brilliance (Skill)"
       return updateBuffIdentity(state, buff, buffToBeConsumedId)

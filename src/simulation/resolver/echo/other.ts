@@ -12,7 +12,7 @@ import {
   createBuffNext,
   hasCondition,
   removeCondition,
-  addArg,
+  addArgs,
 } from "@/simulation/helper"
 
 const otherEchoResolver: Record<string, BuffResolver> = {
@@ -36,7 +36,7 @@ const otherEchoResolver: Record<string, BuffResolver> = {
   },
   "Impermanence Heron": {
     id: "Impermanence Heron",
-    triggerRules: [isCategory, addArg(hasCondition, "name")],
+    triggerRules: [isCategory, addArgs(hasCondition, "name")],
     onTrigger: (state, buff) => {
       let newState = removeCondition(state, buff)
       return addToBuffNext(newState, buff)

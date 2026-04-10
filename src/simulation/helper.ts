@@ -31,11 +31,11 @@ export function not<TState, TBuff>(
   return (state, buff) => !rule(state, buff)
 }
 
-export function addArg<TState, TBuff, TArg>(
-  rule: (state: TState, buff: TBuff, arg: TArg) => boolean,
-  arg: TArg,
+export function addArgs<TState, TBuff, TArgs extends any[]>(
+  rule: (state: TState, buff: TBuff, ...args: TArgs) => boolean,
+  ...args: TArgs
 ): (state: TState, buff: TBuff) => boolean {
-  return (state, buff) => rule(state, buff, arg)
+  return (state, buff) => rule(state, buff, ...args)
 }
 
 export function hasUsesLeft(buff: BuffInstance): boolean {
