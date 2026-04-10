@@ -1,15 +1,15 @@
 import type { Character } from "@/shared/types"
-import { weaponData } from "../weapons"
+import weaponData from "../weapons"
 
 const verina: Character = {
   id: "verina",
   name: "Verina",
   sequence: 0,
   weaponType: "Rectifier",
-  weapon: weaponData["Stellar Symphony"],
-  echo: "Impermanence Heron",
-  echoSet: ["Moonlit Clouds"],
-  build: "43311 Ele/Ele",
+  weapon: weaponData["Variation"],
+  echo: "Fallacy of No Return",
+  echoSet: ["Rejuvenating Glow"],
+  build: "43311 ER/ER",
   element: "spectro",
   bonus1: "atk",
   bonus2: "heal",

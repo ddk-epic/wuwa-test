@@ -59,6 +59,22 @@ const rectifier: Record<string, WeaponBuffDefinition[]> = {
       duration: 0.5,
     },
   ],
+  Variation: [
+    {
+      id: "Variation",
+      name: "Variation",
+      trigger: { category: ["skill"] },
+      modifiers: [
+        { class: "concerto", value: 8 },
+        { class: "concerto", value: 10 },
+        { class: "concerto", value: 12 },
+        { class: "concerto", value: 14 },
+        { class: "concerto", value: 16 },
+      ],
+      duration: 0,
+      cooldown: 20,
+    },
+  ],
 }
 
 export default rectifier

@@ -9,7 +9,12 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       classifications: ["spectro", "intro"],
       frames: 114,
       onCast: { concerto: 10 },
-      hits: [{ frame: 0, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [{ frame: 45, mv: 0, forte: 1, concerto: 0, resonance: 0 }],
+      variations: {
+        canc: {
+          frames: 54,
+        },
+      },
     },
   },
   outro: {
@@ -61,7 +66,7 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "basic",
       classifications: ["spectro", "basic"],
       frames: 30,
-      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [{ frame: 10, mv: 0, forte: 1, concerto: 0, resonance: 0 }],
       variations: {
         canc: {
           frames: 32,
@@ -93,7 +98,8 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       classifications: ["spectro", "skill"],
       frames: 42,
       cooldown: 12,
-      hits: [{ frame: 0, mv: 0, concerto: 0, resonance: 0 }],
+      onCast: { concerto: 30 },
+      hits: [{ frame: 0, mv: 0, forte: 1, concerto: 0, resonance: 0 }],
       variations: {
         canc: {
           frames: 15,
@@ -111,17 +117,48 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       frames: 120,
       freezetime: 74,
       cooldown: 25,
-      hits: [],
+      onCast: { concerto: 20 },
+      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
     },
   },
   forte: {
     1: {
-      id: "Starflower Blooms (Mid-Air)",
-      name: "Starflower Blooms (Mid-Air)",
-      category: "liberation",
-      classifications: ["spectro", "liberation"],
+      id: "Starflower Blooms 1",
+      name: "Starflower Blooms 1",
+      category: "forte",
+      classifications: ["spectro", "basic"],
       frames: 18,
-      hits: [],
+      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+    },
+    2: {
+      id: "Starflower Blooms 2",
+      name: "Starflower Blooms 2",
+      category: "forte",
+      classifications: ["spectro", "basic"],
+      frames: 18,
+      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+    },
+    3: {
+      id: "Starflower Blooms 3",
+      name: "Starflower Blooms 3",
+      category: "forte",
+      classifications: ["spectro", "basic"],
+      frames: 18,
+      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+    },
+    4: {
+      id: "Starflower Blooms Heavy",
+      name: "Starflower Blooms Heavy",
+      category: "forte",
+      classifications: ["spectro", "heavy"],
+      frames: 42,
+      onCast: { concerto: 20 },
+      hits: [{ frame: 0, mv: 0, concerto: 0, resonance: 0 }],
+      variations: {
+        swap: {
+          frames: 15,
+        },
+      },
     },
   },
 }

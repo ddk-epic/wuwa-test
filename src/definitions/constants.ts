@@ -1,20 +1,24 @@
-export const CHARACTERS = [
-  "encore",
-  "sanhua",
-  "shorekeeper",
-  "verina",
-] as const
+export const CHARACTERS = ["encore", "sanhua", "shorekeeper", "verina"] as const
 
 export const WEAPONS = [
   "Blazing Brilliance",
   "Emerald of Genesis",
   "Stringmaster",
   "Stellar Symphony",
+  "Variation",
 ] as const
 
-export const ECHO = ["Impermanence Heron", "Inferno Rider"] as const
+export const ECHO = [
+  "Fallacy of No Return",
+  "Impermanence Heron",
+  "Inferno Rider",
+] as const
 
-export const ECHO_SET = ["Molten Rift", "Moonlit Clouds"] as const
+export const ECHO_SET = [
+  "Molten Rift",
+  "Moonlit Clouds",
+  "Rejuvenating Glow",
+] as const
 
 export const BONUSSTAT_KEYS = [
   "atkFlat",

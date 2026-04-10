@@ -17,6 +17,22 @@ const otherSets: Record<string, BuffDefinition[]> = {
       duration: 15,
     },
   ],
+  "Rejuvenating Glow": [
+    {
+      id: "Rejuvenating Glow 2pc",
+      name: "Rejuvenating Glow 2pc",
+      modifiers: [{ class: "heal", value: 0.1 }],
+      duration: 99999,
+    },
+    {
+      id: "Rejuvenating Glow 5pc",
+      name: "Rejuvenating Glow 5pc",
+      trigger: { secondary: ["heal"] },
+      appliesTo: "all",
+      modifiers: [{ class: "atk", value: 0.15 }],
+      duration: 30,
+    },
+  ],
 }
 
 export default otherSets

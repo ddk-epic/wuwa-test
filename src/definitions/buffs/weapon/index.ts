@@ -8,6 +8,7 @@ export const weaponBuffs: Record<WEAPON_KEY, WeaponBuffDefinition[]> = {
   "Emerald of Genesis": sword["Emerald of Genesis"],
   "Stellar Symphony": rectifier["Stellar Symphony"],
   Stringmaster: rectifier["Stringmaster"],
+  Variation: rectifier["Variation"],
 }
 
 export default weaponBuffs
