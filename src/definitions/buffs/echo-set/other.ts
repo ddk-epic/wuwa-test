@@ -12,7 +12,6 @@ const otherSets: Record<string, BuffDefinition[]> = {
       id: "Moonlit Clouds 5pc",
       name: "Moonlit Clouds 5pc",
       trigger: { category: ["outro"] },
-      appliesTo: "next",
       modifiers: [{ class: "atk", value: 0.225 }],
       duration: 15,
     },

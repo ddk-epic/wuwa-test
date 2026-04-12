@@ -36,7 +36,6 @@ const sanhua: BuffDefinition[] = [
     name: "Silversnow",
     source: "sanhua",
     trigger: { ability: ["Silversnow"] },
-    appliesTo: "next",
     modifiers: [{ class: "baDeep", value: 0.38 }],
     duration: 14,
   },

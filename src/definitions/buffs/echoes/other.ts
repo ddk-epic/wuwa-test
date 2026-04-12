@@ -23,7 +23,6 @@ const otherEchoes: Record<string, BuffDefinition[]> = {
         category: ["outro"],
         condition: ["Impermanence Heron (Dormant)"],
       },
-      appliesTo: "next",
       modifiers: [{ class: "all", value: 0.12 }],
       duration: 15,
     },
