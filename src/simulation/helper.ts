@@ -14,7 +14,7 @@ import type {
   DCOND_KEY,
   DEEPEN_KEY,
   ELEMENT,
-  Skill,
+  EventTypes,
   StateContext,
   StatMap,
   TimelineEvent,
@@ -51,6 +51,10 @@ export function addNewCooldown(
   if (existingCd >= endTime) return cooldownMap
 
   return new Map(cooldownMap).set(buffId, endTime)
+}
+
+export function isDamageProc(type: EventTypes) {
+  return type === "damage"
 }
 
 export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
@@ -758,7 +762,7 @@ export function updateBuffIdentity(
   }
 }
 
-export function resolveDamageProcs(
+export function addDamageToTimeline(
   state: StateContext,
   buff: BuffInstance,
   consumeById: string[],
@@ -787,25 +791,24 @@ export function resolveDamageProcs(
     const mod = buffToBeConsumed.modifiers[0]
     const { skill } = state.action
 
-    const damageProc: Skill = {
-      id: buffToBeConsumed.id,
-      name: `${buffToBeConsumed.id} Proc`,
-      category: skill.category,
-      classifications: buffToBeConsumed.classifications ?? [],
-      mv: mod.value,
-      frames: 0,
-      hits: 1,
-      forte: mod.forte ?? 0,
-      forte2: mod.forte2 ?? 0,
-      concerto: mod.concerto ?? 0,
-      resonance: mod.resonance ?? 0,
-    }
-
     const procEvent: TimelineEvent = {
       characterId,
-      type: "hit",
-      skill: damageProc,
+      type: "damage",
+      skill: {
+        id: buffToBeConsumed.id,
+        name: `Proc: ${buffToBeConsumed.id}`,
+        category: skill.category,
+        classifications: buffToBeConsumed.classifications ?? [],
+        mv: mod.value,
+        frames: 0,
+        hits: 1,
+        forte: mod.forte ?? 0,
+        forte2: mod.forte2 ?? 0,
+        concerto: mod.concerto ?? 0,
+        resonance: mod.resonance ?? 0,
+      },
       time: state.time,
+      parent: String(state.lastCastRow),
     }
 
     newQueuedEvents.push(procEvent)

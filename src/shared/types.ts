@@ -127,9 +127,11 @@ export type ActionListItem = {
   time: number
 }
 
+export type EventTypes = "cast" | "hit" | "damage" | "heal"
+
 export type TimelineEvent = {
   characterId: CHARACTER_KEY
-  type: "cast" | "hit"
+  type: EventTypes
   skill: Skill
   time: number
   parent?: string
@@ -211,6 +213,7 @@ export type StateContext = {
   prevChar: CHARACTER_KEY | ""
   procQueue: TimelineEvent[]
   proc: Proc
+  lastCastRow: number
   row: number
   time: number
   message: Message
@@ -229,8 +232,9 @@ export type BuffResolver = {
 
 export type Result = {
   row: number
+  lastCastRow: number
   characterId: string
-  type: "cast" | "hit"
+  type: EventTypes
   skill: Skill
   time: number
   concerto: number

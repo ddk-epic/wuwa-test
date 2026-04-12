@@ -27,8 +27,11 @@ import {
   getDeepen,
   getDefMultiplier,
   getResMultiplier,
+  isDamageProc,
   isExpired,
+  isOnCastEvent,
 } from "./helper"
+import { insertTimelineEvent, updateParent } from "@/lib/helper"
 
 function removeExpiredBuffs(state: StateContext): StateContext {
   const { characterId } = state.action
@@ -38,9 +41,6 @@ function removeExpiredBuffs(state: StateContext): StateContext {
 
   const newBuffs = new Map(activeBuffs)
   const newBuffsGlobal = new Map(activeBuffsGlobal)
-
-  // outro buffs
-  // if (buff.appliesTo === "next" && hasSwapped(state)) return true
 
   let newState = state
   for (const buff of activeBuffs.values()) {
@@ -288,29 +288,15 @@ function processEvent(
   // update dCond
   state = evaluateDCond(state, action)
 
-  // evaluate queued proc events
-  while (state.procQueue.length > 0) {
-    const event = state.procQueue[0]
-    const damage = calculateDamage(state, event)
-
-    state = {
-      ...state,
-      procQueue: state.procQueue.slice(1),
-      proc: {
-        ...state.proc,
-        damage: state.proc.damage + damage,
-      },
-    }
-
-    // console.log(state.row, event.skill.name)
-  }
-  state = { ...state, procQueue: [] }
-
   return state
 }
 
 function getResult(state: StateContext): Result {
+  const { row, lastCastRow, time } = state
   const { characterId, type, skill, parent } = state.action
+
+  // evaluate damage proc
+  const damage = calculateDamage(state, state.action)
 
   const getBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
@@ -322,15 +308,16 @@ function getResult(state: StateContext): Result {
   const resStatMap = state.statMap.get(characterId) ?? baseStatMap
 
   const resultObject: Result = {
-    row: state.row,
+    row,
+    lastCastRow,
     characterId,
     type,
     skill,
-    time: state.time,
+    time,
     concerto: state.characters.get(characterId)?.dCond.concerto ?? 0,
     resonance: state.characters.get(characterId)?.dCond.resonance ?? 0,
-    damage: calculateDamage(state, state.action),
-    proc: { ...state.proc },
+    damage: !isDamageProc(type) ? damage : 0,
+    proc: { ...state.proc, damage: isDamageProc(type) ? damage : 0 },
     parent,
     buffs: resBuffs,
     buffsGlobal: resBuffsGlobal,
@@ -493,6 +480,7 @@ function getContext(
     procQueue: [],
     proc,
     statMap,
+    lastCastRow: 1,
     row: 1,
     time: 0,
     message: {},
@@ -520,16 +508,33 @@ export function simulate(
   let state = getContext(characters, statMap)
 
   // calculation loop
-  for (const action of actionList) {
-    state = processEvent(state, action, allBuffs)
-    const result = getResult(state)
+  const timeline = [...actionList]
+  while (timeline.length > 0) {
+    const action = timeline.shift()!
+
+    const nextState = processEvent(state, action, allBuffs)
+
+    const result = getResult(nextState)
+    resultList.push(result)
+    updateParent(resultList, result) // add proc to parent
+
+    while (nextState.procQueue.length > 0) {
+      const event = nextState.procQueue.shift()!
+      insertTimelineEvent(timeline, event)
+    }
 
     // setup for next iteration
-    state.prevChar = state.onFieldChar
-    state.proc = { damage: 0, heal: 0, shield: 0 }
-    state.row += 1
-
-    resultList.push(result)
+    state = {
+      ...nextState,
+      prevChar: nextState.onFieldChar,
+      proc: { damage: 0, heal: 0, shield: 0 },
+      lastCastRow: isOnCastEvent(nextState)
+        ? nextState.row
+        : nextState.lastCastRow,
+      row: nextState.row + 1,
+      procQueue: [],
+    }
   }
+
   return resultList
 }

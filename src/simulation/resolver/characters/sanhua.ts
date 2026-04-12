@@ -11,13 +11,14 @@ import {
   addToBuffNext,
   removeBuffStatChanges,
   addToBuffDeferred,
-  resolveDamageProcs,
   applyDCondFlat,
   createGlobalBuff,
   applyGlobalStackingBuffStatChanges,
   removeGlobalStackingBuffStatChanges,
   addConsumeStacksToBuff,
   getStacksFromBuff,
+  addDamageToTimeline,
+  hasSwapped,
 } from "../../helper"
 
 const sanhuaResolver: Record<string, BuffResolver> = {
@@ -57,6 +58,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   Silversnow: {
     id: "Silversnow",
     triggerRules: [isAbility],
+    expireRules: [hasSwapped],
     onTrigger: (state, buff) => {
       return addToBuffNext(state, buff)
     },
@@ -105,7 +107,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
       const consumeByS6 = ["Ice Prism", "Ice Glacier"]
 
       let newState = addConsumeStacksToBuff(state, buff, consumeByS6)
-      return resolveDamageProcs(newState, buff, consumeById)
+      return addDamageToTimeline(newState, buff, consumeById)
     },
   },
   "Solitude's Embrace": {

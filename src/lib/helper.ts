@@ -153,11 +153,11 @@ export function computeEventTimeline(
 ): TimelineEvent[] {
   const timeline: TimelineEvent[] = []
 
-  for (const action of sequence) {
+  for (let i = 0; i < sequence.length; i++) {
     // main timeline entry
+    const action = sequence[i]
     const { characterId, skill, time } = action
     const { variations, ...actionSkill } = skill
-    const parentId = String(time)
 
     const onCast = skill.onCast
     const parentItem: TimelineEvent = {
@@ -177,9 +177,9 @@ export function computeEventTimeline(
 
     timeline.push(parentItem)
 
-    for (let i = 0; i < skill.hits.length; i++) {
-      const hit = skill.hits[i]
-      const { frame, mv, forte, forte2, concerto, resonance } = hit
+    for (let j = 0; j < skill.hits.length; j++) {
+      const hit = skill.hits[j]
+      const { frame, mv } = hit
       const hitFrame = frame ?? 0
 
       const hitItem: TimelineEvent = {
@@ -187,16 +187,16 @@ export function computeEventTimeline(
         type: "hit",
         skill: {
           ...actionSkill,
-          name: `${skill.id} [hit ${i + 1}]`,
+          name: `${skill.id} [hit ${j + 1}]`,
           mv: mv ?? 0,
           hits: hitFrame,
-          forte: forte ?? 0,
-          forte2: forte2 ?? 0,
-          concerto: concerto ?? 0,
-          resonance: resonance ?? 0,
+          forte: hit.forte ?? 0,
+          forte2: hit.forte2 ?? 0,
+          concerto: hit.concerto ?? 0,
+          resonance: hit.resonance ?? 0,
         },
         time: time + hitFrame,
-        parent: parentId,
+        parent: String(i),
       }
 
       timeline.push(hitItem)
@@ -206,37 +206,63 @@ export function computeEventTimeline(
   return timeline.sort((a, b) => a.time - b.time)
 }
 
+export function updateParent(eventTimeline: Result[], entry: Result) {
+  if (!entry.parent || !entry.proc.damage) return
+
+  const parentEvent = eventTimeline[Number(entry.parent) - 1]
+  if (!parentEvent) return
+
+  parentEvent.proc.damage += entry.proc.damage
+}
+
 export function aggregateResult(eventTimeline: Result[]): Result[] {
-  // time is used to index
-  const parentMap: Record<string, Result> = {}
+  const parentMap = new Map<string, Result>()
   const result: Result[] = []
 
+  let castIdx = 0
+
   for (let i = 0; i < eventTimeline.length; i++) {
-    const row = eventTimeline[i]
-    if (row.type === "cast") {
+    const entry = eventTimeline[i]
+
+    if (entry.type === "cast") {
       const parent: Result = {
-        ...row,
+        ...entry,
         row: i + 1,
         damage: 0,
       }
-      parentMap[String(row.time)] = parent
+
+      parentMap.set(String(castIdx), parent)
       result.push(parent)
+      castIdx++
     }
 
-    if (row.type === "hit" && row.parent) {
-      const parent = parentMap[row.parent]
+    if ((entry.type === "hit" || entry.type === "damage") && entry.parent) {
+      const parent = parentMap.get(entry.parent)
       if (!parent) continue
 
-      parent.damage += row.damage
-      parent.concerto = row.concerto
-      parent.resonance = row.resonance
+      parent.damage += entry.damage
+      parent.concerto = entry.concerto
+      parent.resonance = entry.resonance
 
-      parent.buffs = row.buffs
-      parent.statMap = row.statMap
+      parent.buffs = entry.buffs
+      parent.statMap = entry.statMap
 
-      parent.proc.damage += row.proc.damage
+      parent.proc.damage += entry.proc.damage
     }
   }
 
   return result
+}
+
+export function insertTimelineEvent(
+  queue: TimelineEvent[],
+  event: TimelineEvent,
+) {
+  const index = queue.findIndex((e) => e.time > event.time)
+
+  if (index === -1) {
+    queue.push(event)
+  } else {
+    queue.splice(index, 0, event)
+  }
 }
