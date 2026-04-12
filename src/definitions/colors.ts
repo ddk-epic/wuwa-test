@@ -48,6 +48,24 @@ export const ELEMENT_COLORS: Record<
   },
 } as const
 
+export const COLORS: Record<
+  "heal" | "shield",
+  { text: string; bg: string; border: string; state: string }
+> = {
+  heal: {
+    text: "text-green-400",
+    bg: "bg-green-500",
+    border: "border-green-500",
+    state: "data-[state=on]:bg-green-400/80",
+  },
+  shield: {
+    text: "text-amber-400",
+    bg: "bg-amber-500",
+    border: "border-amber-600",
+    state: "data-[state=on]:bg-amber-400/80",
+  },
+} as const
+
 export const STAT_COLORS: Record<
   BUFF_TYPE,
   { rgb: string; minValue: number; maxValue: number; label: string }

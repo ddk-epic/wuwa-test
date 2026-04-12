@@ -3,7 +3,7 @@ import { cn, frameToSecond, getStatCellColor, toPercent } from "@/lib/utils"
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 
 import type { BUFF_TYPE, CHARACTER_KEY, Result } from "@/shared/types"
-import { ELEMENT_COLORS, STAT_COLORS } from "@/definitions/colors"
+import { COLORS, ELEMENT_COLORS, STAT_COLORS } from "@/definitions/colors"
 import characterTemplate from "@/definitions/characters"
 
 interface CalculationLogProps {
@@ -112,7 +112,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             Damage
           </TableHead>
           <TableHead className="sticky left-0 top-6 z-20 column-header py-1 bg-zinc-800 text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
-            Procc
+            Proc
           </TableHead>
           <TableHead className="sticky left-0 top-6 z-20 column-header py-1 bg-card text-[14px]! min-w-70 shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             Personal Buffs
@@ -151,9 +151,10 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
         const character = characterTemplate[characterId as CHARACTER_KEY]
         const element = character.element
         const elementColorText = ELEMENT_COLORS[element].text
+        const healColorText = COLORS["heal"].text
+        const shieldColorText = COLORS["shield"].text
 
         const isCast = result.type === "cast"
-        const isHit = result.type === "hit"
         const activeBuffString = buffs.join(", ")
         const activeTeamBuffString = buffsGlobal.join(", ")
         const stats = Object.entries(statMap).slice(0, statListLength) as [
@@ -177,7 +178,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             <TableCell
               className={cn(
                 "sticky left-28.75 z-10 pt-2! bg-card align-middle text-[12px] font-mono uppercase tracking-wider shadow-[inset_0_-1px_0_rgb(39,39,42)]",
-                isHit ? "text-transparent" : "text-muted-foreground",
+                !isCast ? "text-transparent" : "text-muted-foreground",
               )}
             >
               {skill.category.slice(0, 5)}
@@ -213,10 +214,18 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
                 "bg-zinc-800/50 pr-2! text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]",
                 proc.damage !== 0 && isCast && elementColorText,
                 proc.damage !== 0 && !isCast && "text-xs text-muted-foreground",
+                proc.heal !== 0 && healColorText,
+                proc.shield !== 0 && shieldColorText,
               )}
             >
               {proc.damage > 0
                 ? Math.round(proc.damage).toLocaleString("en-US")
+                : ""}
+              {proc.heal > 0
+                ? Math.round(proc.heal).toLocaleString("en-US")
+                : ""}
+              {proc.shield > 0
+                ? Math.round(proc.shield).toLocaleString("en-US")
                 : ""}
             </TableCell>
             <TableCell className="text-[14px] shadow-[inset_0_-1px_0_rgb(39,39,42)]">
