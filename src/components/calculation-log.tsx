@@ -186,7 +186,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
               className={cn(
                 "sticky left-39 z-10 bg-card shadow-[inset_0_-1px_0_rgb(39,39,42)]",
                 isCast && elementColorText,
-                isHit && "text-xs",
+                !isCast && "text-xs",
               )}
             >
               {skill.name}
@@ -212,7 +212,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
               className={cn(
                 "bg-zinc-800/50 pr-2! text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]",
                 proc.damage !== 0 && isCast && elementColorText,
-                proc.damage !== 0 && isHit && "text-xs text-muted-foreground",
+                proc.damage !== 0 && !isCast && "text-xs text-muted-foreground",
               )}
             >
               {proc.damage > 0
