@@ -26,35 +26,6 @@ export function frameToSecond(number: number, digits: number = 2): string {
   return seconds.toFixed(digits)
 }
 
-export function roundBuffMap<T extends Record<string, number>>(
-  obj: T,
-  decimals = 3,
-): T {
-  const factor = 10 ** decimals
-
-  return Object.fromEntries(
-    Object.entries(obj).map(([key, value]) => [
-      key,
-      Math.round((value + Number.EPSILON) * factor) / factor,
-    ]),
-  ) as T
-}
-
-export function roundBuffMapToPercentStrings<T extends Record<string, number>>(
-  obj: T,
-  decimals = 1,
-): Record<keyof T, string> {
-  const factor = 10 ** decimals
-
-  return Object.fromEntries(
-    Object.entries(obj).map(([key, value]) => {
-      const roundedValue =
-        Math.round((value * 100 + Number.EPSILON) * factor) / factor
-      return [key, `${roundedValue}%`]
-    }),
-  ) as Record<keyof T, string>
-}
-
 export function toPercent(value: number, decimals = 1): string {
   return (value * 100).toFixed(decimals) + "%"
 }
