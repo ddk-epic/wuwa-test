@@ -177,28 +177,52 @@ export function computeEventTimeline(
 
     timeline.push(parentItem)
 
+    let hitCounter = 1
+    let healCounter = 1
+
     for (let j = 0; j < skill.hits.length; j++) {
       const hit = skill.hits[j]
       const { frame, mv } = hit
       const hitFrame = frame ?? 0
 
-      const hitItem: TimelineEvent = {
-        characterId,
-        type: "hit",
-        skill: {
-          ...actionSkill,
-          name: `${skill.id} [hit ${j + 1}]`,
-          mv: mv ?? 0,
-          hits: hitFrame,
-          forte: hit.forte ?? 0,
-          forte2: hit.forte2 ?? 0,
-          concerto: hit.concerto ?? 0,
-          resonance: hit.resonance ?? 0,
-        },
-        time: time + hitFrame,
-        parent: String(i),
-      }
+      const hitItem: TimelineEvent =
+        hit.heal != undefined
+          ? {
+              characterId,
+              type: "heal",
+              skill: {
+                ...actionSkill,
+                name: `${skill.id} [heal ${healCounter}]`,
+                mv: hit.heal ?? 0,
+                flat: hit.flat ?? 0,
+                hits: hitFrame,
+                forte: hit.forte ?? 0,
+                forte2: hit.forte2 ?? 0,
+                concerto: hit.concerto ?? 0,
+                resonance: hit.resonance ?? 0,
+              },
+              time: time + hitFrame,
+              parent: String(i),
+            }
+          : {
+              characterId,
+              type: "hit",
+              skill: {
+                ...actionSkill,
+                name: `${skill.id} [hit ${hitCounter}]`,
+                mv: mv ?? 0,
+                hits: hitFrame,
+                forte: hit.forte ?? 0,
+                forte2: hit.forte2 ?? 0,
+                concerto: hit.concerto ?? 0,
+                resonance: hit.resonance ?? 0,
+              },
+              time: time + hitFrame,
+              parent: String(i),
+            }
 
+      if (hitItem.type === "hit") hitCounter++
+      if (hitItem.type === "heal") healCounter++
       timeline.push(hitItem)
     }
   }

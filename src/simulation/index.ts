@@ -27,9 +27,10 @@ import {
   getDeepen,
   getDefMultiplier,
   getResMultiplier,
-  isDamageProc,
+  isType,
   isExpired,
   isOnCastEvent,
+  isOnHitEvent,
 } from "./helper"
 import { insertTimelineEvent, updateParent } from "@/lib/helper"
 
@@ -144,12 +145,9 @@ function evaluateDCond(
   }
 }
 
-function calculateDamage(
-  state: StateContext,
-  action: TimelineEvent | Omit<TimelineEvent, "time">,
-) {
-  const { characterId, type, skill } = action
-  if (type === "cast") return 0
+function calculateDamage(state: StateContext) {
+  const { characterId, type, skill } = state.action
+  if (type !== "hit") return 0
 
   const char = state.characters.get(characterId)
   const statMap = state.statMap.get(characterId)
@@ -210,6 +208,33 @@ function calculateDamage(
   return expectedDamage
 }
 
+function calculateHeal(state: StateContext) {
+  const { characterId, type, skill } = state.action
+  if (type !== "heal") return 0
+
+  const char = state.characters.get(characterId)
+  if (!char) return 0
+
+  const statMap = state.statMap.get(characterId) ?? baseStatMap
+  const healBonusMultiplier = state.statMap.get(characterId)?.heal ?? 0
+
+  const attack = char.atk * (1 + statMap.atk) + char.bonusStats.atkFlat
+
+  const mv = skill.mv
+  const flat = skill.flat ?? 0
+
+  const expectedHealing = attack * mv * (1 + healBonusMultiplier) + flat
+
+  // console.table({
+  //   attack,
+  //   mv,
+  //   bonus: healBonusMultiplier,
+  //   flat,
+  // })
+
+  return expectedHealing
+}
+
 function processEvent(
   state: StateContext,
   action: TimelineEvent,
@@ -221,7 +246,8 @@ function processEvent(
   state.action = rest
   state.time = time
 
-  state.onFieldChar = action.type === "cast" ? characterId : state.onFieldChar
+  state.onFieldChar = isOnCastEvent(state) ? characterId : state.onFieldChar
+  state.currCastRow = isOnCastEvent(state) ? state.row : state.currCastRow
 
   // remove expired buffs
   state = removeExpiredBuffs(state)
@@ -234,18 +260,20 @@ function processEvent(
 
     state = buffToAdd.onSwap(state, buff)
   }
+  // console.log(state.row, state.activeBuffs)
 
   // add triggered buffs
   for (const buff of allBuffs.values()) {
     const buffToAdd = buffHandler[buff.id]
     if (!buffToAdd) {
-      console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
+      // console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
       continue
     }
     const shouldTrigger = buffToAdd?.triggerRules?.every((rule) =>
       rule(state, buff),
-    )
+    ) // AND rule check
     if (!shouldTrigger) continue
+    // console.log(state.row, buff.name, shouldTrigger)
 
     state = buffToAdd.onTrigger(state, buff)
   }
@@ -257,7 +285,7 @@ function processEvent(
     const buffToCheck = buffHandler[buff.id]
     if (!buffToCheck) continue
 
-    if (action.type === "hit") {
+    if (isOnHitEvent(state)) {
       if (!buffToCheck.onHit) continue
       state = buffToCheck.onHit(state, buff)
     } else {
@@ -274,7 +302,7 @@ function processEvent(
     const buffToCheck = buffHandler[buff.id]
     if (!buffToCheck) continue
 
-    if (action.type === "hit") {
+    if (isOnHitEvent(state)) {
       if (!buffToCheck.onHit) continue
       state = buffToCheck.onHit(state, buff)
     } else {
@@ -292,11 +320,8 @@ function processEvent(
 }
 
 function getResult(state: StateContext): Result {
-  const { row, lastCastRow, time } = state
+  const { row, currCastRow, time } = state
   const { characterId, type, skill, parent } = state.action
-
-  // evaluate damage proc
-  const damage = calculateDamage(state, state.action)
 
   const getBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
@@ -309,15 +334,19 @@ function getResult(state: StateContext): Result {
 
   const resultObject: Result = {
     row,
-    lastCastRow,
+    currCastRow,
     characterId,
     type,
     skill,
     time,
     concerto: state.characters.get(characterId)?.dCond.concerto ?? 0,
     resonance: state.characters.get(characterId)?.dCond.resonance ?? 0,
-    damage: !isDamageProc(type) ? damage : 0,
-    proc: { ...state.proc, damage: isDamageProc(type) ? damage : 0 },
+    damage: isType(type, "hit") ? calculateDamage(state) : 0,
+    proc: {
+      damage: isType(type, "damage") ? calculateDamage(state) : 0,
+      heal: isType(type, "heal") ? calculateHeal(state) : 0,
+      shield: 0,
+    },
     parent,
     buffs: resBuffs,
     buffsGlobal: resBuffsGlobal,
@@ -459,6 +488,7 @@ function getContext(
     activeBuffs.set(characterId, new Map<string, BuffInstance>())
   }
   const activeBuffsGlobal = new Map<string, BuffInstance>()
+  const activeBuffsEnemy = new Map<string, BuffInstance>()
 
   const buffDeferred = new Map<string, BuffInstance>()
   const buffNext = new Set<string>()
@@ -471,6 +501,7 @@ function getContext(
     action,
     activeBuffs,
     activeBuffsGlobal,
+    activeBuffsEnemy,
     prevChar: "",
     onFieldChar: "",
     buffDeferred,
@@ -480,7 +511,7 @@ function getContext(
     procQueue: [],
     proc,
     statMap,
-    lastCastRow: 1,
+    currCastRow: 1,
     row: 1,
     time: 0,
     message: {},
@@ -528,9 +559,6 @@ export function simulate(
       ...nextState,
       prevChar: nextState.onFieldChar,
       proc: { damage: 0, heal: 0, shield: 0 },
-      lastCastRow: isOnCastEvent(nextState)
-        ? nextState.row
-        : nextState.lastCastRow,
       row: nextState.row + 1,
       procQueue: [],
     }

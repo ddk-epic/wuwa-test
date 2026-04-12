@@ -56,7 +56,7 @@ export type BuffDefinition = {
   source?: CHARACTER_KEY
   classifications?: BUFF_TYPE[] // For damage proc's
   trigger?: TriggerValue
-  appliesTo?: CHARACTER_KEY | "all" | "current" | "next"
+  appliesTo?: CHARACTER_KEY | "all" | "current" | "enemy"
   modifiers?: ModifierValue[]
   // consumedBy?: string[] // For mode and damage proc's
   duration: number
@@ -105,6 +105,7 @@ export type SKILL = {
 
 export type Skill = Omit<SKILL, "hits" | "variations"> & {
   mv: number
+  flat?: number
   hits: number
   forte: number
   forte2: number
@@ -127,11 +128,11 @@ export type ActionListItem = {
   time: number
 }
 
-export type EventTypes = "cast" | "hit" | "damage" | "heal"
+export type EventType = "cast" | "hit" | "damage" | "heal"
 
 export type TimelineEvent = {
   characterId: CHARACTER_KEY
-  type: EventTypes
+  type: EventType
   skill: Skill
   time: number
   parent?: string
@@ -204,6 +205,7 @@ export type StateContext = {
   action: Omit<TimelineEvent, "time">
   activeBuffs: Map<CHARACTER_KEY, Map<string, BuffInstance>>
   activeBuffsGlobal: Map<string, BuffInstance>
+  activeBuffsEnemy: Map<string, BuffInstance>
   buffNext: Set<string>
   buffDeferred: Map<string, BuffDefinition>
   characters: Map<CHARACTER_KEY, Character>
@@ -213,7 +215,7 @@ export type StateContext = {
   prevChar: CHARACTER_KEY | ""
   procQueue: TimelineEvent[]
   proc: Proc
-  lastCastRow: number
+  currCastRow: number
   row: number
   time: number
   message: Message
@@ -232,9 +234,9 @@ export type BuffResolver = {
 
 export type Result = {
   row: number
-  lastCastRow: number
+  currCastRow: number
   characterId: string
-  type: EventTypes
+  type: EventType
   skill: Skill
   time: number
   concerto: number

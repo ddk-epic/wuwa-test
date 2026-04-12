@@ -24,7 +24,14 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "outro",
       classifications: ["spectro", "outro"],
       frames: 0,
-      hits: [],
+      hits: [
+        { frame: 60, heal: 0.19 },
+        { frame: 120, heal: 0.19 },
+        { frame: 180, heal: 0.19 },
+        { frame: 240, heal: 0.19 },
+        { frame: 300, heal: 0.19 },
+        { frame: 360, heal: 0.19 },
+      ],
     },
   },
   basic: {
@@ -118,7 +125,10 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       freezetime: 74,
       cooldown: 25,
       onCast: { concerto: 20 },
-      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [
+        { frame: 10, mv: 1, concerto: 0, resonance: 0 },
+        { frame: 10, heal: 0.2380, flat: 950 },
+      ],
     },
   },
   forte: {

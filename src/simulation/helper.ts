@@ -14,7 +14,7 @@ import type {
   DCOND_KEY,
   DEEPEN_KEY,
   ELEMENT,
-  EventTypes,
+  EventType,
   StateContext,
   StatMap,
   TimelineEvent,
@@ -24,11 +24,17 @@ import type {
 // ================== UTILS ===================
 // ============================================
 
-// generic function inverter for rules
+// generic functions
 export function not<TState, TBuff>(
   rule: (state: TState, buff: TBuff) => boolean,
 ): (state: TState, buff: TBuff) => boolean {
   return (state, buff) => !rule(state, buff)
+}
+
+export function or<TState, TBuff>(
+  ...rules: Array<(state: TState, buff: TBuff) => boolean>
+): (state: TState, buff: TBuff) => boolean {
+  return (state, buff) => rules.some((rule) => rule(state, buff))
 }
 
 export function addArgs<TState, TBuff, TArgs extends any[]>(
@@ -53,8 +59,8 @@ export function addNewCooldown(
   return new Map(cooldownMap).set(buffId, endTime)
 }
 
-export function isDamageProc(type: EventTypes) {
-  return type === "damage"
+export function isType(type: EventType, key: EventType): boolean {
+  return type === key
 }
 
 export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
@@ -65,17 +71,20 @@ export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
 // =============== BUFF CHECKS ================
 // ============================================
 
-// export function isAlreadyActive(
-//   state: StateContext,
-//   action: TimelineEvent,
-//   buff: BuffDefinition,
-// ): boolean {
-//   const characterId = action.characterId
-//   const activeBuffs = state.activeBuffs.get(characterId)
-//   if (!activeBuffs) return false
+export function isAlreadyActive(
+  state: StateContext,
+  buff: BuffDefinition,
+): boolean {
+  const characterId = state.action.characterId
+  const activeBuffs = state.activeBuffs.get(characterId)
+  if (!activeBuffs) return false
+  if (activeBuffs.has(buff.id)) return true
 
-//   return activeBuffs.has(buff.id)
-// }
+  const activeBuffsGlobal = state.activeBuffsGlobal
+  if (activeBuffsGlobal.has(buff.id)) return true
+
+  return false
+}
 
 export function isExpired(state: StateContext, buff: BuffInstance): boolean {
   return buff.endTime <= state.time
@@ -176,8 +185,6 @@ export function addToBuffNext(
   state: StateContext,
   buff: BuffDefinition,
 ): StateContext {
-  if (buff.appliesTo !== "next") return state
-
   // console.log(state.row, `add buff ${buff.name} to buffNext`)
 
   return {
@@ -369,8 +376,6 @@ export function createBuffNext(
   state: StateContext,
   buff: BuffDefinition,
 ): StateContext {
-  if (buff.appliesTo !== "next") return state
-
   const { characterId } = state.action
 
   const activeBuffs =
@@ -407,8 +412,6 @@ export function createGlobalBuffNext(
   state: StateContext,
   buff: BuffDefinition,
 ): StateContext {
-  if (buff.appliesTo !== "next") return state
-
   const existing = state.activeBuffsGlobal.get(buff.id)
 
   const buffInstance: BuffInstance = {
@@ -808,7 +811,7 @@ export function addDamageToTimeline(
         resonance: mod.resonance ?? 0,
       },
       time: state.time,
-      parent: String(state.lastCastRow),
+      parent: String(state.currCastRow),
     }
 
     newQueuedEvents.push(procEvent)
@@ -823,6 +826,37 @@ export function addDamageToTimeline(
     activeBuffs: new Map(state.activeBuffs).set(characterId, newActiveBuffs),
     procQueue: newQueuedEvents,
   }
+}
+
+export function createEnemyDebuff(
+  state: StateContext,
+  buff: BuffDefinition,
+): StateContext {
+  const existing = state.activeBuffsEnemy.get(buff.id)
+
+  const newBuffInstance: BuffInstance = existing
+    ? {
+        ...existing,
+        endTime: state.time + buff.duration, // refresh duration on re-trigger
+      }
+    : {
+        ...buff,
+        endTime: state.time + buff.duration,
+        ...(buff.stackLimit && {
+          stacks: 0,
+        }),
+        usesLeft: 1,
+      }
+
+  return {
+    ...state,
+    activeBuffsEnemy: new Map(state.activeBuffsEnemy).set(
+      buff.id,
+      newBuffInstance,
+    ),
+  }
+
+  return state
 }
 
 // ============================================
