@@ -39,6 +39,10 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             Buffs
           </TableHead>
           <TableHead
+            colSpan={1}
+            className="sticky left-0 top-0 z-20 column-header py-1 bg-card text-center shadow-[inset_0_-1px_0_rgb(39,39,42)]"
+          ></TableHead>
+          <TableHead
             colSpan={6}
             style={getStatCellColor("atk", 0)}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800/50 text-center"
@@ -117,8 +121,11 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           <TableHead className="sticky left-0 top-6 z-20 column-header py-1 bg-card text-[14px]! min-w-70 shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             Personal Buffs
           </TableHead>
-          <TableHead className="sticky left-0 top-6 z-20 column-header py-1 bg-card text-[14px]! min-w-70 shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+          <TableHead className="sticky left-0 top-6 z-20 column-header py-1 bg-card text-[14px]! min-w-54 shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             Global Buffs
+          </TableHead>
+          <TableHead className="sticky left-0 top-6 z-20 column-header py-1 bg-card text-[14px]! min-w-54 shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+            Enemy Debuffs
           </TableHead>
           {statKeys.map((key) => {
             const statKey = key as BUFF_TYPE
@@ -146,6 +153,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           proc,
           buffs,
           buffsGlobal,
+          buffsEnemy,
           statMap,
         } = result
         const character = characterTemplate[characterId as CHARACTER_KEY]
@@ -157,10 +165,16 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
         const isCast = result.type === "cast"
         const activeBuffString = buffs.join(", ")
         const activeTeamBuffString = buffsGlobal.join(", ")
+        const enemydebuffString = buffsEnemy.join(", ")
         const stats = Object.entries(statMap).slice(0, statListLength) as [
           BUFF_TYPE,
           number,
         ][]
+
+        const valueCount =
+          (proc.damage > 0 ? 1 : 0) +
+          (proc.heal > 0 ? 1 : 0) +
+          (proc.shield > 0 ? 1 : 0)
 
         return (
           <TableRow className="bg-card">
@@ -209,30 +223,46 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             >
               {damage > 0 ? Math.round(damage).toLocaleString("en-US") : "--"}
             </TableCell>
-            <TableCell
-              className={cn(
-                "bg-zinc-800/50 pr-2! text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]",
-                proc.damage !== 0 && isCast && elementColorText,
-                proc.damage !== 0 && !isCast && "text-xs text-muted-foreground",
-                proc.heal !== 0 && healColorText,
-                proc.shield !== 0 && shieldColorText,
+            <TableCell className="bg-zinc-800/50 pr-2! text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+              {proc.damage > 0 && (
+                <p
+                  className={cn(
+                    valueCount >= 2 && "text-[12px]",
+                    isCast ? elementColorText : "text-xs text-muted-foreground",
+                  )}
+                >
+                  {Math.round(proc.damage).toLocaleString("en-US")}
+                </p>
               )}
-            >
-              {proc.damage > 0
-                ? Math.round(proc.damage).toLocaleString("en-US")
-                : ""}
-              {proc.heal > 0
-                ? Math.round(proc.heal).toLocaleString("en-US")
-                : ""}
-              {proc.shield > 0
-                ? Math.round(proc.shield).toLocaleString("en-US")
-                : ""}
+              {proc.heal > 0 && (
+                <p
+                  className={cn(
+                    valueCount >= 2 && "text-[12px]",
+                    healColorText,
+                  )}
+                >
+                  {Math.round(proc.heal).toLocaleString("en-US")}
+                </p>
+              )}
+              {proc.shield > 0 && (
+                <p
+                  className={cn(
+                    valueCount >= 2 && "text-[12px]",
+                    shieldColorText,
+                  )}
+                >
+                  {Math.round(proc.shield).toLocaleString("en-US")}
+                </p>
+              )}
             </TableCell>
             <TableCell className="text-[14px] shadow-[inset_0_-1px_0_rgb(39,39,42)]">
               {`(${buffs.length || 0}) ${[activeBuffString]}`}
             </TableCell>
             <TableCell className="text-[14px] shadow-[inset_0_-1px_0_rgb(39,39,42)]">
               {`(${buffsGlobal.length || 0}) ${[activeTeamBuffString]}`}
+            </TableCell>
+            <TableCell className="text-[14px] shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+              {`(${buffsEnemy.length || 0}) ${[enemydebuffString]}`}
             </TableCell>
             {stats.map(([statKey, value]) => (
               <TableCell

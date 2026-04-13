@@ -38,9 +38,13 @@ export type TriggerValue = {
   stacksToAdd?: number
 }
 
-type ModifierValue = {
+export type EventType = "cast" | "hit" | "damage" | "heal" | "coord"
+
+export type ModifierValue = {
+  type?: EventType
   class: BUFF_TYPE
   statReq?: BASE_STAT
+  frame?: number
   value: number
   flatValue?: number
   stackValue?: number
@@ -71,6 +75,7 @@ export type BuffInstance = {
   stacks?: number
   endTime: number
   usesLeft: number
+  sourceEventId: string
 } & BuffDefinition
 
 type EventValue = {
@@ -128,14 +133,13 @@ export type ActionListItem = {
   time: number
 }
 
-export type EventType = "cast" | "hit" | "damage" | "heal"
-
 export type TimelineEvent = {
+  id: string
   characterId: CHARACTER_KEY
   type: EventType
   skill: Skill
   time: number
-  parent?: string
+  sourceEventId?: string
 }
 
 export type BonusStats = Record<BONUSSTAT_KEY, number>
@@ -215,7 +219,6 @@ export type StateContext = {
   prevChar: CHARACTER_KEY | ""
   procQueue: TimelineEvent[]
   proc: Proc
-  currCastRow: number
   row: number
   time: number
   message: Message
@@ -233,8 +236,8 @@ export type BuffResolver = {
 }
 
 export type Result = {
+  id: string
   row: number
-  currCastRow: number
   characterId: string
   type: EventType
   skill: Skill
@@ -243,9 +246,10 @@ export type Result = {
   resonance: number
   damage: number
   proc: Proc
-  parent?: string
+  sourceEventId?: string
   buffs: string[]
   buffsGlobal: string[]
+  buffsEnemy: string[]
   statMap: StatMap
   message: Message
 }

@@ -32,18 +32,16 @@ import {
   isOnCastEvent,
   isOnHitEvent,
 } from "./helper"
-import { insertTimelineEvent, updateParent } from "@/lib/helper"
+import { insertTimelineEvent } from "@/lib/helper"
 
 function removeExpiredBuffs(state: StateContext): StateContext {
   const { characterId } = state.action
   const activeBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
-  const activeBuffsGlobal = state.activeBuffsGlobal
-
-  const newBuffs = new Map(activeBuffs)
-  const newBuffsGlobal = new Map(activeBuffsGlobal)
 
   let newState = state
+
+  const newBuffs = new Map(activeBuffs)
   for (const buff of activeBuffs.values()) {
     const buffToUpdate = buffHandler[buff.id]
     if (!buffToUpdate) continue
@@ -60,7 +58,8 @@ function removeExpiredBuffs(state: StateContext): StateContext {
     }
   }
 
-  for (const buff of activeBuffsGlobal.values()) {
+  const newBuffsGlobal = new Map(state.activeBuffsGlobal)
+  for (const buff of state.activeBuffsGlobal.values()) {
     const buffToUpdate = buffHandler[buff.id]
     if (!buffToUpdate) continue
 
@@ -69,17 +68,35 @@ function removeExpiredBuffs(state: StateContext): StateContext {
       isExpired(newState, buff)
     if (!shouldExpire) continue
 
-    newBuffs.delete(buff.id)
+    newBuffsGlobal.delete(buff.id)
 
     if (buffToUpdate.onExpire) {
       newState = buffToUpdate.onExpire(newState, buff)
     }
   }
 
+  const newBuffsEnemy = new Map(state.activeBuffsEnemy)
+  for (const buff of state.activeBuffsGlobal.values()) {
+    const buffToUpdate = buffHandler[buff.id]
+    if (!buffToUpdate) continue
+
+    const shouldExpire =
+      buffToUpdate.expireRules?.some((rule) => rule(newState, buff)) ??
+      isExpired(newState, buff)
+    if (!shouldExpire) continue
+
+    newBuffsEnemy.delete(buff.id)
+
+    // if (buffToUpdate.onExpire) {
+    //   newState = buffToUpdate.onExpire(newState, buff)
+    // }
+  }
+
   return {
     ...newState,
     activeBuffs: new Map(newState.activeBuffs).set(characterId, newBuffs),
     activeBuffsGlobal: newBuffsGlobal,
+    activeBuffsEnemy: newBuffsEnemy,
   }
 }
 
@@ -146,8 +163,7 @@ function evaluateDCond(
 }
 
 function calculateDamage(state: StateContext) {
-  const { characterId, type, skill } = state.action
-  if (type !== "hit") return 0
+  const { characterId, skill } = state.action
 
   const char = state.characters.get(characterId)
   const statMap = state.statMap.get(characterId)
@@ -195,6 +211,7 @@ function calculateDamage(state: StateContext) {
     enemyDefenseMultiplier
 
   // console.table({
+  //   skill: skill.name,
   //   attack,
   //   mv: skillMultiplier,
   //   bonus: bonusMultiplier,
@@ -247,7 +264,6 @@ function processEvent(
   state.time = time
 
   state.onFieldChar = isOnCastEvent(state) ? characterId : state.onFieldChar
-  state.currCastRow = isOnCastEvent(state) ? state.row : state.currCastRow
 
   // remove expired buffs
   state = removeExpiredBuffs(state)
@@ -320,8 +336,8 @@ function processEvent(
 }
 
 function getResult(state: StateContext): Result {
-  const { row, currCastRow, time } = state
-  const { characterId, type, skill, parent } = state.action
+  const { row, time } = state
+  const { characterId, type, skill, sourceEventId } = state.action
 
   const getBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
@@ -329,31 +345,39 @@ function getResult(state: StateContext): Result {
   const resBuffsGlobal = [...state.activeBuffsGlobal.values()].map(
     (buff) => buff.name,
   )
+  const resBuffsEnemy = [...state.activeBuffsEnemy.values()].map(
+    (buff) => buff.name,
+  )
 
   const resStatMap = state.statMap.get(characterId) ?? baseStatMap
 
+  const isHit = isType(type, "hit")
+  const isProc = isType(type, "damage") || isType(type, "coord")
+  const isHeal = isType(type, "heal")
+
   const resultObject: Result = {
+    id: state.action.id,
     row,
-    currCastRow,
     characterId,
     type,
     skill,
     time,
     concerto: state.characters.get(characterId)?.dCond.concerto ?? 0,
     resonance: state.characters.get(characterId)?.dCond.resonance ?? 0,
-    damage: isType(type, "hit") ? calculateDamage(state) : 0,
+    damage: isHit ? calculateDamage(state) : 0,
     proc: {
-      damage: isType(type, "damage") ? calculateDamage(state) : 0,
-      heal: isType(type, "heal") ? calculateHeal(state) : 0,
+      damage: isProc ? calculateDamage(state) : 0,
+      heal: isHeal ? calculateHeal(state) : 0,
       shield: 0,
     },
-    parent,
+    sourceEventId,
     buffs: resBuffs,
     buffsGlobal: resBuffsGlobal,
+    buffsEnemy: resBuffsEnemy,
     statMap: { ...resStatMap },
     message: {},
   }
-
+  console.log(resultObject.row, resultObject.sourceEventId)
   return resultObject
 }
 
@@ -466,6 +490,7 @@ function getContext(
   statMap: Map<CHARACTER_KEY, StatMap>,
 ): StateContext {
   const action: Omit<TimelineEvent, "time"> = {
+    id: String(0),
     characterId: "encore",
     type: "cast",
     skill: {
@@ -511,7 +536,6 @@ function getContext(
     procQueue: [],
     proc,
     statMap,
-    currCastRow: 1,
     row: 1,
     time: 0,
     message: {},
@@ -547,7 +571,6 @@ export function simulate(
 
     const result = getResult(nextState)
     resultList.push(result)
-    updateParent(resultList, result) // add proc to parent
 
     while (nextState.procQueue.length > 0) {
       const event = nextState.procQueue.shift()!

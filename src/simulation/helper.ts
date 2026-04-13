@@ -15,6 +15,7 @@ import type {
   DEEPEN_KEY,
   ELEMENT,
   EventType,
+  ModifierValue,
   StateContext,
   StatMap,
   TimelineEvent,
@@ -159,6 +160,25 @@ export function hasCondition(
   return false
 }
 
+export function hasDebuff(
+  state: StateContext,
+  buff: BuffDefinition,
+  getBuffBy: "id" | "name" = "id",
+) {
+  const condition = buff.trigger?.condition
+  if (!condition) return false
+
+  if (getBuffBy === "id") {
+    const enemyBuffs = state.activeBuffsEnemy
+    if (condition.some((c) => enemyBuffs.has(c))) return true
+  }
+
+  const enemyBuffs = state.activeBuffsEnemy
+  if ([...enemyBuffs].some(([_, b]) => condition.includes(b.name))) return true
+
+  return false
+}
+
 export function isOnCastEvent(state: StateContext): boolean {
   return state.action.type === "cast"
 }
@@ -181,6 +201,28 @@ export function isOnCooldown(
 // ============================================
 // =============== BUFF UTILS =================
 // ============================================
+export function createNewBuffInstance(
+  state: StateContext,
+  buff: BuffDefinition,
+  existing: BuffInstance | undefined,
+) {
+  const newBuffInstance: BuffInstance = existing
+    ? {
+        ...existing,
+        endTime: state.time + buff.duration, // refresh duration on re-trigger
+      }
+    : {
+        ...buff,
+        endTime: state.time + buff.duration,
+        ...(buff.stackLimit && {
+          stacks: 0,
+        }),
+        usesLeft: 1,
+        sourceEventId: state.action.id,
+      }
+  return newBuffInstance
+}
+
 export function addToBuffNext(
   state: StateContext,
   buff: BuffDefinition,
@@ -234,7 +276,7 @@ export function applyDCondFlat(
 
 export function applyCooldown(
   state: StateContext,
-  buff: BuffInstance,
+  buff: BuffDefinition | BuffInstance,
 ): StateContext {
   if (isOnCooldown(state, buff)) return state
 
@@ -253,6 +295,15 @@ export function applyCooldown(
     ...state,
     cooldowns: newCooldowns,
   }
+}
+
+export function getEnemyBuffById(
+  state: StateContext,
+  buffId: string,
+): BuffInstance | undefined {
+  const existing = state.activeBuffsEnemy.get(buffId)
+
+  return existing
 }
 
 export function getStacksFromBuff(state: StateContext, buffById: string) {
@@ -292,6 +343,38 @@ export function addConsumeStacksToBuff(
     ...state,
     activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
   }
+}
+
+export function addNewTimelineEvent(
+  state: StateContext,
+  buff: BuffDefinition,
+  mod: ModifierValue,
+  sourceEventId: string,
+) {
+  const type = mod.type ?? "damage"
+
+  const newEvent: TimelineEvent = {
+    id: String(state.row) + type,
+    characterId: buff.source ?? "encore",
+    type,
+    skill: {
+      id: buff.id,
+      name: `Proc: ${buff.id} [${type}]`,
+      category: "basic",
+      classifications: buff.classifications ?? [],
+      mv: mod.value,
+      frames: mod.frame ?? 0,
+      hits: 1,
+      forte: mod.forte ?? 0,
+      forte2: mod.forte2 ?? 0,
+      concerto: mod.concerto ?? 0,
+      resonance: mod.resonance ?? 0,
+    },
+    time: state.time,
+    sourceEventId,
+  }
+
+  return newEvent
 }
 
 export function removeCondition(
@@ -347,21 +430,7 @@ export function createBuff(
 
   const existing = activeBuffs.get(buff.id)
 
-  const newBuffInstance: BuffInstance = existing
-    ? {
-        ...existing,
-        endTime: state.time + buff.duration, // refresh duration on re-trigger
-      }
-    : {
-        ...buff,
-        endTime: state.time + buff.duration,
-        ...(buff.stackLimit && {
-          stacks: 0,
-        }),
-        usesLeft: 1,
-      }
-
-  // console.log(state.row, `add buff ${buff.name}`)
+  const newBuffInstance = createNewBuffInstance(state, buff, existing)
 
   const newPersonalBuffs = new Map(activeBuffs)
   newPersonalBuffs.set(buff.id, newBuffInstance)
@@ -383,20 +452,11 @@ export function createBuffNext(
 
   const existing = activeBuffs.get(buff.id)
 
-  const buffInstance: BuffInstance = {
-    ...buff,
-    endTime: state.time + buff.duration, // refresh duration on re-trigger
-    ...(buff.stackLimit && {
-      stacks: Math.min(existing?.stacks ?? 0, buff.stackLimit),
-    }),
-    usesLeft: existing?.usesLeft ?? 1,
-  }
+  const buffInstance = createNewBuffInstance(state, buff, existing)
 
   // remove buffNext entry
   const newBuffNext = new Set(state.buffNext)
   newBuffNext.delete(buff.id)
-
-  // console.log(state.row, `add buff ${buff.name}`)
 
   const newPersonalBuffs = new Map(activeBuffs)
   newPersonalBuffs.set(buff.id, buffInstance)
@@ -408,20 +468,29 @@ export function createBuffNext(
   }
 }
 
+export function createGlobalBuff(
+  state: StateContext,
+  buff: BuffDefinition,
+): StateContext {
+  const activeBuffsGlobal = state.activeBuffsGlobal
+
+  const existing = activeBuffsGlobal.get(buff.id)
+
+  const newBuffInstance = createNewBuffInstance(state, buff, existing)
+
+  return {
+    ...state,
+    activeBuffsGlobal: new Map(activeBuffsGlobal).set(buff.id, newBuffInstance),
+  }
+}
+
 export function createGlobalBuffNext(
   state: StateContext,
   buff: BuffDefinition,
 ): StateContext {
   const existing = state.activeBuffsGlobal.get(buff.id)
 
-  const buffInstance: BuffInstance = {
-    ...buff,
-    endTime: state.time + buff.duration, // refresh duration on re-trigger
-    ...(buff.stackLimit && {
-      stacks: Math.min(existing?.stacks ?? 0, buff.stackLimit),
-    }),
-    usesLeft: existing?.usesLeft ?? 1,
-  }
+  const buffInstance = createNewBuffInstance(state, buff, existing)
 
   // remove buffNext entry
   const newBuffNext = new Set(state.buffNext)
@@ -437,34 +506,23 @@ export function createGlobalBuffNext(
   }
 }
 
-export function createGlobalBuff(
+export function createEnemyDebuff(
   state: StateContext,
   buff: BuffDefinition,
 ): StateContext {
-  const activeBuffsGlobal = state.activeBuffsGlobal
+  const existing = state.activeBuffsEnemy.get(buff.id)
 
-  const existing = activeBuffsGlobal.get(buff.id)
-
-  const newBuffInstance: BuffInstance = existing
-    ? {
-        ...existing,
-        endTime: state.time + buff.duration, // refresh duration on re-trigger
-      }
-    : {
-        ...buff,
-        endTime: state.time + buff.duration,
-        ...(buff.stackLimit && {
-          stacks: 0,
-        }),
-        usesLeft: 1,
-      }
-
-  // console.log(state.row, `add buff ${buff.name}`)
+  const newBuffInstance = createNewBuffInstance(state, buff, existing)
 
   return {
     ...state,
-    activeBuffsGlobal: new Map(activeBuffsGlobal).set(buff.id, newBuffInstance),
+    activeBuffsEnemy: new Map(state.activeBuffsEnemy).set(
+      buff.id,
+      newBuffInstance,
+    ),
   }
+
+  return state
 }
 
 // apply
@@ -587,7 +645,7 @@ export function removeGlobalBuffStatChanges(
   return newState
 }
 
-// stacking
+// stacking apply
 function setStackingBuffStacks(
   state: StateContext,
   character: Character,
@@ -684,6 +742,7 @@ export function applyGlobalStackingBuffStatChanges(
   return newState
 }
 
+// stacking remove
 export function removeStackingBuffStatChanges(
   state: StateContext,
   buff: BuffInstance,
@@ -765,7 +824,31 @@ export function updateBuffIdentity(
   }
 }
 
-export function addDamageToTimeline(
+export function createCoordProcEvent(
+  state: StateContext,
+  buff: BuffDefinition,
+  sourceEventId: string | undefined,
+): StateContext {
+  if (!buff.appliesTo || !buff.modifiers) return state
+  if (!sourceEventId) return state
+
+  const newQueuedEvents: TimelineEvent[] = [...state.procQueue]
+
+  for (const mod of buff.modifiers) {
+    const procEvent = addNewTimelineEvent(state, buff, mod, sourceEventId)
+
+    newQueuedEvents.push(procEvent)
+  }
+
+  const newState = applyCooldown(state, buff)
+
+  return {
+    ...newState,
+    procQueue: newQueuedEvents,
+  }
+}
+
+export function createDamageProcEvent(
   state: StateContext,
   buff: BuffInstance,
   consumeById: string[],
@@ -791,30 +874,13 @@ export function addDamageToTimeline(
   for (const buffToBeConsumed of toConsume) {
     if (!buffToBeConsumed.modifiers) continue
 
-    const mod = buffToBeConsumed.modifiers[0]
-    const { skill } = state.action
+    const sourceId = buff.sourceEventId
 
-    const procEvent: TimelineEvent = {
-      characterId,
-      type: "damage",
-      skill: {
-        id: buffToBeConsumed.id,
-        name: `Proc: ${buffToBeConsumed.id}`,
-        category: skill.category,
-        classifications: buffToBeConsumed.classifications ?? [],
-        mv: mod.value,
-        frames: 0,
-        hits: 1,
-        forte: mod.forte ?? 0,
-        forte2: mod.forte2 ?? 0,
-        concerto: mod.concerto ?? 0,
-        resonance: mod.resonance ?? 0,
-      },
-      time: state.time,
-      parent: String(state.currCastRow),
+    for (const mod of buffToBeConsumed.modifiers) {
+      const procEvent = addNewTimelineEvent(state, buff, mod, sourceId)
+
+      newQueuedEvents.push(procEvent)
     }
-
-    newQueuedEvents.push(procEvent)
   }
 
   for (const buffToBeConsumed of toConsume) {
@@ -826,37 +892,6 @@ export function addDamageToTimeline(
     activeBuffs: new Map(state.activeBuffs).set(characterId, newActiveBuffs),
     procQueue: newQueuedEvents,
   }
-}
-
-export function createEnemyDebuff(
-  state: StateContext,
-  buff: BuffDefinition,
-): StateContext {
-  const existing = state.activeBuffsEnemy.get(buff.id)
-
-  const newBuffInstance: BuffInstance = existing
-    ? {
-        ...existing,
-        endTime: state.time + buff.duration, // refresh duration on re-trigger
-      }
-    : {
-        ...buff,
-        endTime: state.time + buff.duration,
-        ...(buff.stackLimit && {
-          stacks: 0,
-        }),
-        usesLeft: 1,
-      }
-
-  return {
-    ...state,
-    activeBuffsEnemy: new Map(state.activeBuffsEnemy).set(
-      buff.id,
-      newBuffInstance,
-    ),
-  }
-
-  return state
 }
 
 // ============================================

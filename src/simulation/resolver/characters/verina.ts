@@ -2,12 +2,19 @@ import type { BuffResolver } from "@/shared/types"
 import {
   addToBuffNext,
   applyGlobalBuffStatChanges,
+  createCoordProcEvent,
   createEnemyDebuff,
   createGlobalBuff,
   createGlobalBuffNext,
+  getEnemyBuffById,
+  hasDebuff,
   isAbility,
+  isBuffTarget,
   isCategory,
   isOnCastEvent,
+  isOnCooldown,
+  isOnHitEvent,
+  not,
   or,
   removeGlobalBuffStatChanges,
 } from "@/simulation/helper"
@@ -15,7 +22,7 @@ import {
 const verinaResolver: Record<string, BuffResolver> = {
   "Gift of Nature": {
     id: "Gift of Nature",
-    triggerRules: [or(isAbility, isCategory)],
+    triggerRules: [isBuffTarget, or(isAbility, isCategory)],
     onTrigger: (state, buff) => {
       return createGlobalBuff(state, buff)
     },
@@ -47,6 +54,15 @@ const verinaResolver: Record<string, BuffResolver> = {
     triggerRules: [isAbility],
     onTrigger: (state, buff) => {
       return createEnemyDebuff(state, buff)
+    },
+  },
+  "Arboreal Flourish (Coord)": {
+    id: "Arboreal Flourish (Coord)",
+    triggerRules: [hasDebuff, isOnHitEvent, not(isOnCooldown)],
+    onTrigger: (state, buff) => {
+      const buffId = "Photosynthesis Mark"
+      const parentId = getEnemyBuffById(state, buffId)?.sourceEventId
+      return createCoordProcEvent(state, buff, parentId)
     },
   },
 }

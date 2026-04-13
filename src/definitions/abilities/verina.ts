@@ -126,8 +126,8 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       cooldown: 25,
       onCast: { concerto: 20 },
       hits: [
-        { frame: 10, mv: 1, concerto: 0, resonance: 0 },
-        { frame: 10, heal: 0.2380, flat: 950 },
+        { frame: 0, mv: 1, concerto: 0, resonance: 0 },
+        { frame: 0, heal: 0.238, flat: 950 },
       ],
     },
   },

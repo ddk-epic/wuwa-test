@@ -161,6 +161,7 @@ export function computeEventTimeline(
 
     const onCast = skill.onCast
     const parentItem: TimelineEvent = {
+      id: String(i),
       characterId,
       type: "cast",
       skill: {
@@ -188,6 +189,7 @@ export function computeEventTimeline(
       const hitItem: TimelineEvent =
         hit.heal != undefined
           ? {
+              id: String(i + j),
               characterId,
               type: "heal",
               skill: {
@@ -202,9 +204,10 @@ export function computeEventTimeline(
                 resonance: hit.resonance ?? 0,
               },
               time: time + hitFrame,
-              parent: String(i),
+              sourceEventId: String(i),
             }
           : {
+              id: String(i + j),
               characterId,
               type: "hit",
               skill: {
@@ -218,7 +221,7 @@ export function computeEventTimeline(
                 resonance: hit.resonance ?? 0,
               },
               time: time + hitFrame,
-              parent: String(i),
+              sourceEventId: String(i),
             }
 
       if (hitItem.type === "hit") hitCounter++
@@ -230,23 +233,24 @@ export function computeEventTimeline(
   return timeline.sort((a, b) => a.time - b.time)
 }
 
-export function updateParent(eventTimeline: Result[], entry: Result) {
-  if (!entry.parent || !entry.proc.damage) return
+export function updateParent(resultTimeline: Result[], entry: Result) {
+  if (!entry.sourceEventId) return
 
-  const parentEvent = eventTimeline[Number(entry.parent) - 1]
+  const parentEvent = resultTimeline[Number(entry.sourceEventId)]
   if (!parentEvent) return
 
   parentEvent.proc.damage += entry.proc.damage
+  parentEvent.proc.heal += entry.proc.heal
 }
 
-export function aggregateResult(eventTimeline: Result[]): Result[] {
+export function aggregateResult(resultTimeline: Result[]): Result[] {
   const parentMap = new Map<string, Result>()
   const result: Result[] = []
 
   let castIdx = 0
 
-  for (let i = 0; i < eventTimeline.length; i++) {
-    const entry = eventTimeline[i]
+  for (let i = 0; i < resultTimeline.length; i++) {
+    const entry = resultTimeline[i]
 
     if (entry.type === "cast") {
       const parent: Result = {
@@ -260,8 +264,9 @@ export function aggregateResult(eventTimeline: Result[]): Result[] {
       castIdx++
     }
 
-    if ((entry.type === "hit" || entry.type === "damage") && entry.parent) {
-      const parent = parentMap.get(entry.parent)
+    // only non-cast events have a sourceEventId
+    if (entry.sourceEventId) {
+      const parent = parentMap.get(entry.sourceEventId)
       if (!parent) continue
 
       parent.damage += entry.damage
@@ -272,6 +277,7 @@ export function aggregateResult(eventTimeline: Result[]): Result[] {
       parent.statMap = entry.statMap
 
       parent.proc.damage += entry.proc.damage
+      parent.proc.heal += entry.proc.heal
     }
   }
 

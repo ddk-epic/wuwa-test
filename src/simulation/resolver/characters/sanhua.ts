@@ -17,7 +17,7 @@ import {
   removeGlobalStackingBuffStatChanges,
   addConsumeStacksToBuff,
   getStacksFromBuff,
-  addDamageToTimeline,
+  createDamageProcEvent,
   hasSwapped,
 } from "../../helper"
 
@@ -107,7 +107,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
       const consumeByS6 = ["Ice Prism", "Ice Glacier"]
 
       let newState = addConsumeStacksToBuff(state, buff, consumeByS6)
-      return addDamageToTimeline(newState, buff, consumeById)
+      return createDamageProcEvent(newState, buff, consumeById)
     },
   },
   "Solitude's Embrace": {
