@@ -9,7 +9,7 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       classifications: ["spectro", "intro"],
       frames: 114,
       onCast: { concerto: 10 },
-      hits: [{ frame: 45, mv: 0, forte: 1, concerto: 0, resonance: 0 }],
+      hits: [{ frame: 45, mv: 0.5, forte: 1, resonance: 10 }],
       variations: {
         canc: {
           frames: 54,
@@ -41,7 +41,7 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "basic",
       classifications: ["spectro", "basic"],
       frames: 30,
-      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [{ frame: 10, mv: 0.1904, concerto: 3.04, resonance: 0.95 }],
     },
     2: {
       id: "Cultivation 2",
@@ -49,7 +49,7 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "basic",
       classifications: ["spectro", "basic"],
       frames: 30,
-      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [{ frame: 10, mv: 0.2573, concerto: 4.11, resonance: 1.28 }],
     },
     3: {
       id: "Cultivation 3",
@@ -57,7 +57,10 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "basic",
       classifications: ["spectro", "basic"],
       frames: 30,
-      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [
+        { frame: 10, mv: 0.1287, concerto: 2.05, resonance: 0.64 },
+        { frame: 10, mv: 0.1287, concerto: 2.05, resonance: 0.64 },
+      ],
     },
     4: {
       id: "Cultivation 4",
@@ -65,7 +68,7 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "basic",
       classifications: ["spectro", "basic"],
       frames: 30,
-      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [{ frame: 10, mv: 0.3386, concerto: 5.41, resonance: 1.69 }],
     },
     5: {
       id: "Cultivation 5",
@@ -73,7 +76,9 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "basic",
       classifications: ["spectro", "basic"],
       frames: 30,
-      hits: [{ frame: 10, mv: 0, forte: 1, concerto: 0, resonance: 0 }],
+      hits: [
+        { frame: 10, mv: 0.3603, forte: 1, concerto: 5.76, resonance: 1.8 },
+      ],
       variations: {
         canc: {
           frames: 32,
@@ -88,8 +93,7 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "heavy",
       classifications: ["spectro", "heavy"],
       frames: 42,
-      onCast: { concerto: 20 },
-      hits: [{ frame: 0, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [{ frame: 10, mv: 0.5, concerto: 8, resonance: 2.5 }],
       variations: {
         swap: {
           frames: 15,
@@ -106,7 +110,7 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       frames: 42,
       cooldown: 12,
       onCast: { concerto: 30 },
-      hits: [{ frame: 0, mv: 0, forte: 1, concerto: 0, resonance: 0 }],
+      hits: [{ frame: 10, mv: 0.18, forte: 1, resonance: 9 }],
       variations: {
         canc: {
           frames: 15,
@@ -124,7 +128,7 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       frames: 120,
       freezetime: 74,
       cooldown: 25,
-      onCast: { concerto: 20 },
+onCast: { concerto: 20, resonance: -175 },
       hits: [
         { frame: 0, mv: 1, concerto: 0, resonance: 0 },
         { frame: 0, heal: 0.238, flat: 950 },
@@ -138,7 +142,16 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "forte",
       classifications: ["spectro", "basic"],
       frames: 18,
-      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [
+        {
+          frame: 10,
+          mv: 0.3402,
+          forte: -1,
+          concerto: 12 + 4.53,
+          resonance: 1.41,
+        },
+        { frame: 10, heal: 0.2975, flat: 1188 },
+      ],
     },
     2: {
       id: "Starflower Blooms 2",
@@ -146,7 +159,16 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "forte",
       classifications: ["spectro", "basic"],
       frames: 18,
-      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [
+        {
+          frame: 10,
+          mv: 0.321,
+          forte: -1,
+          concerto: 12 + 4.28,
+          resonance: 1.33,
+        },
+        { frame: 10, heal: 0.2975, flat: 1188 },
+      ],
     },
     3: {
       id: "Starflower Blooms 3",
@@ -154,7 +176,18 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "forte",
       classifications: ["spectro", "basic"],
       frames: 18,
-      hits: [{ frame: 10, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [
+        {
+          frame: 10,
+          mv: 0.1534,
+          forte: -1,
+          concerto: 12 + 2.04,
+          resonance: 0.63,
+        },
+        { frame: 10, mv: 0.1534, concerto: 2.04, resonance: 0.63 },
+        { frame: 10, mv: 0.1534, concerto: 2.04, resonance: 0.63 },
+        { frame: 10, heal: 0.2975, flat: 1188 },
+      ],
     },
     4: {
       id: "Starflower Blooms Heavy",
@@ -163,7 +196,16 @@ const verina: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       classifications: ["spectro", "heavy"],
       frames: 42,
       onCast: { concerto: 20 },
-      hits: [{ frame: 0, mv: 0, concerto: 0, resonance: 0 }],
+      hits: [
+        {
+          frame: 10,
+          mv: 0.3267,
+          forte: -1,
+          concerto: 12 + 4.66,
+          resonance: 2.91,
+        },
+        { frame: 20, mv: 0.49 },
+      ],
       variations: {
         swap: {
           frames: 15,

@@ -200,6 +200,7 @@ const encore: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       frames: 0,
       freezetime: 0,
       cooldown: 16,
+      onCast: { concerto: 20, resonance: -125 },
       hits: [],
     },
   },

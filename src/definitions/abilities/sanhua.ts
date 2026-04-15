@@ -114,7 +114,7 @@ const sanhua: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       frames: 94,
       freezetime: 84,
       cooldown: 16,
-      onCast: { concerto: 20 },
+      onCast: { concerto: 20, resonance: -100 },
       hits: [{ frame: 1, mv: 4.0716 }],
     },
   },

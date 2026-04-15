@@ -9,20 +9,17 @@ import {
   getEnemyBuffById,
   hasDebuff,
   isAbility,
-  isBuffTarget,
-  isCategory,
   isOnCastEvent,
   isOnCooldown,
   isOnHitEvent,
   not,
-  or,
   removeGlobalBuffStatChanges,
 } from "@/simulation/helper"
 
 const verinaResolver: Record<string, BuffResolver> = {
   "Gift of Nature": {
     id: "Gift of Nature",
-    triggerRules: [isBuffTarget, or(isAbility, isCategory)],
+    triggerRules: [isAbility],
     onTrigger: (state, buff) => {
       return createGlobalBuff(state, buff)
     },
