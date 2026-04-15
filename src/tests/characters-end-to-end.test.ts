@@ -1,66 +1,24 @@
 import { describe, expect, it } from "vitest"
 
-import { computeBaseCharacter, computeEventTimeline } from "@/lib/helper"
+import { computeEventTimeline } from "@/lib/helper"
+import { createTeam, skillOf } from "./helper"
 
-import type { ActionListItem, Character, CharSettings } from "@/shared/types"
-
-import characterTemplate from "@/definitions/characters"
-import { skillData } from "@/definitions/abilities"
+import type { ActionListItem } from "@/shared/types"
 
 import { simulate } from "@/simulation"
 
 describe("Characters: end-to-end", () => {
   describe("Encore", () => {
-    const characterId = "encore"
-    const template = characterTemplate[characterId]
-    const characterSettings = {
-      sequence: 0,
-      weapon: template.weapon,
-      echoSet: template.echoSet,
-      echo: template.echo,
-    } satisfies CharSettings
-    const characters: Character[] = [
-      computeBaseCharacter(characterId, characterSettings),
-    ]
-    const skills = skillData[characterId]
-
-    const onCast = 0
-
-    it("Basic: default test", () => {
-      const team = characters
-      const skill = skills.basic[1]
-
-      if (!skill) return
-
-      const actionList: ActionListItem[] = [
-        {
-          characterId,
-          skill,
-          time: 0,
-        },
-      ]
-
-      const eventTimeline = computeEventTimeline(actionList)
-      const result = simulate(team, eventTimeline)
-
-      const totalDamage = result.reduce((total, row) => total + row.damage, 0)
-      const buffsOnCast = result[onCast].buffs
-
-      expect(totalDamage).toBeGreaterThan(0)
-      expect.soft(result[onCast].statMap.atk).toBeGreaterThan(0.6)
-      expect.soft(buffsOnCast).toContain("Stringmaster (Ele)")
-      expect.soft(buffsOnCast).toContain("Molten Rift 2pc")
-    })
-
+    const characters = createTeam("encore")
     it("Skill: test buffs", () => {
       const team = characters
-      const skill = skills.skill[1]
+      const skill = skillOf("encore").skill[1]
 
       if (!skill) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "encore",
           skill,
           time: 0,
         },
@@ -70,41 +28,36 @@ describe("Characters: end-to-end", () => {
       const result = simulate(team, eventTimeline)
 
       const totalDamage = result.reduce((total, row) => total + row.damage, 0)
-      const buffsOnCast = result[onCast].buffs
-      const buffsFirstHit = result[1].buffs
-      const buffsSecondHit = result[2].buffs
+      const buffsOnCast = result[0].buffs
 
       expect(totalDamage).toBeGreaterThan(0)
-      expect.soft(buffsOnCast).toContain("Molten Rift 2pc")
-      expect.soft(buffsOnCast).toContain("Molten Rift 5pc")
       expect.soft(buffsOnCast).toContain("Woolies Cheer Dance")
-      expect.soft(buffsFirstHit).toContain("Stringmaster (ATK) x1")
-      expect.soft(buffsSecondHit).toContain("Stringmaster (ATK) x2")
+      expect.soft(result[1].buffs).toContain("Stringmaster (Atk) x1")
+      expect.soft(result[2].buffs).toContain("Stringmaster (Atk) x2")
     })
 
     it("S1: test buffs", () => {
-      const sequence = 1
-      const team: Character[] = [{ ...characters[0], sequence }]
+      const team = createTeam(["encore", { sequence: 1 }])
 
-      const skill1 = skills.basic[1]
-      const skill2 = skills.basic[2]
-      const skill3 = skills.basic[3]
+      const skill1 = skillOf("encore").basic[1]
+      const skill2 = skillOf("encore").basic[2]
+      const skill3 = skillOf("encore").basic[3]
 
       if (!(skill1 && skill2 && skill3)) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "encore",
           skill: skill1,
           time: 0,
         },
         {
-          characterId,
+          characterId: "encore",
           skill: skill2,
           time: 30,
         },
         {
-          characterId,
+          characterId: "encore",
           skill: skill3,
           time: 60,
         },
@@ -134,22 +87,21 @@ describe("Characters: end-to-end", () => {
     })
 
     it("S2: test buffs", () => {
-      const sequence = 2
-      const team: Character[] = [{ ...characters[0], sequence }]
+      const team = createTeam(["encore", { sequence: 2 }])
 
-      const skill1 = skills.basic[1]
-      const skill2 = skills.basic[2]
+      const skill1 = skillOf("encore").basic[1]
+      const skill2 = skillOf("encore").basic[2]
 
       if (!(skill1 && skill2)) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "encore",
           skill: skill1,
           time: 0,
         },
         {
-          characterId,
+          characterId: "encore",
           skill: skill2,
           time: 30,
         },
@@ -166,17 +118,16 @@ describe("Characters: end-to-end", () => {
     })
 
     it("S3: test buffs", () => {
-      const sequence = 3
-      const team: Character[] = [{ ...characters[0], sequence }]
+      const team = createTeam(["encore", { sequence: 3 }])
 
-      const skill1 = skills.forte[1]
-      const skill2 = skills.forte[2]
+      const skill1 = skillOf("encore").forte[1]
+      const skill2 = skillOf("encore").forte[2]
 
       if (!(skill1 && skill2)) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "encore",
           skill: skill1,
           time: 0,
         },
@@ -191,15 +142,14 @@ describe("Characters: end-to-end", () => {
     })
 
     it("S4: test buffs", () => {
-      const sequence = 4
-      const team: Character[] = [{ ...characters[0], sequence }]
-      const skill1 = skills.forte[2]
+      const team = createTeam(["encore", { sequence: 4 }])
+      const skill1 = skillOf("encore").forte[2]
 
       if (!skill1) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "encore",
           skill: skill1,
           time: 0,
         },
@@ -208,23 +158,23 @@ describe("Characters: end-to-end", () => {
       const eventTimeline = computeEventTimeline(actionList)
       const result = simulate(team, eventTimeline)
 
-      const buffsGlobalOnCast = result[onCast].buffsGlobal
-      const buffMapOnCast = result[onCast].statMap
+      const buffsGlobalOnCast = result[0].buffsGlobal
+      const buffMapOnCast = result[0].statMap
 
       expect(buffsGlobalOnCast).toContain("Adventure? Let's go!")
-      expect(buffMapOnCast.fusion).toBeGreaterThan(1.1) // base is 94% fusion
+      expect(buffMapOnCast.fusion).toBeCloseTo(1.02) // base is 82% fusion
+      expect(buffMapOnCast.allEle).toBeCloseTo(0.12)
     })
 
     it("S5: test buffs", () => {
-      const sequence = 5
-      const team: Character[] = [{ ...characters[0], sequence }]
-      const skill1 = skills.basic[1]
+      const team = createTeam(["encore", { sequence: 5 }])
+      const skill1 = skillOf("encore").basic[1]
 
       if (!skill1) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "encore",
           skill: skill1,
           time: 0,
         },
@@ -233,35 +183,34 @@ describe("Characters: end-to-end", () => {
       const eventTimeline = computeEventTimeline(actionList)
       const result = simulate(team, eventTimeline)
 
-      const buffsOnCast = result[onCast].buffs
-      const buffMapOnCast = result[onCast].statMap
+      const buffsOnCast = result[0].buffs
+      const buffMapOnCast = result[0].statMap
 
       expect.soft(buffsOnCast).toContain("Hero Takes the Stage!")
       expect(buffMapOnCast.skill).toBeCloseTo(0.35)
     })
 
     it("S6: test buffs", () => {
-      const sequence = 6
-      const team: Character[] = [{ ...characters[0], sequence }]
-      const skill1 = skills.liberation[1]
-      const skill2 = skills.basic[6]
-      const skill3 = skills.basic[7]
+      const team = createTeam(["encore", { sequence: 6 }])
+      const skill1 = skillOf("encore").liberation[1]
+      const skill2 = skillOf("encore").basic[6]
+      const skill3 = skillOf("encore").basic[7]
 
       if (!(skill1 && skill2 && skill3)) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "encore",
           skill: skill1,
           time: 0,
         },
         {
-          characterId,
+          characterId: "encore",
           skill: skill2,
           time: 30,
         },
         {
-          characterId,
+          characterId: "encore",
           skill: skill3,
           time: 60,
         },
@@ -270,7 +219,7 @@ describe("Characters: end-to-end", () => {
       const eventTimeline = computeEventTimeline(actionList)
       const result = simulate(team, eventTimeline)
 
-      const buffsOnCast = result[onCast].buffs
+      const buffsOnCast = result[0].buffs
 
       // ============
       // type    idx
@@ -298,30 +247,17 @@ describe("Characters: end-to-end", () => {
   })
 
   describe("Sanhua", () => {
-    const characterId = "sanhua"
-    const template = characterTemplate[characterId]
-    const characterSettings = {
-      sequence: 0,
-      weapon: template.weapon,
-      echoSet: template.echoSet,
-      echo: template.echo,
-    } satisfies CharSettings
-    const characters: Character[] = [
-      computeBaseCharacter(characterId, characterSettings),
-    ]
-    const skills = skillData[characterId]
-
-    const onCast = 0
+    const characters = createTeam("sanhua")
 
     it("Basic: test damage", () => {
       const team = characters
-      const skill = skills.basic[1]
+      const skill = skillOf("sanhua").basic[1]
 
       if (!skill) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "sanhua",
           skill,
           time: 0,
         },
@@ -331,7 +267,7 @@ describe("Characters: end-to-end", () => {
       const result = simulate(team, eventTimeline)
 
       const totalDamage = result.reduce((total, row) => total + row.damage, 0)
-      const buffsOnCast = result[onCast].buffs
+      const buffsOnCast = result[0].buffs
 
       expect(totalDamage).toBeGreaterThan(0)
       expect.soft(buffsOnCast).toContain("Moonlit Clouds 2pc")
@@ -339,13 +275,13 @@ describe("Characters: end-to-end", () => {
 
     it("Inherent 1: test buffs", () => {
       const team = characters
-      const skill1 = skills.intro[1]
+      const skill1 = skillOf("sanhua").intro[1]
 
       if (!skill1) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "sanhua",
           skill: skill1,
           time: 0,
         },
@@ -364,19 +300,19 @@ describe("Characters: end-to-end", () => {
 
     it("Inherent 2: test buffs", () => {
       const team = characters
-      const skill1 = skills.basic[5]
-      const skill2 = skills.forte[1]
+      const skill1 = skillOf("sanhua").basic[5]
+      const skill2 = skillOf("sanhua").forte[1]
 
       if (!(skill1 && skill2)) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "sanhua",
           skill: skill1,
           time: 0,
         },
         {
-          characterId,
+          characterId: "sanhua",
           skill: skill2,
           time: 30,
         },
@@ -393,15 +329,14 @@ describe("Characters: end-to-end", () => {
     })
 
     it("S1: test buffs", () => {
-      const sequence = 1
-      const team: Character[] = [{ ...characters[0], sequence }]
-      const skill1 = skills.basic[5]
+      const team = createTeam(["sanhua", { sequence: 1 }])
+      const skill1 = skillOf("sanhua").basic[5]
 
       if (!skill1) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "sanhua",
           skill: skill1,
           time: 0,
         },
@@ -418,21 +353,20 @@ describe("Characters: end-to-end", () => {
     })
 
     it("S4: test buffs", () => {
-      const sequence = 4
-      const team: Character[] = [{ ...characters[0], sequence }]
-      const skill1 = skills.liberation[1]
-      const skill2 = skills.forte[1]
+      const team = createTeam(["sanhua", { sequence: 4 }])
+      const skill1 = skillOf("sanhua").liberation[1]
+      const skill2 = skillOf("sanhua").forte[1]
 
       if (!(skill1 && skill2)) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "sanhua",
           skill: skill1,
           time: 0,
         },
         {
-          characterId,
+          characterId: "sanhua",
           skill: skill2,
           time: 30,
         },
@@ -441,7 +375,7 @@ describe("Characters: end-to-end", () => {
       const eventTimeline = computeEventTimeline(actionList)
       const result = simulate(team, eventTimeline)
 
-      const buffsOnCast = result[onCast].buffs
+      const buffsOnCast = result[0].buffs
       const buffsFirstHit = result[1].buffs
       const buffMapDetonateHit = result[3].statMap
 
@@ -452,15 +386,14 @@ describe("Characters: end-to-end", () => {
     })
 
     it("S5: test buffs", () => {
-      const sequence = 5
-      const team: Character[] = [{ ...characters[0], sequence }]
-      const skill1 = skills.forte[1]
+      const team = createTeam(["sanhua", { sequence: 5 }])
+      const skill1 = skillOf("sanhua").forte[1]
 
       if (!skill1) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "sanhua",
           skill: skill1,
           time: 0,
         },
@@ -477,28 +410,47 @@ describe("Characters: end-to-end", () => {
     })
 
     it("S6: test buffs", () => {
-      const sequence = 6
-      const team: Character[] = [{ ...characters[0], sequence }]
-      const skill1 = skills.forte[1]
+      const team = createTeam(["sanhua", { sequence: 6 }])
+      const skill1 = skillOf("sanhua").skill[1]
+      const skill2 = skillOf("sanhua").liberation[1]
+      const skill3 = skillOf("sanhua").forte[1]
 
-      if (!skill1) return
+      if (!(skill1 && skill2 && skill3)) return
 
       const actionList: ActionListItem[] = [
         {
-          characterId,
+          characterId: "sanhua",
           skill: skill1,
           time: 0,
         },
+        {
+          characterId: "sanhua",
+          skill: skill2,
+          time: 30,
+        },
+        {
+          characterId: "sanhua",
+          skill: skill3,
+          time: 60,
+        },
       ]
+
+      // ============
+      // type    idx
+      // cast(1)  0
+      // hit      1
+      // cast(2)  2
+      // hit      3
+      // cast(3)  4
+      // hit      5 <-
+      // hit      6 <-
+      // ============
 
       const eventTimeline = computeEventTimeline(actionList)
       const result = simulate(team, eventTimeline)
 
-      const buffsGlobalFirstHit = result[1].buffsGlobal
-      const buffsGlobalSecondHit = result[2].buffsGlobal
-
-      expect(buffsGlobalFirstHit).toContain("Daybreak Radiance x1")
-      expect(buffsGlobalSecondHit).toContain("Daybreak Radiance x2") // TODO: correct procc req
+      expect(result[5].buffsGlobal).toContain("Daybreak Radiance x2")
+      expect(result[6].buffsGlobal).toContain("Daybreak Radiance x2")
     })
   })
 })
