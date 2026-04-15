@@ -8,6 +8,7 @@ import {
   computeCharacterSkills,
   computeEventTimeline,
   computeTimeline,
+  refreshActionList,
 } from "@/lib/helper"
 
 import CalculateButton from "@/components/calculate-button"
@@ -18,10 +19,9 @@ import EntryDetails from "@/components/entry-details"
 import EventTableModal from "@/components/event-table-modal"
 
 import type {
-  ActionListItem,
+  Action,
   Character,
   CHARACTER_KEY,
-  CharacterSkills,
   ECHO_KEY,
   ECHO_SET_KEY,
   Result,
@@ -34,14 +34,14 @@ import type {
 
 import characterTemplate from "@/definitions/characters"
 import { simulate } from "@/simulation"
-import { weaponData } from "@/definitions/weapons"
+import weaponData from "@/definitions/weapons"
 
 export const Route = createFileRoute("/")({ component: App })
 
 function App() {
   const [team, setTeam] = usePersistedState<TeamSlot[]>("team", [])
-  const [sequence, setSequence] = usePersistedState<ActionListItem[]>(
-    "sequence",
+  const [actionList, setActionList] = usePersistedState<Action[]>(
+    "actionList",
     [],
   )
   const [rawResult, setRawResult] = usePersistedState<Result[]>("raw", [])
@@ -58,21 +58,20 @@ function App() {
   }, [team])
 
   const computedSkillData = useMemo(() => {
-    return team.reduce(
-      (acc, slot) => {
-        if (!slot.characterId || !slot.settings) return acc
+    const map = new Map<CHARACTER_KEY, Map<string, SKILL>>()
 
-        acc[slot.characterId] = computeCharacterSkills(slot.characterId)
+    for (const slot of team) {
+      if (!slot.characterId || !slot.settings) continue
 
-        return acc
-      },
-      {} as Record<CHARACTER_KEY, CharacterSkills>,
-    )
+      map.set(slot.characterId, computeCharacterSkills(slot.characterId))
+    }
+
+    return map
   }, [team])
 
   const computedEventTimeline = useMemo(() => {
-    return computeEventTimeline(sequence)
-  }, [sequence])
+    return computeEventTimeline(actionList)
+  }, [actionList])
 
   const handleCharacterChange = (selectedIds: CHARACTER_KEY[]) => {
     if (selectedIds.length > 3) return // Cap at 3 characters
@@ -152,14 +151,24 @@ function App() {
     })
   }
 
+  const updateStaleActionList = (actionList: Action[]) => {
+    const skillData = new Map<CHARACTER_KEY, Map<string, SKILL>>()
+
+    for (const slot of team) {
+      if (!slot.characterId || !slot.settings) continue
+      skillData.set(slot.characterId, computeCharacterSkills(slot.characterId))
+    }
+
+    const newActionList = refreshActionList(skillData, actionList)
+    setActionList(newActionList)
+    console.log("updated stale actionList!")
+  }
+
   const handleAddSkill = (characterId: CHARACTER_KEY, skill: SKILL) => {
     setRawResult([])
     setResult([])
-    setSequence((prev) => {
-      const newSequence: ActionListItem[] = [
-        ...prev,
-        { characterId, skill, time: 0 },
-      ]
+    setActionList((prev) => {
+      const newSequence: Action[] = [...prev, { characterId, skill, time: 0 }]
       return computeTimeline(newSequence)
     })
   }
@@ -167,7 +176,7 @@ function App() {
   const handleRemoveSkill = (index: number) => {
     setRawResult([])
     setResult([])
-    setSequence((prev) => {
+    setActionList((prev) => {
       const newSequence = prev.filter((_, i) => i !== index)
       return computeTimeline(newSequence)
     })
@@ -184,7 +193,7 @@ function App() {
   }
 
   const handleReset = () => {
-    setSequence([])
+    setActionList([])
     setRawResult([])
     setResult([])
   }
@@ -194,7 +203,7 @@ function App() {
       <HeaderBar
         team={team}
         characterData={computedCharacterData}
-        sequence={sequence}
+        actionList={actionList}
         result={result}
         onCharacterChange={handleCharacterChange}
         updateCharSettings={updateCharSettings}
@@ -206,11 +215,12 @@ function App() {
         <main className="relative flex">
           <div className="flex-col pl-7 pr-3 overflow-auto [scrollbar-gutter:stable]">
             <SequenceList
-              sequence={sequence}
+              actionList={actionList}
               result={result}
               onRemoveSkill={handleRemoveSkill}
+              refresh={() => updateStaleActionList(actionList)}
             />
-            {sequence.length === 0 && (
+            {actionList.length === 0 && (
               <div className="h-80 flex items-center justify-center border border-dashed">
                 <p className="text-md text-muted-foreground">
                   Add skills from the sidebar to build your rotation.
@@ -223,7 +233,7 @@ function App() {
             <EventTableModal resultTimeline={rawResult} />
             <CalculateButton
               characterData={computedCharacterData}
-              sequence={computedEventTimeline}
+              timeline={computedEventTimeline}
               handleCalculate={handleCalculate}
             />
           </div>

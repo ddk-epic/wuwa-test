@@ -4,7 +4,7 @@ import { Button } from "./ui/button"
 import DpsSummary from "./dps-summary"
 
 import type {
-  ActionListItem,
+  Action,
   Character,
   CHARACTER_KEY,
   Result,
@@ -16,7 +16,7 @@ import AddCharacterModal from "./add-character-modal"
 interface HeaderBarProps {
   team: TeamSlot[]
   characterData: Character[]
-  sequence: ActionListItem[]
+  actionList: Action[]
   result: Result[]
   updateCharSettings: (
     index: number,
@@ -30,7 +30,7 @@ interface HeaderBarProps {
 function HeaderBar({
   team,
   characterData,
-  sequence,
+  actionList,
   result,
   updateCharSettings,
   onCharacterChange,
@@ -60,12 +60,12 @@ function HeaderBar({
 
       <div className="flex items-center space-x-0.75">
         {/* Inline DPS summary */}
-        <DpsSummary sequence={sequence} result={result} />
+        <DpsSummary actionList={actionList} result={result} />
         <Button
           variant="outline"
           onClick={onReset}
           className="text-muted-foreground"
-          disabled={sequence.length === 0}
+          disabled={actionList.length === 0}
         >
           <RotateCcw className="h-3 w-3" />
           Reset

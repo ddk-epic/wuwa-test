@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { computeEventTimeline } from "@/lib/helper"
 import { createTeam, skillOf } from "./helper"
 
-import type { ActionListItem } from "@/shared/types"
+import type { Action } from "@/shared/types"
 
 import { simulate } from "@/simulation"
 
@@ -16,7 +16,7 @@ describe("Characters: end-to-end", () => {
 
       if (!skill) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "encore",
           skill,
@@ -45,7 +45,7 @@ describe("Characters: end-to-end", () => {
 
       if (!(skill1 && skill2 && skill3)) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "encore",
           skill: skill1,
@@ -94,7 +94,7 @@ describe("Characters: end-to-end", () => {
 
       if (!(skill1 && skill2)) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "encore",
           skill: skill1,
@@ -125,7 +125,7 @@ describe("Characters: end-to-end", () => {
 
       if (!(skill1 && skill2)) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "encore",
           skill: skill1,
@@ -147,7 +147,7 @@ describe("Characters: end-to-end", () => {
 
       if (!skill1) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "encore",
           skill: skill1,
@@ -172,7 +172,7 @@ describe("Characters: end-to-end", () => {
 
       if (!skill1) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "encore",
           skill: skill1,
@@ -198,7 +198,7 @@ describe("Characters: end-to-end", () => {
 
       if (!(skill1 && skill2 && skill3)) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "encore",
           skill: skill1,
@@ -255,7 +255,7 @@ describe("Characters: end-to-end", () => {
 
       if (!skill) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "sanhua",
           skill,
@@ -279,7 +279,7 @@ describe("Characters: end-to-end", () => {
 
       if (!skill1) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "sanhua",
           skill: skill1,
@@ -305,7 +305,7 @@ describe("Characters: end-to-end", () => {
 
       if (!(skill1 && skill2)) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "sanhua",
           skill: skill1,
@@ -334,7 +334,7 @@ describe("Characters: end-to-end", () => {
 
       if (!skill1) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "sanhua",
           skill: skill1,
@@ -359,7 +359,7 @@ describe("Characters: end-to-end", () => {
 
       if (!(skill1 && skill2)) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "sanhua",
           skill: skill1,
@@ -391,7 +391,7 @@ describe("Characters: end-to-end", () => {
 
       if (!skill1) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "sanhua",
           skill: skill1,
@@ -417,7 +417,7 @@ describe("Characters: end-to-end", () => {
 
       if (!(skill1 && skill2 && skill3)) return
 
-      const actionList: ActionListItem[] = [
+      const actionList: Action[] = [
         {
           characterId: "sanhua",
           skill: skill1,

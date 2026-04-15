@@ -1,4 +1,4 @@
-import { X } from "lucide-react"
+import { RotateCcw, X } from "lucide-react"
 
 import { cn, frameToSecond } from "@/lib/utils"
 
@@ -12,57 +12,70 @@ import {
   TableRow,
 } from "./ui/table"
 
-import type { ActionListItem, Result } from "@/shared/types"
+import type { Action, Result } from "@/shared/types"
 import characterTemplate from "@/definitions/characters"
 import { COLORS, ELEMENT_COLORS } from "@/definitions/colors"
 
 interface SequenceListProps {
-  sequence: ActionListItem[]
+  actionList: Action[]
   result: Result[]
   onRemoveSkill: (i: number) => void
+  refresh: () => void
 }
 
-function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
+function SequenceList({
+  actionList,
+  result,
+  onRemoveSkill,
+  refresh,
+}: SequenceListProps) {
   return (
     <Table className="table-fixed w-full">
       {/* Sequence header */}
       <TableHeader className="top-0 sticky z-10 border bg-card">
         <TableRow>
-          <TableHead className="w-1/24 px-2 py-2 text-right text-xs column-header">
+          <TableHead className="w-1/25 px-2 py-2 text-right text-xs column-header">
             #
           </TableHead>
-          <TableHead className="w-3/24 px-2 py-2 text-xs column-header">
+          <TableHead className="w-3/25 px-2 py-2 text-xs column-header">
             Character
           </TableHead>
-          <TableHead className="w-2/24 px-2 py-2 text-xs column-header">
+          <TableHead className="w-2/25 px-2 py-2 text-xs column-header">
             {/* Category */}
           </TableHead>
-          <TableHead className="w-7/24 pr-3 py-2 text-start text-xs column-header">
+          <TableHead className="w-7/25 pr-3 py-2 text-start text-xs column-header">
             Ability
           </TableHead>
-          <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
+          <TableHead className="w-2/25 px-2 py-2 text-right text-xs column-header">
             Time
           </TableHead>
-          <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
+          <TableHead className="w-2/25 px-2 py-2 text-right text-xs column-header">
             Con.
           </TableHead>
-          <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
+          <TableHead className="w-2/25 px-2 py-2 text-right text-xs column-header">
             Res.
           </TableHead>
-          <TableHead className="w-3/24 px-1 py-2 text-right text-xs column-header">
+          <TableHead className="w-3/25 px-1 py-2 text-right text-xs column-header">
             Damage
           </TableHead>
-          <TableHead className="w-2/24 px-2 py-2 text-right text-xs column-header">
+          <TableHead className="w-2/25 px-2 py-2 text-right text-xs column-header">
             {/* Proc */}
           </TableHead>
-          <TableHead className="w-4 px-3 py-2 text-xs column-header">
-            {/* Button */}
+          <TableHead className="w-4 p-0 pr-1 text-right text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={refresh}
+              className="size-6 text-muted-foreground"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </Button>
           </TableHead>
         </TableRow>
       </TableHeader>
       {/* Sequence list */}
       <TableBody>
-        {sequence.map((action, i) => {
+        {actionList.map((action, i) => {
           const placeholder = "--"
           const { characterId, skill, time } = action
           const character = characterTemplate[characterId]
@@ -141,7 +154,7 @@ function SequenceList({ sequence, result, onRemoveSkill }: SequenceListProps) {
                     <p>{placeholder}</p>
                   )}
                 </TableCell>
-                <TableCell className="w-4 p-0 pr-1">
+                <TableCell className="w-4 p-0 text-right">
                   <Button
                     variant="ghost"
                     size="sm"

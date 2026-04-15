@@ -2,20 +2,13 @@ import { useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
 
-import { SelectSeparator } from "./ui/select"
-
-import type {
-  Character,
-  CHARACTER_KEY,
-  CharacterSkills,
-  SKILL,
-} from "@/shared/types"
+import type { Character, CHARACTER_KEY, SKILL } from "@/shared/types"
 import { ELEMENT_COLORS } from "@/definitions/colors"
 
 interface SkillSidebarProps {
   characterData: Character[]
-  skillData: Record<CHARACTER_KEY, CharacterSkills>
-  onAddSkill: (characterId: CHARACTER_KEY, skill: SKILL) => void
+  skillData: Map<CHARACTER_KEY, Map<string, SKILL>>
+  onAddSkill: (characterId: CHARACTER_KEY, skillId: SKILL) => void
 }
 
 function SkillSidebar({
@@ -77,34 +70,12 @@ function SkillSidebar({
 
     const characterId = activeCharacter.id
     const element = activeCharacter.element || "default"
-    const echoSkills = skillData[characterId]?.echoSkills ?? []
-    const characterSkills = skillData[characterId]?.characterSkills ?? []
+    const skills = skillData.get(characterId) ?? new Map<string, SKILL>()
 
     return (
       <div className="flex flex-col gap-1">
-        {/* Echo skill */}
-        {echoSkills.map((echoSkill) => (
-          <button
-            key={echoSkill.name}
-            onClick={() => onAddSkill(activeCharacter.id, echoSkill)}
-            className={cn(
-              "flex items-center gap-2 rounded-md px-2.5 py-0.5 text-left transition-colors hover:bg-secondary",
-            )}
-          >
-            <span className="w-11.5 shrink-0 px-1.5 pt-0.5 rounded text-[13px] font-mono font-semibold uppercase tracking-wider">
-              {echoSkill.category}
-            </span>
-            <span className="flex-1 text-sm text-foreground truncate">
-              {echoSkill.name}
-            </span>
-            <span className="shrink-0 text-xs font-mono text-muted-foreground">
-              {(echoSkill.frames / 60).toFixed(2)}
-            </span>
-          </button>
-        ))}
-        <SelectSeparator className="ml-4 mr-3 my-px" />
         {/* Character skills */}
-        {characterSkills.map((skill) => {
+        {[...skills.values()].map((skill) => {
           if (!skill) return
 
           return (
@@ -121,9 +92,8 @@ function SkillSidebar({
               <span
                 className={cn(
                   "flex-1 text-sm text-foreground truncate",
-                  skill.category === "liberation"
-                    ? ELEMENT_COLORS[element]?.text
-                    : "",
+                  skill.category === "liberation" &&
+                    ELEMENT_COLORS[element]?.text,
                 )}
               >
                 {skill.name}

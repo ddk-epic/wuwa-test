@@ -3,7 +3,7 @@ import characterTemplate from "@/definitions/characters"
 import echoData from "@/definitions/echoes"
 
 import type {
-  ActionListItem,
+  Action,
   Character,
   CHARACTER_KEY,
   CharSettings,
@@ -60,14 +60,22 @@ export function computeBaseCharacter(
   return newCharacter
 }
 
-export function computeCharacterSkills(characterId: CHARACTER_KEY) {
+export function computeCharacterSkills(
+  characterId: CHARACTER_KEY,
+): Map<string, SKILL> {
   const character = characterTemplate[characterId]
   const { variations, set, ...echoSkill } = echoData[character.echo]
 
-  const echoSkills: SKILL[] = [echoSkill]
+  const skillMap = new Map<string, SKILL>()
+
+  // echo base
+  skillMap.set(echoSkill.id, echoSkill)
+
+  // echo variations
   if (variations) {
     Object.entries(variations).forEach(([variationKey, variation]) => {
-      echoSkills.push({
+      const id = `${echoSkill.id}_${variationKey}`
+      skillMap.set(id, {
         ...echoSkill,
         name: `${echoSkill.name} (${variationKey})`,
         ...variation,
@@ -75,50 +83,76 @@ export function computeCharacterSkills(characterId: CHARACTER_KEY) {
     })
   }
 
-  const characterSkills: SKILL[] = []
-
+  // character skills
   Object.values(skillData[character.id]).forEach((category) => {
     Object.values(category).forEach((skill) => {
-      if (skill) {
-        const { variations, ...rest } = skill
-        const frames = skill.freezetime
-          ? skill.frames - skill.freezetime
-          : skill.frames
-        characterSkills.push({
-          ...rest,
-          frames,
-        }) // main skill
-        if (variations) {
-          Object.entries(variations).forEach(([variationKey, variation]) => {
-            const name = `${skill.name} (${variationKey})`
-            characterSkills.push({ ...rest, ...variation, name }) // variation
+      if (!skill) return
+
+      const { variations, ...rest } = skill
+
+      const frames = skill.freezetime
+        ? skill.frames - skill.freezetime
+        : skill.frames
+
+      skillMap.set(skill.id, {
+        ...rest,
+        frames,
+      })
+
+      // character variations
+      if (variations) {
+        Object.entries(variations).forEach(([variationKey, variation]) => {
+          const id = `${skill.id}_${variationKey}`
+          skillMap.set(id, {
+            ...rest,
+            ...variation,
+            name: `${skill.name} (${variationKey})`,
           })
-        }
+        })
       }
     })
   })
 
-  return { echoSkills, characterSkills }
+  return skillMap
 }
 
-export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
+export function refreshActionList(
+  skillData: Map<CHARACTER_KEY, Map<string, SKILL>>,
+  actionList: Action[],
+): Action[] {
+  return actionList.map((action) => {
+    const characterId = action.characterId
+    const newSkill = skillData.get(characterId)?.get(action.skill.id)
+
+    if (!newSkill) {
+      console.log(`${action.skill.id} could not be found.`)
+      return action
+    }
+
+    return {
+      ...action,
+      skill: newSkill,
+    }
+  })
+}
+
+export function computeTimeline(actionList: Action[]): Action[] {
   const lastActionEnd = new Map() as Map<CHARACTER_KEY, number>
   const SWITCH_CD = 60 // in frames
-  // const SWAP_FRAMES = 15
+  // const SWAP_DELAY = 15
 
   let currentTime = 0 // in frames
   let previousChar: CHARACTER_KEY | null = null
 
-  return sequence.map((entry) => {
-    const characterId = entry.characterId
-    const skill = entry.skill
+  return actionList.map((entry) => {
+    const { characterId, skill } = entry
     const hasSwapped = previousChar && previousChar !== characterId
 
     let start = currentTime
 
     // add swap time
     // if (hasSwapped) {
-    //   start += SWAP_FRAMES
+    //   start += SWAP_DELAY
     // }
 
     const lastEnd = lastActionEnd.get(characterId)
@@ -126,7 +160,7 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
       start = Math.max(start, lastEnd + SWITCH_CD)
     }
 
-    const duration = skill.frames
+    const duration = skill?.frames ?? 0
     const end = start + duration
 
     // console.table({
@@ -149,14 +183,12 @@ export function computeTimeline(sequence: ActionListItem[]): ActionListItem[] {
   })
 }
 
-export function computeEventTimeline(
-  sequence: ActionListItem[],
-): TimelineEvent[] {
+export function computeEventTimeline(actionList: Action[]): TimelineEvent[] {
   const timeline: TimelineEvent[] = []
 
-  for (let i = 0; i < sequence.length; i++) {
+  for (let i = 0; i < actionList.length; i++) {
     // main timeline entry
-    const action = sequence[i]
+    const action = actionList[i]
     const { characterId, skill, time } = action
     const { variations, ...actionSkill } = skill
 
@@ -229,16 +261,6 @@ export function computeEventTimeline(
 
   return timeline.sort((a, b) => a.time - b.time)
 }
-
-// export function updateParent(resultTimeline: Result[], entry: Result) {
-//   if (!entry.sourceEventId) return
-
-//   const parentEvent = resultTimeline[Number(entry.sourceEventId)]
-//   if (!parentEvent) return
-
-//   parentEvent.proc.damage += entry.proc.damage
-//   parentEvent.proc.heal += entry.proc.heal
-// }
 
 export function aggregateResult(resultTimeline: Result[]): Result[] {
   const parentMap = new Map<string, Result>()

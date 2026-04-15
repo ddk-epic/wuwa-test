@@ -1,14 +1,14 @@
-import type { ActionListItem, Result } from "@/shared/types"
+import type { Action, Result } from "@/shared/types"
 
 interface DpsSummaryProps {
-  sequence: ActionListItem[]
+  actionList: Action[]
   result: Result[]
 }
 
-function DpsSummary({ sequence, result }: DpsSummaryProps) {
+function DpsSummary({ actionList, result }: DpsSummaryProps) {
   const totalDamage = result.reduce((acc, entry) => acc + entry.damage, 0)
   const totalTime =
-    sequence.reduce((acc, entry) => acc + entry.skill.frames, 0) / 60
+    actionList.reduce((acc, entry) => acc + entry.skill.frames, 0) / 60
   const totalDps = totalDamage / totalTime || 0
 
   return (

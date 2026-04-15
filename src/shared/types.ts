@@ -128,7 +128,7 @@ export type SkillSequence = {
 export type SkillCategory = Record<SKILL_CATEGORY_KEY, SkillSequence>
 export type Skills = Record<CHARACTER_KEY, SkillCategory>
 
-export type ActionListItem = {
+export type Action = {
   characterId: CHARACTER_KEY
   skill: SKILL
   time: number
