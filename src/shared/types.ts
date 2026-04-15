@@ -38,7 +38,7 @@ export type TriggerValue = {
   stacksToAdd?: number
 }
 
-export type EventType = "cast" | "hit" | "damage" | "heal" | "coord"
+export type EventType = "cast" | "hit" | "damage" | "coord" | "heal" | "shield"
 
 export type ModifierValue = {
   type?: EventType
@@ -110,12 +110,13 @@ export type SKILL = {
 
 export type Skill = Omit<SKILL, "hits" | "variations"> & {
   mv: number
-  flat?: number
-  hits: number
   forte: number
   forte2: number
   concerto: number
   resonance: number
+  scaling?: "def" | "hp" // default to atk
+  heal?: number
+  flat?: number
 }
 
 export type Echo = SKILL & { set: string }
@@ -196,13 +197,12 @@ export type CharacterSkills = Record<string, SKILL[]>
 export type StatMap = Record<BUFF_TYPE, number>
 
 type Proc = {
-  damage: number
   heal: number
   shield: number
 }
 
 type Message = {
-  warning?: string
+  warning: Map<string, string>
 }
 
 export type StateContext = {
@@ -242,6 +242,7 @@ export type Result = {
   type: EventType
   skill: Skill
   time: number
+  forte: number
   concerto: number
   resonance: number
   damage: number

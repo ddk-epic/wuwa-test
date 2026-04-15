@@ -9,6 +9,7 @@ import type {
   CharSettings,
   Result,
   SKILL,
+  StateContext,
   TimelineEvent,
 } from "@/shared/types"
 
@@ -159,7 +160,6 @@ export function computeEventTimeline(
     const { characterId, skill, time } = action
     const { variations, ...actionSkill } = skill
 
-    const onCast = skill.onCast
     const parentItem: TimelineEvent = {
       id: String(i),
       characterId,
@@ -167,11 +167,10 @@ export function computeEventTimeline(
       skill: {
         ...actionSkill,
         mv: 0,
-        hits: 0,
-        forte: onCast?.forte ?? 0,
-        forte2: onCast?.forte2 ?? 0,
-        concerto: onCast?.concerto ?? 0,
-        resonance: onCast?.resonance ?? 0,
+        forte: 0,
+        forte2: 0,
+        concerto: 0,
+        resonance: 0,
       },
       time,
     }
@@ -197,7 +196,6 @@ export function computeEventTimeline(
                 name: `${skill.id} [heal ${healCounter}]`,
                 mv: hit.heal ?? 0,
                 flat: hit.flat ?? 0,
-                hits: hitFrame,
                 forte: hit.forte ?? 0,
                 forte2: hit.forte2 ?? 0,
                 concerto: hit.concerto ?? 0,
@@ -214,7 +212,6 @@ export function computeEventTimeline(
                 ...actionSkill,
                 name: `${skill.id} [hit ${hitCounter}]`,
                 mv: mv ?? 0,
-                hits: hitFrame,
                 forte: hit.forte ?? 0,
                 forte2: hit.forte2 ?? 0,
                 concerto: hit.concerto ?? 0,
@@ -233,15 +230,15 @@ export function computeEventTimeline(
   return timeline.sort((a, b) => a.time - b.time)
 }
 
-export function updateParent(resultTimeline: Result[], entry: Result) {
-  if (!entry.sourceEventId) return
+// export function updateParent(resultTimeline: Result[], entry: Result) {
+//   if (!entry.sourceEventId) return
 
-  const parentEvent = resultTimeline[Number(entry.sourceEventId)]
-  if (!parentEvent) return
+//   const parentEvent = resultTimeline[Number(entry.sourceEventId)]
+//   if (!parentEvent) return
 
-  parentEvent.proc.damage += entry.proc.damage
-  parentEvent.proc.heal += entry.proc.heal
-}
+//   parentEvent.proc.damage += entry.proc.damage
+//   parentEvent.proc.heal += entry.proc.heal
+// }
 
 export function aggregateResult(resultTimeline: Result[]): Result[] {
   const parentMap = new Map<string, Result>()
@@ -256,7 +253,9 @@ export function aggregateResult(resultTimeline: Result[]): Result[] {
       const parent: Result = {
         ...entry,
         row: i + 1,
+        // overwrite values for log
         damage: 0,
+        proc: { heal: 0, shield: 0 },
       }
 
       parentMap.set(String(castIdx), parent)
@@ -276,8 +275,12 @@ export function aggregateResult(resultTimeline: Result[]): Result[] {
       parent.buffs = entry.buffs
       parent.statMap = entry.statMap
 
-      parent.proc.damage += entry.proc.damage
       parent.proc.heal += entry.proc.heal
+      parent.proc.shield += entry.proc.shield
+
+      for (const [id, message] of entry.message.warning) {
+        parent.message.warning.set(id, message)
+      }
     }
   }
 
@@ -294,5 +297,25 @@ export function insertTimelineEvent(
     queue.push(event)
   } else {
     queue.splice(index, 0, event)
+  }
+}
+
+export function generateWarningMessage(
+  state: StateContext,
+  reqKey: string,
+  reqValue: number,
+): StateContext {
+  const newWarning = new Map(state.message.warning)
+
+  // evaluate dCond
+  if (reqValue < 0) {
+    newWarning.set(
+      reqKey,
+      `Missing ${reqKey}! Skill "${state.action.skill.name}" requires at least ${Math.abs(reqValue)} more ${reqKey}`,
+    )
+  }
+  return {
+    ...state,
+    message: { warning: newWarning },
   }
 }

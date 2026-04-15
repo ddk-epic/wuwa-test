@@ -179,6 +179,15 @@ export function hasDebuff(
   return false
 }
 
+export function getEnemyBuffById(
+  state: StateContext,
+  buffId: string,
+): BuffInstance | undefined {
+  const existing = state.activeBuffsEnemy.get(buffId)
+
+  return existing
+}
+
 export function isOnCastEvent(state: StateContext): boolean {
   return state.action.type === "cast"
 }
@@ -279,6 +288,7 @@ export function applyCooldown(
   buff: BuffDefinition | BuffInstance,
 ): StateContext {
   if (isOnCooldown(state, buff)) return state
+  if (!buff.cooldown && !buff.stackInterval) return state
 
   const newCooldowns = new Map(state.cooldowns)
 
@@ -295,15 +305,6 @@ export function applyCooldown(
     ...state,
     cooldowns: newCooldowns,
   }
-}
-
-export function getEnemyBuffById(
-  state: StateContext,
-  buffId: string,
-): BuffInstance | undefined {
-  const existing = state.activeBuffsEnemy.get(buffId)
-
-  return existing
 }
 
 export function getStacksFromBuff(state: StateContext, buffById: string) {
@@ -364,7 +365,6 @@ export function addNewTimelineEvent(
       classifications: buff.classifications ?? [],
       mv: mod.value,
       frames: mod.frame ?? 0,
-      hits: 1,
       forte: mod.forte ?? 0,
       forte2: mod.forte2 ?? 0,
       concerto: mod.concerto ?? 0,
@@ -416,6 +416,7 @@ export function removeCondition(
 // ============================================
 // ================ BUFF MAIN =================
 // ============================================
+
 // create
 export function createBuff(
   state: StateContext,
@@ -824,30 +825,6 @@ export function updateBuffIdentity(
   }
 }
 
-export function createCoordProcEvent(
-  state: StateContext,
-  buff: BuffDefinition,
-  sourceEventId: string | undefined,
-): StateContext {
-  if (!buff.appliesTo || !buff.modifiers) return state
-  if (!sourceEventId) return state
-
-  const newQueuedEvents: TimelineEvent[] = [...state.procQueue]
-
-  for (const mod of buff.modifiers) {
-    const procEvent = addNewTimelineEvent(state, buff, mod, sourceEventId)
-
-    newQueuedEvents.push(procEvent)
-  }
-
-  const newState = applyCooldown(state, buff)
-
-  return {
-    ...newState,
-    procQueue: newQueuedEvents,
-  }
-}
-
 export function createDamageProcEvent(
   state: StateContext,
   buff: BuffInstance,
@@ -890,6 +867,30 @@ export function createDamageProcEvent(
   return {
     ...state,
     activeBuffs: new Map(state.activeBuffs).set(characterId, newActiveBuffs),
+    procQueue: newQueuedEvents,
+  }
+}
+
+export function createCoordProcEvent(
+  state: StateContext,
+  buff: BuffDefinition,
+  sourceEventId: string | undefined,
+): StateContext {
+  if (!buff.appliesTo || !buff.modifiers) return state
+  if (!sourceEventId) return state
+
+  const newQueuedEvents: TimelineEvent[] = [...state.procQueue]
+
+  for (const mod of buff.modifiers) {
+    const procEvent = addNewTimelineEvent(state, buff, mod, sourceEventId)
+
+    newQueuedEvents.push(procEvent)
+  }
+
+  const newState = applyCooldown(state, buff)
+
+  return {
+    ...newState,
     procQueue: newQueuedEvents,
   }
 }

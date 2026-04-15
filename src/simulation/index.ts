@@ -32,7 +32,7 @@ import {
   isOnCastEvent,
   isOnHitEvent,
 } from "./helper"
-import { insertTimelineEvent } from "@/lib/helper"
+import { generateWarningMessage, insertTimelineEvent } from "@/lib/helper"
 
 function removeExpiredBuffs(state: StateContext): StateContext {
   const { characterId } = state.action
@@ -134,31 +134,60 @@ function evaluateDCond(
 
   if (!character) return state
 
+  const onCast = isOnCastEvent(state)
+
+  // team resonance
   let newState = handleEnergyShare(state)
 
   const newCharacters = new Map(newState.characters)
   const newCharacter = newCharacters.get(characterId)
-
   if (!newCharacter) return newState
 
-  // resonance reset
-  let resonance = newCharacter.dCond.resonance
-  if (action.type === "cast" && skill.category === "liberation") {
-    resonance = 0
-  }
+  // forte
+  const rawForte =
+    newCharacter.dCond.forte +
+    skill.forte +
+    (onCast ? (skill.onCast?.forte ?? 0) : 0)
+  newState = generateWarningMessage(state, "Forte", rawForte)
 
-  newCharacters.set(characterId, {
-    ...newCharacter,
-    dCond: {
-      ...newCharacter.dCond,
-      resonance,
-      concerto: newCharacter.dCond.concerto + skill.concerto,
-    },
-  })
+  const rawForte2 =
+    newCharacter.dCond.forte2 +
+    skill.forte2 +
+    (onCast ? (skill.onCast?.forte2 ?? 0) : 0)
+  newState = generateWarningMessage(state, "Forte2", rawForte2)
+
+  const forte = Math.max(rawForte, 0)
+  const forte2 = Math.max(rawForte2, 0)
+
+  // concerto
+  const rawConcerto =
+    newCharacter.dCond.concerto +
+    skill.concerto +
+    (onCast ? (skill.onCast?.concerto ?? 0) : 0)
+  newState = generateWarningMessage(state, "Concerto", rawConcerto)
+
+  const concerto = Math.max(rawConcerto, 0)
+
+  // resonance
+  let resonance =
+    newCharacter.dCond.resonance + (onCast ? (skill.onCast?.forte ?? 0) : 0)
+  if (action.type === "cast" && skill.category === "liberation") {
+    newState = generateWarningMessage(state, "Resonance Energy", resonance)
+
+    resonance = Math.max(rawConcerto, 0)
+  }
 
   return {
     ...newState,
-    characters: newCharacters,
+    characters: newCharacters.set(characterId, {
+      ...newCharacter,
+      dCond: {
+        forte,
+        forte2,
+        concerto,
+        resonance,
+      },
+    }),
   }
 }
 
@@ -240,7 +269,7 @@ function calculateHeal(state: StateContext) {
   const mv = skill.mv
   const flat = skill.flat ?? 0
 
-  const expectedHealing = attack * mv * (1 + healBonusMultiplier) + flat
+  const expectedHeal = attack * mv * (1 + healBonusMultiplier) + flat
 
   // console.table({
   //   attack,
@@ -249,7 +278,33 @@ function calculateHeal(state: StateContext) {
   //   flat,
   // })
 
-  return expectedHealing
+  return expectedHeal
+}
+
+function calculateShield(state: StateContext) {
+  const { characterId, type, skill } = state.action
+  if (type !== "heal") return 0
+
+  const char = state.characters.get(characterId)
+  if (!char) return 0
+
+  const statMap = state.statMap.get(characterId) ?? baseStatMap
+
+  const attack = char.atk * (1 + statMap.atk) + char.bonusStats.atkFlat
+
+  const mv = skill.mv
+  const flat = skill.flat ?? 0
+
+  const expectedShield = attack * mv + flat
+
+  // console.table({
+  //   attack,
+  //   mv,
+  //   bonus: healBonusMultiplier,
+  //   flat,
+  // })
+
+  return expectedShield
 }
 
 function processEvent(
@@ -339,6 +394,8 @@ function getResult(state: StateContext): Result {
   const { row, time } = state
   const { characterId, type, skill, sourceEventId } = state.action
 
+  const character = state.characters.get(characterId)
+
   const getBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
   const resBuffs = [...getBuffs.values()].map((buff) => buff.name)
@@ -351,9 +408,8 @@ function getResult(state: StateContext): Result {
 
   const resStatMap = state.statMap.get(characterId) ?? baseStatMap
 
-  const isHit = isType(type, "hit")
-  const isProc = isType(type, "damage") || isType(type, "coord")
   const isHeal = isType(type, "heal")
+  const isShield = isType(type, "shield")
 
   const resultObject: Result = {
     id: state.action.id,
@@ -362,22 +418,22 @@ function getResult(state: StateContext): Result {
     type,
     skill,
     time,
-    concerto: state.characters.get(characterId)?.dCond.concerto ?? 0,
-    resonance: state.characters.get(characterId)?.dCond.resonance ?? 0,
-    damage: isHit ? calculateDamage(state) : 0,
+    forte: character?.dCond.forte ?? 0,
+    concerto: character?.dCond.concerto ?? 0,
+    resonance: character?.dCond.resonance ?? 0,
+    damage: !isHeal && !isShield ? calculateDamage(state) : 0,
     proc: {
-      damage: isProc ? calculateDamage(state) : 0,
       heal: isHeal ? calculateHeal(state) : 0,
-      shield: 0,
+      shield: isShield ? calculateShield(state) : 0,
     },
     sourceEventId,
     buffs: resBuffs,
     buffsGlobal: resBuffsGlobal,
     buffsEnemy: resBuffsEnemy,
     statMap: { ...resStatMap },
-    message: {},
+    message: { ...state.message },
   }
-  console.log(resultObject.row, resultObject.sourceEventId)
+
   return resultObject
 }
 
@@ -500,7 +556,6 @@ function getContext(
       classifications: ["fusion", "intro"],
       frames: 92,
       mv: 0,
-      hits: 0,
       forte: 0,
       forte2: 0,
       concerto: 0,
@@ -538,7 +593,7 @@ function getContext(
     statMap,
     row: 1,
     time: 0,
-    message: {},
+    message: { warning: new Map<string, string>() },
   }
 }
 
@@ -568,7 +623,6 @@ export function simulate(
     const action = timeline.shift()!
 
     const nextState = processEvent(state, action, allBuffs)
-
     const result = getResult(nextState)
     resultList.push(result)
 
@@ -577,13 +631,14 @@ export function simulate(
       insertTimelineEvent(timeline, event)
     }
 
-    // setup for next iteration
+    // reset for next iteration
     state = {
       ...nextState,
       prevChar: nextState.onFieldChar,
-      proc: { damage: 0, heal: 0, shield: 0 },
+      proc: { heal: 0, shield: 0 },
       row: nextState.row + 1,
       procQueue: [],
+      message: { warning: new Map<string, string>() },
     }
   }
 

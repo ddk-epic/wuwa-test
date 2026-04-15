@@ -27,7 +27,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             Entry
           </TableHead>
           <TableHead
-            colSpan={4}
+            colSpan={5}
             className="sticky left-0 top-0 z-20 column-header py-1 bg-zinc-800 text-center shadow-[inset_0_-1px_0_rgb(39,39,42)]"
           >
             Result
@@ -101,10 +101,13 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             {/* Category */}
           </TableHead>
           <TableHead className="sticky left-39 top-6 z-30 min-w-54 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
-            Skill
+            Ability
           </TableHead>
           <TableHead className="sticky left-93 top-6 z-30 column-header py-1 bg-card text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             Time
+          </TableHead>
+          <TableHead className="sticky left-0 top-6 z-20 column-header py-1 bg-zinc-800 text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+            For.
           </TableHead>
           <TableHead className="sticky left-0 top-6 z-20 column-header py-1 bg-zinc-800 text-[14px]! shadow-[inset_0_-1px_0_rgb(39,39,42)]">
             Con.
@@ -147,6 +150,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           characterId,
           skill,
           time,
+          forte,
           concerto,
           resonance,
           damage,
@@ -157,6 +161,9 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           statMap,
         } = result
         const character = characterTemplate[characterId as CHARACTER_KEY]
+
+        const placeholder = "--"
+
         const element = character.element
         const elementColorText = ELEMENT_COLORS[element].text
         const healColorText = COLORS["heal"].text
@@ -170,11 +177,6 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
           BUFF_TYPE,
           number,
         ][]
-
-        const valueCount =
-          (proc.damage > 0 ? 1 : 0) +
-          (proc.heal > 0 ? 1 : 0) +
-          (proc.shield > 0 ? 1 : 0)
 
         return (
           <TableRow className="bg-card">
@@ -210,6 +212,9 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
               {frameToSecond(time)}
             </TableCell>
             <TableCell className="bg-zinc-800/50 text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+              {Math.round(forte)}
+            </TableCell>
+            <TableCell className="bg-zinc-800/50 text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]">
               {concerto.toFixed(1)}
             </TableCell>
             <TableCell className="bg-zinc-800/50 text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]">
@@ -218,42 +223,25 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             <TableCell
               className={cn(
                 "bg-zinc-800/50 pr-3! text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]",
-                damage !== 0 && elementColorText,
+                damage > 0 && elementColorText,
               )}
             >
-              {damage > 0 ? Math.round(damage).toLocaleString("en-US") : "--"}
+              {damage > 0
+                ? Math.round(damage).toLocaleString("en-US")
+                : placeholder}
             </TableCell>
             <TableCell className="bg-zinc-800/50 pr-2! text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]">
-              {proc.damage > 0 && (
-                <p
-                  className={cn(
-                    valueCount >= 2 && "text-[12px]",
-                    isCast ? elementColorText : "text-xs text-muted-foreground",
-                  )}
-                >
-                  {Math.round(proc.damage).toLocaleString("en-US")}
-                </p>
-              )}
               {proc.heal > 0 && (
-                <p
-                  className={cn(
-                    valueCount >= 2 && "text-[12px]",
-                    healColorText,
-                  )}
-                >
+                <p className={healColorText}>
                   {Math.round(proc.heal).toLocaleString("en-US")}
                 </p>
               )}
               {proc.shield > 0 && (
-                <p
-                  className={cn(
-                    valueCount >= 2 && "text-[12px]",
-                    shieldColorText,
-                  )}
-                >
+                <p className={shieldColorText}>
                   {Math.round(proc.shield).toLocaleString("en-US")}
                 </p>
               )}
+              {proc.heal <= 0 && proc.shield <= 0 && <p>{placeholder}</p>}
             </TableCell>
             <TableCell className="text-[14px] shadow-[inset_0_-1px_0_rgb(39,39,42)]">
               {`(${buffs.length || 0}) ${[activeBuffString]}`}
