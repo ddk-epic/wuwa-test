@@ -1,21 +1,18 @@
 import type { BuffResolver } from "@/shared/types"
 import {
-  isBuffTarget,
-  isAbility,
-  createBuff,
-  isOnHitEvent,
-  applyDCondFlat,
-  applyBuffStatChanges,
-  removeBuffStatChanges,
-  isCategory,
+  addArgs,
   addToBuffNext,
+  applyBuffStatChanges,
+  applyDCondFlat,
+  createBuff,
   createBuffNext,
   hasCondition,
+  isAbility,
+  isBuffTarget,
+  isCategory,
+  isOnHitEvent,
+  removeBuffStatChanges,
   removeCondition,
-  addArgs,
-  createGlobalBuff,
-  applyGlobalBuffStatChanges,
-  removeGlobalBuffStatChanges,
 } from "@/simulation/helper"
 
 const otherEchoResolver: Record<string, BuffResolver> = {
@@ -36,13 +33,13 @@ const otherEchoResolver: Record<string, BuffResolver> = {
     id: "Fallacy of No Return",
     triggerRules: [isAbility],
     onTrigger: (state, buff) => {
-      return createGlobalBuff(state, buff)
+      return createBuff(state, buff)
     },
     onCast: (state, buff) => {
-      return applyGlobalBuffStatChanges(state, buff)
+      return applyBuffStatChanges(state, buff)
     },
     onExpire: (state, buff) => {
-      return removeGlobalBuffStatChanges(state, buff)
+      return removeBuffStatChanges(state, buff)
     },
   },
   "Impermanence Heron (energy)": {

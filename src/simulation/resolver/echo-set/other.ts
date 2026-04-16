@@ -1,17 +1,14 @@
 import type { BuffResolver } from "@/shared/types"
 import {
-  isBuffTarget,
-  createBuff,
-  applyBuffStatChanges,
-  removeBuffStatChanges,
   addToBuffNext,
+  applyBuffStatChanges,
+  createBuff,
   createBuffNext,
-  isCategory,
   isBuffSource,
-  applyGlobalBuffStatChanges,
-  removeGlobalBuffStatChanges,
+  isBuffTarget,
+  isCategory,
   isHeal,
-  createGlobalBuff,
+  removeBuffStatChanges,
 } from "@/simulation/helper"
 
 const otherSetResolver: Record<string, BuffResolver> = {
@@ -61,13 +58,13 @@ const otherSetResolver: Record<string, BuffResolver> = {
     id: "Rejuvenating Glow 5pc",
     triggerRules: [isHeal],
     onTrigger: (state, buff) => {
-      return createGlobalBuff(state, buff)
+      return createBuff(state, buff)
     },
     onCast: (state, buff) => {
-      return applyGlobalBuffStatChanges(state, buff)
+      return applyBuffStatChanges(state, buff)
     },
     onExpire: (state, buff) => {
-      return removeGlobalBuffStatChanges(state, buff)
+      return removeBuffStatChanges(state, buff)
     },
   },
 }

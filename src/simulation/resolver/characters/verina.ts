@@ -1,11 +1,11 @@
 import type { BuffResolver } from "@/shared/types"
 import {
   addToBuffNext,
-  applyGlobalBuffStatChanges,
+  applyBuffStatChanges,
+  createBuff,
+  createBuffNext,
   createCoordProcEvent,
   createEnemyDebuff,
-  createGlobalBuff,
-  createGlobalBuffNext,
   getEnemyBuffById,
   hasDebuff,
   isAbility,
@@ -13,7 +13,7 @@ import {
   isOnCooldown,
   isOnHitEvent,
   not,
-  removeGlobalBuffStatChanges,
+  removeBuffStatChanges,
 } from "@/simulation/helper"
 
 const verinaResolver: Record<string, BuffResolver> = {
@@ -21,13 +21,13 @@ const verinaResolver: Record<string, BuffResolver> = {
     id: "Gift of Nature",
     triggerRules: [isAbility],
     onTrigger: (state, buff) => {
-      return createGlobalBuff(state, buff)
+      return createBuff(state, buff)
     },
     onCast: (state, buff) => {
-      return applyGlobalBuffStatChanges(state, buff)
+      return applyBuffStatChanges(state, buff)
     },
     onExpire: (state, buff) => {
-      return removeGlobalBuffStatChanges(state, buff)
+      return removeBuffStatChanges(state, buff)
     },
   },
   Blossom: {
@@ -37,13 +37,13 @@ const verinaResolver: Record<string, BuffResolver> = {
       return addToBuffNext(state, buff)
     },
     onCast: (state, buff) => {
-      return applyGlobalBuffStatChanges(state, buff)
+      return applyBuffStatChanges(state, buff)
     },
     onSwap: (state, buff) => {
-      return createGlobalBuffNext(state, buff)
+      return createBuffNext(state, buff)
     },
     onExpire: (state, buff) => {
-      return removeGlobalBuffStatChanges(state, buff)
+      return removeBuffStatChanges(state, buff)
     },
   },
   "Photosynthesis Mark": {

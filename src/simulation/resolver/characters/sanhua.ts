@@ -1,24 +1,23 @@
 import type { BuffResolver } from "@/shared/types"
 import {
-  isBuffTarget,
-  createBuff,
-  applyBuffStatChanges,
-  isCategory,
-  hasCondition,
-  isAbility,
-  isOnHitEvent,
-  createBuffNext,
-  addToBuffNext,
-  removeBuffStatChanges,
-  addToBuffDeferred,
-  applyDCondFlat,
-  createGlobalBuff,
-  applyGlobalStackingBuffStatChanges,
-  removeGlobalStackingBuffStatChanges,
   addConsumeStacksToBuff,
-  getStacksFromBuff,
+  addToBuffDeferred,
+  addToBuffNext,
+  applyBuffStatChanges,
+  applyDCondFlat,
+  applyStackingBuffStatChanges,
+  createBuff,
+  createBuffNext,
   createDamageProcEvent,
+  getStacksFromBuff,
+  hasCondition,
   hasSwapped,
+  isAbility,
+  isBuffTarget,
+  isCategory,
+  isOnHitEvent,
+  removeBuffStatChanges,
+  removeStackingBuffStatChanges,
 } from "../../helper"
 
 const sanhuaResolver: Record<string, BuffResolver> = {
@@ -170,17 +169,17 @@ const sanhuaResolver: Record<string, BuffResolver> = {
     id: "Daybreak Radiance",
     triggerRules: [isAbility, isOnHitEvent],
     onTrigger: (state, buff) => {
-      return createGlobalBuff(state, buff)
+      return createBuff(state, buff)
     },
     onHit: (state, buff) => {
       const buffById = "Detonate"
       const stacksToAdd = getStacksFromBuff(state, buffById)
       if (!stacksToAdd) return state
 
-      return applyGlobalStackingBuffStatChanges(state, buff, stacksToAdd)
+      return applyStackingBuffStatChanges(state, buff, stacksToAdd)
     },
     onExpire: (state, buff) => {
-      return removeGlobalStackingBuffStatChanges(state, buff)
+      return removeStackingBuffStatChanges(state, buff)
     },
   },
 }

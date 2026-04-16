@@ -1,23 +1,20 @@
 import type { BuffResolver } from "@/shared/types"
 import {
-  isBuffTarget,
-  isAbility,
-  createBuff,
   applyBuffStatChanges,
-  isCategory,
-  isOnHitEvent,
-  applyStackingBuffStatChanges,
-  isOnCooldown,
   applyDCondFlat,
-  isOnCastEvent,
-  isBuffGlobal,
-  createGlobalBuff,
-  applyGlobalBuffStatChanges,
+  applyStackingBuffStatChanges,
+  createBuff,
   hasCondition,
-  removeStackingBuffStatChanges,
-  removeBuffStatChanges,
-  removeGlobalBuffStatChanges,
+  isAbility,
+  isBuffGlobal,
+  isBuffTarget,
+  isCategory,
+  isOnCastEvent,
+  isOnCooldown,
+  isOnHitEvent,
   not,
+  removeBuffStatChanges,
+  removeStackingBuffStatChanges,
 } from "../../helper"
 
 const encoreResolver: Record<string, BuffResolver> = {
@@ -94,14 +91,14 @@ const encoreResolver: Record<string, BuffResolver> = {
     id: "Adventure? Let's go!",
     triggerRules: [isBuffGlobal, isAbility],
     onTrigger: (state, buff) => {
-      return createGlobalBuff(state, buff)
+      return createBuff(state, buff)
     },
     onCast: (state, buff) => {
-      return applyGlobalBuffStatChanges(state, buff)
+      return applyBuffStatChanges(state, buff)
     },
 
     onExpire: (state, buff) => {
-      return removeGlobalBuffStatChanges(state, buff)
+      return removeBuffStatChanges(state, buff)
     },
   },
   "Hero Takes the Stage!": {
