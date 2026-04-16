@@ -13,9 +13,38 @@ import {
   hasCondition,
   removeCondition,
   addArgs,
+  createGlobalBuff,
+  applyGlobalBuffStatChanges,
+  removeGlobalBuffStatChanges,
 } from "@/simulation/helper"
 
 const otherEchoResolver: Record<string, BuffResolver> = {
+  "Fallacy of No Return (energy)": {
+    id: "Fallacy of No Return (energy)",
+    triggerRules: [isAbility],
+    onTrigger: (state, buff) => {
+      return createBuff(state, buff)
+    },
+    onCast: (state, buff) => {
+      return applyBuffStatChanges(state, buff)
+    },
+    onExpire: (state, buff) => {
+      return removeBuffStatChanges(state, buff)
+    },
+  },
+  "Fallacy of No Return": {
+    id: "Fallacy of No Return",
+    triggerRules: [isAbility],
+    onTrigger: (state, buff) => {
+      return createGlobalBuff(state, buff)
+    },
+    onCast: (state, buff) => {
+      return applyGlobalBuffStatChanges(state, buff)
+    },
+    onExpire: (state, buff) => {
+      return removeGlobalBuffStatChanges(state, buff)
+    },
+  },
   "Impermanence Heron (energy)": {
     id: "Impermanence Heron (energy)",
     triggerRules: [isBuffTarget, isAbility, isOnHitEvent],

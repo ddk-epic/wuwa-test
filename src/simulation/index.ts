@@ -27,7 +27,7 @@ import {
   getDeepen,
   getDefMultiplier,
   getResMultiplier,
-  isType,
+  isEventType,
   isExpired,
   isOnCastEvent,
   isOnHitEvent,
@@ -337,7 +337,7 @@ function processEvent(
   for (const buff of allBuffs.values()) {
     const buffToAdd = buffHandler[buff.id]
     if (!buffToAdd) {
-      // console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
+      console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
       continue
     }
     const shouldTrigger = buffToAdd?.triggerRules?.every((rule) =>
@@ -408,8 +408,8 @@ function getResult(state: StateContext): Result {
 
   const resStatMap = state.statMap.get(characterId) ?? baseStatMap
 
-  const isHeal = isType(type, "heal")
-  const isShield = isType(type, "shield")
+  const isHeal = isEventType(state, "heal")
+  const isShield = isEventType(state, "shield")
 
   const resultObject: Result = {
     id: state.action.id,

@@ -60,8 +60,8 @@ export function addNewCooldown(
   return new Map(cooldownMap).set(buffId, endTime)
 }
 
-export function isType(type: EventType, key: EventType): boolean {
-  return type === key
+export function isEventType(state: StateContext, type: EventType): boolean {
+  return state.action.type === type
 }
 
 export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
@@ -85,6 +85,10 @@ export function isAlreadyActive(
   if (activeBuffsGlobal.has(buff.id)) return true
 
   return false
+}
+
+export function isHeal(state: StateContext): boolean {
+  return state.action.type === "heal"
 }
 
 export function isExpired(state: StateContext, buff: BuffInstance): boolean {

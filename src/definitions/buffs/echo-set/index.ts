@@ -6,6 +6,7 @@ import otherSets from "./other"
 export const setBuffs: Record<ECHO_SET_KEY, BuffDefinition[]> = {
   "Molten Rift": fusionSets["Molten Rift"],
   "Moonlit Clouds": otherSets["Moonlit Clouds"],
+  "Rejuvenating Glow": otherSets["Rejuvenating Glow"],
 }
 
 export default setBuffs

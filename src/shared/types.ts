@@ -31,11 +31,11 @@ export type DCOND_KEY = (typeof DCOND_KEYS)[number]
 export type variant = (typeof VARIANT)[number]
 
 export type TriggerValue = {
-  ability?: string[]
-  category?: (SKILL_CATEGORY_KEY | "echo")[]
-  condition?: string[]
-  secondary?: ("heal" | "shield")[] // secondary effects
-  stacksToAdd?: number
+  type: "coord" | "heal" | "shield" // default to hit
+  ability: string[]
+  category: (SKILL_CATEGORY_KEY | "echo")[]
+  condition: string[]
+  stacksToAdd: number
 }
 
 export type EventType = "cast" | "hit" | "damage" | "coord" | "heal" | "shield"
@@ -59,10 +59,9 @@ export type BuffDefinition = {
   name: string
   source?: CHARACTER_KEY
   classifications?: BUFF_TYPE[] // For damage proc's
-  trigger?: TriggerValue
+  trigger?: Partial<TriggerValue>
   appliesTo?: CHARACTER_KEY | "all" | "current" | "enemy"
   modifiers?: ModifierValue[]
-  // consumedBy?: string[] // For mode and damage proc's
   duration: number
   cooldown?: number
   stackLimit?: number
