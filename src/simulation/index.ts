@@ -323,9 +323,9 @@ function processEvent(
   const characterId = action.characterId
   const { time, ...rest } = action
 
+  /* update new iteration */
   state.action = rest
   state.time = time
-
   state.onFieldChar = isOnCastEvent(state) ? characterId : state.onFieldChar
 
   // remove expired buffs
@@ -339,6 +339,10 @@ function processEvent(
 
     state = buffToAdd.onSwap(state, buff)
   }
+    
+  /* snapshot before evaluation */
+  const readState = state
+  let newState = state
 
   // add triggered buffs
   for (const buff of allBuffs.values()) {
@@ -348,51 +352,52 @@ function processEvent(
       continue
     }
     const shouldTrigger = buffToAdd?.triggerRules?.every((rule) =>
-      rule(state, buff),
+      rule(readState, buff),
     ) // AND rule check
     if (!shouldTrigger) continue
 
-    state = buffToAdd.onTrigger(state, buff)
+    newState = buffToAdd.onTrigger(newState, buff)
   }
 
   // evaluate buffs
   const buffs =
-    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
+    newState.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
   for (const buff of buffs.values()) {
-    const buffToCheck = buffHandler[buff.id]
-    if (!buffToCheck) continue
+    const buffToEvaluate = buffHandler[buff.id]
+    if (!buffToEvaluate) continue
 
-    if (isOnHitEvent(state)) {
-      if (!buffToCheck.onHit) continue
-      state = buffToCheck.onHit(state, buff)
+    if (isOnHitEvent(newState)) {
+      if (!buffToEvaluate.onHit) continue
+      newState = buffToEvaluate.onHit(newState, buff)
     } else {
-      if (!buffToCheck.onCast) continue
-      state = buffToCheck.onCast(state, buff)
+      if (!buffToEvaluate.onCast) continue
+      newState = buffToEvaluate.onCast(newState, buff)
     }
 
-    state = applyCooldown(state, buff)
+    newState = applyCooldown(newState, buff)
   }
 
   // evaluate team buffs
-  const buffsGlobal = state.activeBuffsGlobal
-  for (const buff of buffsGlobal.values()) {
-    const buffToCheck = buffHandler[buff.id]
-    if (!buffToCheck) continue
+  for (const buff of newState.activeBuffsGlobal.values()) {
+    const buffToEvaluate = buffHandler[buff.id]
+    if (!buffToEvaluate) continue
 
-    if (isOnHitEvent(state)) {
-      if (!buffToCheck.onHit) continue
-      state = buffToCheck.onHit(state, buff)
+    if (isOnHitEvent(newState)) {
+      if (!buffToEvaluate.onHit) continue
+      newState = buffToEvaluate.onHit(newState, buff)
     } else {
-      if (!buffToCheck.onCast) continue
-      state = buffToCheck.onCast(state, buff)
+      if (!buffToEvaluate.onCast) continue
+      newState = buffToEvaluate.onCast(newState, buff)
     }
 
-    state = applyCooldown(state, buff)
+    newState = applyCooldown(newState, buff)
   }
 
   // update dCond
-  state = evaluateDCond(state, action)
+  newState = evaluateDCond(newState, action)
 
+  // merge
+  state = newState
   return state
 }
 
