@@ -183,6 +183,18 @@ export function hasDebuff(
   return false
 }
 
+export function getBuffById(
+  state: StateContext,
+  buffId: string,
+): BuffInstance | undefined {
+  for (const [characterId] of state.characters) {
+    const buff = state.activeBuffs.get(characterId)?.get(buffId)
+    if (buff) return buff
+  }
+
+  return state.activeBuffsGlobal.get(buffId)
+}
+
 export function getEnemyBuffById(
   state: StateContext,
   buffId: string,
@@ -218,15 +230,39 @@ export function isOnCooldown(
 export function getStacksFromBuff(state: StateContext, buffById: string) {
   const { characterId } = state.action
 
-  const foundBuff = state.activeBuffs.get(characterId)?.get(buffById)
+  const existing = state.activeBuffs.get(characterId)?.get(buffById)
 
-  return foundBuff?.stacks ?? 0
+  return existing?.stacks ?? 0
+}
+
+export function getStacksFromStatReq(
+  state: StateContext,
+  buff: BuffDefinition | BuffInstance,
+): number {
+  const characterId = buff.source
+  if (!characterId) return 0
+
+  const statReq = buff.modifiers?.[0].statReq
+  const stepValue = buff.modifiers?.[0].stepValue
+  if (!statReq || !stepValue) return 0
+
+  const statReqValue = state.statMap.get(characterId)?.[statReq]
+  if (!statReqValue) return 0
+
+  const existing = isBuffGlobal(state, buff)
+    ? state.activeBuffsGlobal.get(buff.id)
+    : state.activeBuffs.get(characterId)?.get(buff.id)
+  const currStacks = existing?.stacks ?? 0
+
+  const newStacks = Math.floor(statReqValue / stepValue)
+  return newStacks - currStacks
 }
 
 export function handleBuffInstance(
   state: StateContext,
   buff: BuffDefinition,
   existing: BuffInstance | undefined,
+  withEndTime?: number,
 ) {
   const newBuffInstance: BuffInstance = existing
     ? {
@@ -235,7 +271,7 @@ export function handleBuffInstance(
       }
     : {
         ...buff,
-        endTime: state.time + buff.duration,
+        endTime: withEndTime ? withEndTime : state.time + buff.duration, // copy duration or refresh
         ...(buff.stackLimit && {
           stacks: 0,
         }),
@@ -319,8 +355,10 @@ export function addNewTimelineEvent(
       forte2: mod.forte2 ?? 0,
       concerto: mod.concerto ?? 0,
       resonance: mod.resonance ?? 0,
+      ...(mod.scaling && { scaling: mod.scaling }),
+      ...(mod.flat && { flat: mod.flat }),
     },
-    time: state.time,
+    time: state.time + (mod.frame ?? 0),
     sourceEventId,
   }
 
@@ -428,14 +466,19 @@ export function addConsumeStacksToBuff(
 export function createBuff(
   state: StateContext,
   buff: BuffDefinition,
+  withEndTime?: number,
 ): StateContext {
   if (!buff.appliesTo) return state
 
-  const isGlobal = buff.appliesTo === "all"
-
-  if (isGlobal) {
+  // global
+  if (isBuffGlobal(state, buff)) {
     const existing = state.activeBuffsGlobal.get(buff.id)
-    const newBuffInstance = handleBuffInstance(state, buff, existing)
+    const newBuffInstance = handleBuffInstance(
+      state,
+      buff,
+      existing,
+      withEndTime,
+    )
 
     return {
       ...state,
@@ -446,13 +489,14 @@ export function createBuff(
     }
   }
 
+  // personal
   const { characterId } = state.action
 
   const activeBuffs =
     state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
 
   const existing = activeBuffs.get(buff.id)
-  const newBuffInstance = handleBuffInstance(state, buff, existing)
+  const newBuffInstance = handleBuffInstance(state, buff, existing, withEndTime)
 
   const newPersonalBuffs = new Map(activeBuffs)
   newPersonalBuffs.set(buff.id, newBuffInstance)
@@ -467,13 +511,11 @@ export function createBuffNext(
   state: StateContext,
   buff: BuffDefinition,
 ): StateContext {
-  const isGlobal = buff.appliesTo === "all"
-
   // remove buffNext entry
   const newBuffNext = new Set(state.buffNext)
   newBuffNext.delete(buff.id)
 
-  if (isGlobal) {
+  if (isBuffGlobal(state, buff)) {
     const existing = state.activeBuffsGlobal.get(buff.id)
     const newBuffInstance = handleBuffInstance(state, buff, existing)
 
@@ -555,18 +597,21 @@ function applyBuffStatChangesToCharacter(
   }
 
   // add to the correct buff column
-  const isGlobal = buff.appliesTo === "all"
+  if (isBuffGlobal(state, buff)) {
+    return {
+      ...state,
+      characters: new Map(state.characters).set(characterId, newCharacter),
+      activeBuffsGlobal: new Map(state.activeBuffsGlobal).set(buff.id, newBuff),
+      statMap: new Map(state.statMap).set(characterId, newPersonalStatMap),
+    }
+  }
 
   const newPersonalBuffs = new Map(state.activeBuffs.get(characterId))
   newPersonalBuffs.set(buff.id, newBuff)
-  const newBuffs = new Map(state.activeBuffs).set(characterId, newPersonalBuffs)
-  const newGlobalBuffs = new Map(state.activeBuffsGlobal).set(buff.id, newBuff)
-
   return {
     ...state,
     characters: new Map(state.characters).set(characterId, newCharacter),
-    activeBuffs: !isGlobal ? newBuffs : state.activeBuffs,
-    activeBuffsGlobal: isGlobal ? newGlobalBuffs : state.activeBuffsGlobal,
+    activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
     statMap: new Map(state.statMap).set(characterId, newPersonalStatMap),
   }
 }
@@ -577,9 +622,7 @@ export function applyBuffStatChanges(
 ): StateContext {
   if (buff.usesLeft <= 0) return state
 
-  const isGlobal = buff.appliesTo === "all"
-
-  if (isGlobal) {
+  if (isBuffGlobal(state, buff)) {
     let newState = state
 
     for (const character of state.characters.values()) {
@@ -631,9 +674,7 @@ export function removeBuffStatChanges(
   state: StateContext,
   buff: BuffInstance,
 ): StateContext {
-  const isGlobal = buff.appliesTo === "all"
-
-  if (isGlobal) {
+  if (isBuffGlobal(state, buff)) {
     let newState = state
 
     for (const character of state.characters.values()) {
@@ -675,6 +716,10 @@ function setStackingBuffStacks(
 
   for (const modifier of buff.modifiers) {
     newPersonalStatMap[modifier.class] += modifier.value * stackDelta
+    console.log(
+      state.row,
+      `newPersonalStatMap[${modifier.class}] += ${modifier.value * stackDelta}`,
+    )
   }
 
   const newBuff = {
@@ -685,18 +730,23 @@ function setStackingBuffStacks(
   }
 
   // add to the correct buff column
-  const isGlobal = buff.appliesTo === "all"
 
-  const newBuffs = new Map(state.activeBuffs).set(
-    characterId,
-    new Map(personalBuffs).set(buff.id, newBuff),
-  )
-  const newGlobalBuffs = new Map(state.activeBuffsGlobal).set(buff.id, newBuff)
+  // global
+  if (isBuffGlobal(state, buff)) {
+    return {
+      ...state,
+      activeBuffsGlobal: new Map(state.activeBuffsGlobal).set(buff.id, newBuff),
+      statMap: new Map(state.statMap).set(characterId, newPersonalStatMap),
+    }
+  }
 
+  // personal
   return {
     ...state,
-    activeBuffs: !isGlobal ? newBuffs : state.activeBuffs,
-    activeBuffsGlobal: isGlobal ? newGlobalBuffs : state.activeBuffsGlobal,
+    activeBuffs: new Map(state.activeBuffs).set(
+      characterId,
+      new Map(personalBuffs).set(buff.id, newBuff),
+    ),
     statMap: new Map(state.statMap).set(characterId, newPersonalStatMap),
   }
 }
@@ -706,11 +756,9 @@ export function applyStackingBuffStatChanges(
   buff: BuffInstance,
   stacksToAdd: number = 1,
 ): StateContext {
-  if (state.action.type === "cast") return state
+  // if (state.action.type === "cast") return state
 
-  const isGlobal = buff.appliesTo === "all"
-
-  if (isGlobal) {
+  if (isBuffGlobal(state, buff)) {
     const existing = state.activeBuffsGlobal.get(buff.id)
     const currentStacks = existing?.stacks ?? 0
 
@@ -748,11 +796,9 @@ export function removeStackingBuffStatChanges(
   buff: BuffInstance,
   stacksToAdd: number = 1,
 ): StateContext {
-  if (state.action.type === "cast") return state
+  // if (state.action.type === "cast") return state
 
-  const isGlobal = buff.appliesTo === "all"
-
-  if (isGlobal) {
+  if (isBuffGlobal(state, buff)) {
     const existing = state.activeBuffsGlobal.get(buff.id)
     const currentStacks = existing?.stacks ?? 0
 
@@ -873,15 +919,46 @@ export function createDamageProcEvent(
 export function createCoordProcEvent(
   state: StateContext,
   buff: BuffDefinition,
-  sourceEventId: string | undefined,
+  sourceEventId?: string | undefined,
 ): StateContext {
   if (!buff.appliesTo || !buff.modifiers) return state
-  if (!sourceEventId) return state
 
   const newQueuedEvents: TimelineEvent[] = [...state.procQueue]
 
   for (const mod of buff.modifiers) {
-    const procEvent = addNewTimelineEvent(state, buff, mod, sourceEventId)
+    const procEvent = addNewTimelineEvent(
+      state,
+      buff,
+      mod,
+      sourceEventId ?? state.action.id,
+    )
+
+    newQueuedEvents.push(procEvent)
+  }
+
+  const newState = applyCooldown(state, buff)
+
+  return {
+    ...newState,
+    procQueue: newQueuedEvents,
+  }
+}
+
+export function createHealProcEvent(
+  state: StateContext,
+  buff: BuffDefinition,
+  sourceEventId?: string | undefined,
+): StateContext {
+  if (!buff.appliesTo || !buff.modifiers) return state
+  const newQueuedEvents: TimelineEvent[] = [...state.procQueue]
+
+  for (const mod of buff.modifiers) {
+    const procEvent = addNewTimelineEvent(
+      state,
+      buff,
+      mod,
+      sourceEventId ?? state.action.id,
+    )
 
     newQueuedEvents.push(procEvent)
   }

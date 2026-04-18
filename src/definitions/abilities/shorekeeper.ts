@@ -26,9 +26,9 @@ const shorekeeper: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       freezetime: 141,
       onCast: { concerto: 20 },
       hits: [
-        { frame: 1, mv: 0.0988, concerto: 0, resonance: 3.34},
-        { frame: 2, mv: 0.0988, concerto: 0, resonance: 3.34},
-        { frame: 3, mv: 0.0988, concerto: 0, resonance: 3.34},
+        { frame: 1, mv: 0.0988, concerto: 0, resonance: 3.34 },
+        { frame: 2, mv: 0.0988, concerto: 0, resonance: 3.34 },
+        { frame: 3, mv: 0.0988, concerto: 0, resonance: 3.34 },
       ],
       variations: {
         swap: {
@@ -155,7 +155,7 @@ const shorekeeper: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       frames: 69,
       onCast: { concerto: 6 },
       hits: [
-        { frame: 1, mv: 0.0954, concerto: 0, resonance: 0.4 },
+        { frame: 1, mv: 0.0954, forte: -5, concerto: 0, resonance: 0.4 },
         { frame: 1, mv: 0.0954, concerto: 0, resonance: 0.4 },
         { frame: 1, mv: 0.0954, concerto: 0, resonance: 0.4 },
         { frame: 1, mv: 0.0954, concerto: 0, resonance: 0.4 },
@@ -173,7 +173,7 @@ const shorekeeper: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       category: "forte",
       classifications: ["spectro", "basic"],
       frames: 90,
-      hits: [{ frame: 1, mv: 0.372, concerto: 0, resonance: 1.55 }],
+      hits: [{ frame: 1, mv: 0.372, forte: -5, concerto: 0, resonance: 1.55 }],
       variations: {
         swap: {
           frames: 24,

@@ -202,7 +202,12 @@ function calculateDamage(state: StateContext) {
   // character
   const characterLevel = 90
   const skillLevel = 10
-  const attack = char.atk * (1 + statMap.atk) + char.bonusStats.atkFlat
+
+  const scaling = state.action.skill.scaling ?? "atk"
+  const scalingFlat = (scaling + "Flat") as BONUSSTAT_KEY
+  const scalingBase =
+    char[scaling] * (1 + statMap[scaling]) + char.bonusStats[scalingFlat]
+
   const skillMultiplier =
     skill.mv * getSkillLevel[skillLevel] * (1 + statMap.multiplier) +
     statMap.bonus
@@ -231,7 +236,7 @@ function calculateDamage(state: StateContext) {
   )
 
   const expectedDamage =
-    attack *
+    scalingBase *
     skillMultiplier *
     bonusMultiplier *
     deepenMultiplier *
@@ -264,12 +269,15 @@ function calculateHeal(state: StateContext) {
   const statMap = state.statMap.get(characterId) ?? baseStatMap
   const healBonusMultiplier = state.statMap.get(characterId)?.heal ?? 0
 
-  const attack = char.atk * (1 + statMap.atk) + char.bonusStats.atkFlat
+  const scaling = state.action.skill.scaling ?? "atk"
+  const scalingFlat = (scaling + "Flat") as BONUSSTAT_KEY
+  const scalingBase =
+    char[scaling] * (1 + statMap[scaling]) + char.bonusStats[scalingFlat]
 
   const mv = skill.mv
   const flat = skill.flat ?? 0
 
-  const expectedHeal = attack * mv * (1 + healBonusMultiplier) + flat
+  const expectedHeal = scalingBase * mv * (1 + healBonusMultiplier) + flat
 
   // console.table({
   //   attack,
@@ -331,20 +339,18 @@ function processEvent(
 
     state = buffToAdd.onSwap(state, buff)
   }
-  // console.log(state.row, state.activeBuffs)
 
   // add triggered buffs
   for (const buff of allBuffs.values()) {
     const buffToAdd = buffHandler[buff.id]
     if (!buffToAdd) {
-      console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
+      // console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
       continue
     }
     const shouldTrigger = buffToAdd?.triggerRules?.every((rule) =>
       rule(state, buff),
     ) // AND rule check
     if (!shouldTrigger) continue
-    // console.log(state.row, buff.name, shouldTrigger)
 
     state = buffToAdd.onTrigger(state, buff)
   }

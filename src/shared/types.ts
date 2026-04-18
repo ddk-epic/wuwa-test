@@ -44,14 +44,15 @@ export type ModifierValue = {
   type?: EventType
   class: BUFF_TYPE
   statReq?: BASE_STAT
+  stepValue?: number
   frame?: number
   value: number
-  flatValue?: number
-  stackValue?: number
+  flat?: number
   forte?: number
   forte2?: number
   concerto?: number
   resonance?: number
+  scaling?: "def" | "hp"
 }
 
 export type BuffDefinition = {
@@ -80,13 +81,12 @@ export type BuffInstance = {
 type EventValue = {
   frame: number
   mv: number
+  flat: number
   forte: number
   forte2: number
   concerto: number
   resonance: number
   scaling: "def" | "hp" // default to atk
-  heal: number
-  flat: number
 }
 
 type SkillVariation = {
@@ -114,7 +114,6 @@ export type Skill = Omit<SKILL, "hits" | "variations"> & {
   concerto: number
   resonance: number
   scaling?: "def" | "hp" // default to atk
-  heal?: number
   flat?: number
 }
 

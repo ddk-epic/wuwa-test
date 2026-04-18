@@ -43,7 +43,7 @@ const verina: BuffDefinition[] = [
     appliesTo: "verina",
     modifiers: [
       { class: "spectro", frame: 10, value: 0.05, type: "coord" },
-      { class: "heal", frame: 10, value: 0.1071, flatValue: 428, type: "heal" },
+      { class: "heal", frame: 10, value: 0.1071, flat: 428, type: "heal" },
     ],
     duration: 12,
     cooldown: 1,

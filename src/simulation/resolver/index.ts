@@ -11,11 +11,13 @@ import otherEchoResolver from "./echo/other"
 
 import fusionSetResolver from "./echo-set/fusion"
 import otherSetResolver from "./echo-set/other"
+import shorekeeperResolver from "./characters/shorekeeper"
 
 export const buffHandler: Record<string, BuffResolver> = {
   /* characters */
   ...encoreResolver,
   ...sanhuaResolver,
+  ...shorekeeperResolver,
   ...verinaResolver,
   /* weapons */
   ...rectifierResolver,
