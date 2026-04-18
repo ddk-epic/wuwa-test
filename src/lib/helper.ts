@@ -186,13 +186,15 @@ export function computeTimeline(actionList: Action[]): Action[] {
 export function computeEventTimeline(actionList: Action[]): TimelineEvent[] {
   const timeline: TimelineEvent[] = []
 
+  // main event
   for (let i = 0; i < actionList.length; i++) {
-    // main timeline entry
+    const counters: Record<string, number> = {}
+
     const action = actionList[i]
     const { characterId, skill, time } = action
     const { variations, ...actionSkill } = skill
 
-    const parentItem: TimelineEvent = {
+    const castEvent: TimelineEvent = {
       id: String(i),
       characterId,
       type: "cast",
@@ -207,55 +209,38 @@ export function computeEventTimeline(actionList: Action[]): TimelineEvent[] {
       time,
     }
 
-    timeline.push(parentItem)
+    timeline.push(castEvent)
 
-    let hitCounter = 1
-    let healCounter = 1
-
+    // sub events
     for (let j = 0; j < skill.hits.length; j++) {
       const hit = skill.hits[j]
       const { frame, mv } = hit
       const hitFrame = frame ?? 0
 
-      const hitItem: TimelineEvent =
-        hit.heal != undefined
-          ? {
-              id: String(i + j),
-              characterId,
-              type: "heal",
-              skill: {
-                ...actionSkill,
-                name: `${skill.id} [heal ${healCounter}]`,
-                mv: hit.heal ?? 0,
-                flat: hit.flat ?? 0,
-                forte: hit.forte ?? 0,
-                forte2: hit.forte2 ?? 0,
-                concerto: hit.concerto ?? 0,
-                resonance: hit.resonance ?? 0,
-              },
-              time: time + hitFrame,
-              sourceEventId: String(i),
-            }
-          : {
-              id: String(i + j),
-              characterId,
-              type: "hit",
-              skill: {
-                ...actionSkill,
-                name: `${skill.id} [hit ${hitCounter}]`,
-                mv: mv ?? 0,
-                forte: hit.forte ?? 0,
-                forte2: hit.forte2 ?? 0,
-                concerto: hit.concerto ?? 0,
-                resonance: hit.resonance ?? 0,
-              },
-              time: time + hitFrame,
-              sourceEventId: String(i),
-            }
+      const type = hit?.type ?? "damage"
 
-      if (hitItem.type === "hit") hitCounter++
-      if (hitItem.type === "heal") healCounter++
-      timeline.push(hitItem)
+      const counter = (counters[type] ?? 0) + 1
+      counters[type] = counter
+
+      const subEvent: TimelineEvent = {
+        id: `${i}-${j}`,
+        characterId,
+        type,
+        skill: {
+          ...actionSkill,
+          name: `${skill.id} [${type} ${counter}]`,
+          mv: mv ?? 0,
+          flat: hit.flat ?? 0,
+          forte: hit.forte ?? 0,
+          forte2: hit.forte2 ?? 0,
+          concerto: hit.concerto ?? 0,
+          resonance: hit.resonance ?? 0,
+        },
+        time: time + hitFrame,
+        sourceEventId: String(i),
+      }
+
+      timeline.push(subEvent)
     }
   }
 

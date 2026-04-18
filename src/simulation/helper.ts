@@ -215,7 +215,7 @@ export function isOnCastEvent(state: StateContext): boolean {
 }
 
 export function isOnHitEvent(state: StateContext): boolean {
-  return state.action.type === "hit"
+  return state.action.type === "damage"
 }
 
 export function isOnCooldown(

@@ -38,7 +38,8 @@ export type TriggerValue = {
   stacksToAdd: number
 }
 
-export type EventType = "cast" | "hit" | "damage" | "coord" | "heal" | "shield"
+// first-class event types
+export type EventType = "cast" | "damage" | "coord" | "heal" | "shield"
 
 export type ModifierValue = {
   type?: EventType
@@ -79,6 +80,7 @@ export type BuffInstance = {
 } & BuffDefinition
 
 type EventValue = {
+  type?: EventType
   frame: number
   mv: number
   flat: number
