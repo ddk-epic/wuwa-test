@@ -60,10 +60,6 @@ export function addNewCooldown(
   return new Map(cooldownMap).set(buffId, endTime)
 }
 
-export function isEventType(state: StateContext, type: EventType): boolean {
-  return state.action.type === type
-}
-
 export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
   return (DCOND_KEYS as readonly string[]).includes(key)
 }
@@ -87,6 +83,10 @@ export function isAlreadyActive(
   return false
 }
 
+export function isEventType(state: StateContext, type: EventType): boolean {
+  return state.action.type === type
+}
+
 export function isHeal(state: StateContext): boolean {
   return state.action.type === "heal"
 }
@@ -95,15 +95,18 @@ export function isExpired(state: StateContext, buff: BuffInstance): boolean {
   return buff.endTime <= state.time
 }
 
-export function isOnField(state: StateContext) {
+export function isOnField(state: StateContext): boolean {
   return state.onFieldChar === state.action.characterId
 }
 
-export function hasSwapped(state: StateContext) {
+export function hasSwapped(state: StateContext): boolean {
   return state.onFieldChar !== state.prevChar
 }
 
-export function isBuffSource(state: StateContext, buff: BuffDefinition) {
+export function isBuffSource(
+  state: StateContext,
+  buff: BuffDefinition,
+): boolean {
   return state.action.characterId === buff.source
 }
 
@@ -114,7 +117,10 @@ export function isBuffTarget(
   return state.action.characterId === buff.appliesTo
 }
 
-export function isBuffGlobal(_state: StateContext, buff: BuffDefinition) {
+export function isBuffGlobal(
+  _state: StateContext,
+  buff: BuffDefinition,
+): boolean {
   return buff.appliesTo === "all"
 }
 
@@ -142,7 +148,7 @@ export function hasCondition(
   state: StateContext,
   buff: BuffDefinition,
   getBuffBy: "id" | "name" = "id",
-) {
+): boolean {
   const condition = buff.trigger?.condition
   if (!condition) return false
 
@@ -164,11 +170,11 @@ export function hasCondition(
   return false
 }
 
-export function hasDebuff(
+export function enemyCondition(
   state: StateContext,
   buff: BuffDefinition,
   getBuffBy: "id" | "name" = "id",
-) {
+): boolean {
   const condition = buff.trigger?.condition
   if (!condition) return false
 
@@ -227,7 +233,10 @@ export function isOnCooldown(
 // =============== BUFF UTILS =================
 // ============================================
 
-export function getStacksFromBuff(state: StateContext, buffById: string) {
+export function getStacksFromBuff(
+  state: StateContext,
+  buffById: string,
+): number {
   const { characterId } = state.action
 
   const existing = state.activeBuffs.get(characterId)?.get(buffById)
@@ -263,7 +272,7 @@ export function handleBuffInstance(
   buff: BuffDefinition,
   existing: BuffInstance | undefined,
   withEndTime?: number,
-) {
+): BuffInstance {
   const newBuffInstance: BuffInstance = existing
     ? {
         ...existing,
@@ -337,7 +346,7 @@ export function addNewTimelineEvent(
   buff: BuffDefinition,
   mod: ModifierValue,
   sourceEventId: string,
-) {
+): TimelineEvent {
   const type = mod.type ?? "damage"
 
   const newEvent: TimelineEvent = {
@@ -490,20 +499,19 @@ export function createBuff(
   }
 
   // personal
-  const { characterId } = state.action
+  const newPersonalBuffs = new Map(
+    state.activeBuffs.get(state.action.characterId),
+  )
 
-  const activeBuffs =
-    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
-
-  const existing = activeBuffs.get(buff.id)
+  const existing = newPersonalBuffs.get(buff.id)
   const newBuffInstance = handleBuffInstance(state, buff, existing, withEndTime)
-
-  const newPersonalBuffs = new Map(activeBuffs)
-  newPersonalBuffs.set(buff.id, newBuffInstance)
 
   return {
     ...state,
-    activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
+    activeBuffs: new Map(state.activeBuffs).set(
+      state.action.characterId,
+      newPersonalBuffs.set(buff.id, newBuffInstance),
+    ),
   }
 }
 
@@ -529,21 +537,17 @@ export function createBuffNext(
     }
   }
 
-  const personal =
-    state.activeBuffs.get(state.action.characterId) ??
-    new Map<string, BuffInstance>()
-
-  const existing = personal.get(buff.id)
+  const newPersonalBuffs = new Map(
+    state.activeBuffs.get(state.action.characterId),
+  )
+  const existing = newPersonalBuffs.get(buff.id)
   const newBuffInstance = handleBuffInstance(state, buff, existing)
-
-  const newPersonalBuffs = new Map(personal)
-  newPersonalBuffs.set(buff.id, newBuffInstance)
 
   return {
     ...state,
     activeBuffs: new Map(state.activeBuffs).set(
       state.action.characterId,
-      newPersonalBuffs,
+      newPersonalBuffs.set(buff.id, newBuffInstance),
     ),
     buffNext: newBuffNext,
   }
@@ -597,22 +601,26 @@ function applyBuffStatChangesToCharacter(
   }
 
   // add to the correct buff column
+  const newCharacters = new Map(state.characters).set(characterId, newCharacter)
+  const newStatMap = new Map(state.statMap).set(characterId, newPersonalStatMap)
+
   if (isBuffGlobal(state, buff)) {
     return {
       ...state,
-      characters: new Map(state.characters).set(characterId, newCharacter),
+      characters: newCharacters,
       activeBuffsGlobal: new Map(state.activeBuffsGlobal).set(buff.id, newBuff),
-      statMap: new Map(state.statMap).set(characterId, newPersonalStatMap),
+      statMap: newStatMap,
     }
   }
 
-  const newPersonalBuffs = new Map(state.activeBuffs.get(characterId))
-  newPersonalBuffs.set(buff.id, newBuff)
   return {
     ...state,
-    characters: new Map(state.characters).set(characterId, newCharacter),
-    activeBuffs: new Map(state.activeBuffs).set(characterId, newPersonalBuffs),
-    statMap: new Map(state.statMap).set(characterId, newPersonalStatMap),
+    characters: newCharacters,
+    activeBuffs: new Map(state.activeBuffs).set(
+      characterId,
+      new Map(state.activeBuffs.get(characterId)).set(buff.id, newBuff),
+    ),
+    statMap: newStatMap,
   }
 }
 
@@ -701,10 +709,9 @@ function setStackingBuffStacks(
 
   const characterId = character.id
 
-  const personalBuffs = state.activeBuffs.get(characterId)
-  if (!personalBuffs) return state
+  const newPersonalBuffs = new Map(state.activeBuffs.get(characterId))
 
-  const existing = personalBuffs.get(buff.id)
+  const existing = newPersonalBuffs.get(buff.id)
   const currentStacks = existing?.stacks ?? 0
 
   // clamp to valid range
@@ -716,10 +723,10 @@ function setStackingBuffStacks(
 
   for (const modifier of buff.modifiers) {
     newPersonalStatMap[modifier.class] += modifier.value * stackDelta
-    console.log(
-      state.row,
-      `newPersonalStatMap[${modifier.class}] += ${modifier.value * stackDelta}`,
-    )
+    // console.log(
+    //   state.row,
+    //   `newPersonalStatMap[${modifier.class}] += ${modifier.value * stackDelta}`,
+    // )
   }
 
   const newBuff = {
@@ -730,8 +737,6 @@ function setStackingBuffStacks(
   }
 
   // add to the correct buff column
-
-  // global
   if (isBuffGlobal(state, buff)) {
     return {
       ...state,
@@ -745,7 +750,7 @@ function setStackingBuffStacks(
     ...state,
     activeBuffs: new Map(state.activeBuffs).set(
       characterId,
-      new Map(personalBuffs).set(buff.id, newBuff),
+      newPersonalBuffs.set(buff.id, newBuff),
     ),
     statMap: new Map(state.statMap).set(characterId, newPersonalStatMap),
   }
@@ -756,7 +761,7 @@ export function applyStackingBuffStatChanges(
   buff: BuffInstance,
   stacksToAdd: number = 1,
 ): StateContext {
-  // if (state.action.type === "cast") return state
+  if (!buff.stackLimit) return state
 
   if (isBuffGlobal(state, buff)) {
     const existing = state.activeBuffsGlobal.get(buff.id)
@@ -796,7 +801,7 @@ export function removeStackingBuffStatChanges(
   buff: BuffInstance,
   stacksToAdd: number = 1,
 ): StateContext {
-  // if (state.action.type === "cast") return state
+  if (!buff.stackLimit) return state
 
   if (isBuffGlobal(state, buff)) {
     const existing = state.activeBuffsGlobal.get(buff.id)
@@ -879,8 +884,7 @@ export function createDamageProcEvent(
 
   const { characterId } = state.action
 
-  const newActiveBuffs =
-    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
+  const newActiveBuffs = new Map(state.activeBuffs.get(characterId))
 
   const toConsume: BuffInstance[] = []
 
