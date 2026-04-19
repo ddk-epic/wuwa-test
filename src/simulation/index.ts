@@ -1,9 +1,9 @@
 import { BONUSSTAT_KEYS } from "@/definitions/constants"
 
-import buffs from "@/definitions/buffs/characters"
-import weaponBuffs from "@/definitions/buffs/weapon"
-import setBuffs from "@/definitions/buffs/echo-set"
-import echoBuffs from "@/definitions/buffs/echoes"
+import { cBuffs } from "@/content/registries/characters"
+import { wBuffs } from "@/content/registries/weapons"
+import { sBuffs } from "@/content/registries/echoes"
+import { eBuffs } from "@/content/registries/echoes"
 
 import { baseStatMap, getSkillLevel } from "@/shared/maps"
 import type {
@@ -339,7 +339,7 @@ function processEvent(
 
     state = buffToAdd.onSwap(state, buff)
   }
-    
+
   /* snapshot before evaluation */
   const readState = state
   let newState = state
@@ -455,7 +455,7 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
     const sequence = character.sequence
 
     // Character buffs
-    const cBuffData = buffs[character.id]
+    const cBuffData = cBuffs[character.id]
     if (cBuffData) {
       for (const buff of cBuffData) {
         const sequenceRequirement = buff.sequenceReq ?? 0
@@ -476,7 +476,7 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
 
     // Weapon buffs
     const weapon = character.weapon
-    const wBuffData = weaponBuffs[weapon.name]
+    const wBuffData = wBuffs[weapon.name]
 
     if (wBuffData) {
       const rankIndex = Math.max(0, weapon.rank - 1)
@@ -497,7 +497,7 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
 
     // Set buffs
     const echoSetId = character.echoSet[0]
-    const sBuffData = setBuffs[echoSetId]
+    const sBuffData = sBuffs[echoSetId]
 
     if (sBuffData) {
       for (const buff of sBuffData) {
@@ -512,7 +512,7 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
 
     // Echo buffs
     const echoName = character.echo
-    const eBuffData = echoBuffs[echoName]
+    const eBuffData = eBuffs[echoName]
 
     if (eBuffData) {
       for (const buff of eBuffData) {

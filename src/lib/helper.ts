@@ -1,6 +1,6 @@
-import skillData from "@/definitions/abilities"
-import characterTemplate from "@/definitions/characters"
-import echoData from "@/definitions/echoes"
+import { cAbilities } from "@/content/registries/characters"
+import { characterTemplate } from "@/content/registries/characters"
+import echoData from "@/content/echoes/data"
 
 import type {
   Action,
@@ -84,7 +84,7 @@ export function computeCharacterSkills(
   }
 
   // character skills
-  Object.values(skillData[character.id]).forEach((category) => {
+  Object.values(cAbilities[character.id]).forEach((category) => {
     Object.values(category).forEach((skill) => {
       if (!skill) return
 

@@ -4,7 +4,7 @@ import { Table, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 
 import type { BUFF_TYPE, CHARACTER_KEY, Result } from "@/shared/types"
 import { COLORS, ELEMENT_COLORS, STAT_COLORS } from "@/definitions/colors"
-import characterTemplate from "@/definitions/characters"
+import { characterTemplate } from "@/content/registries/characters"
 
 interface CalculationLogProps {
   resultTimeline: Result[]
@@ -208,7 +208,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
             >
               {skill.name}
             </TableCell>
-            <TableCell className="sticky left-93 z-10 bg-card shadow-[inset_0_-1px_0_rgb(39,39,42)]">
+            <TableCell className="sticky left-93 z-10 bg-card text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]">
               {frameToSecond(time)}
             </TableCell>
             <TableCell className="bg-zinc-800/50 text-right shadow-[inset_0_-1px_0_rgb(39,39,42)]">

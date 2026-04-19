@@ -19,9 +19,9 @@ import type {
 } from "@/shared/types"
 import { ELEMENT_COLORS } from "@/definitions/colors"
 import { CHARACTERS } from "@/definitions/constants"
-import characterTemplate from "@/definitions/characters"
-import echoData from "@/definitions/echoes"
-import weaponData from "@/definitions/weapons"
+import { characterTemplate } from "@/content/registries/characters"
+import { eAbilities } from "@/content/registries/echoes"
+import { wData } from "@/content/registries/weapons"
 
 interface AddCharacterModalProps {
   team: TeamSlot[]
@@ -93,11 +93,11 @@ function AddCharacterModal({
           </div>
           <div className="flex gap-4">
             {characterData.map((character, i) => {
-              const weapons = Object.values(weaponData).filter(
+              const weapons = Object.values(wData).filter(
                 (w) => w.type === character.weaponType,
               )
-              const echoSets = Object.values(echoData).map((echo) => echo.set)
-              const echoes = Object.keys(echoData)
+              const echoSets = Object.values(eAbilities).map((echo) => echo.set)
+              const echoes = Object.keys(eAbilities)
 
               return (
                 <div className="space-y-2 px-px">

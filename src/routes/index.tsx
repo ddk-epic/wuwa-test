@@ -32,9 +32,10 @@ import type {
   WEAPON_KEY,
 } from "@/shared/types"
 
-import characterTemplate from "@/definitions/characters"
+import { characterTemplate } from "@/content/registries/characters"
+import { wData } from "@/content/registries/weapons"
+
 import { simulate } from "@/simulation"
-import weaponData from "@/definitions/weapons"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -126,7 +127,7 @@ function App() {
           break
 
         case "weapon":
-          newSetting.weapon = weaponData[value as WEAPON_KEY]
+          newSetting.weapon = wData[value as WEAPON_KEY]
           break
 
         case "echoSet":

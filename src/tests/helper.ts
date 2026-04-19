@@ -1,9 +1,5 @@
 import { computeBaseCharacter } from "@/lib/helper"
 
-import characterTemplate from "@/definitions/characters"
-import { CHARACTERS } from "@/definitions/constants"
-import skillData from "@/definitions/abilities"
-
 import type {
   CHARACTER_KEY,
   CharSettings,
@@ -12,14 +8,17 @@ import type {
   ECHO_SET_KEY,
   WEAPON_KEY,
 } from "@/shared/types"
-import weaponData from "@/definitions/weapons"
+
+import { CHARACTERS } from "@/definitions/constants"
+import { cAbilities, characterTemplate } from "@/content/registries/characters"
+import { wData } from "@/content/registries/weapons"
 
 export function isCharacterKey(key: any): key is CHARACTER_KEY {
   return (CHARACTERS as readonly string[]).includes(key)
 }
 
 export function skillOf(characterId: CHARACTER_KEY) {
-  return skillData[characterId]
+  return cAbilities[characterId]
 }
 
 export function createCharacter(
@@ -35,7 +34,7 @@ export function createCharacter(
 
   const settings: CharSettings = {
     sequence: overrides.sequence ?? 0,
-    weapon: overrides.weapon ? weaponData[overrides.weapon] : template.weapon,
+    weapon: overrides.weapon ? wData[overrides.weapon] : template.weapon,
     echoSet: overrides.echoSet ? [overrides.echoSet] : template.echoSet,
     echo: overrides.echo ? overrides.echo : template.echo,
   }

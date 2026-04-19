@@ -453,4 +453,23 @@ describe("Characters: end-to-end", () => {
       expect(result[6].buffsGlobal).toContain("Daybreak Radiance x2")
     })
   })
+  
+  describe("Verina", () => {
+    const characters = createTeam("verina")
+
+    it("Basic: test damage", () => {
+      const team = characters
+      const skill = skillOf("sanhua").basic[1]
+
+      if (!skill) return
+
+      const actionList: Action[] = [
+        {
+          characterId: "sanhua",
+          skill,
+          time: 0,
+        },
+      ]
+    })
+  })
 })

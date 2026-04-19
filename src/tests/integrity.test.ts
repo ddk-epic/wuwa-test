@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 
 import { CHARACTERS, ECHO, ECHO_SET, WEAPONS } from "@/definitions/constants"
-import skillData from "@/definitions/abilities"
 
-import characterTemplate from "@/definitions/characters"
-
-import { buffs as characterBuffs } from "@/definitions/buffs/characters"
-import setBuffs from "@/definitions/buffs/echo-set"
-import echoBuffs from "@/definitions/buffs/echoes"
-import weaponBuffs from "@/definitions/buffs/weapon"
+import {
+  cAbilities,
+  cBuffs,
+  characterTemplate,
+} from "@/content/registries/characters"
+import { eBuffs, sBuffs } from "@/content/registries/echoes"
+import { wBuffs } from "@/content/registries/weapons"
 
 import buffHandler from "@/simulation/resolver"
 
@@ -19,15 +19,15 @@ describe("Data integrity validation", () => {
   const echoes = ECHO.length
   const weapons = WEAPONS.length
 
-  const abilities = Object.keys(skillData)
+  const abilities = Object.keys(cAbilities)
 
   const characterData = Object.keys(characterTemplate)
 
   const buffs = {
-    characters: Object.keys(characterBuffs),
-    echoes: Object.keys(echoBuffs),
-    echoSet: Object.keys(setBuffs),
-    weapons: Object.keys(weaponBuffs),
+    characters: Object.keys(cBuffs),
+    echoes: Object.keys(eBuffs),
+    echoSet: Object.keys(sBuffs),
+    weapons: Object.keys(wBuffs),
   }
 
   const resolvers = Object.keys(buffHandler)
