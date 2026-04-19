@@ -1,20 +1,21 @@
 import type { BuffResolver } from "@/shared/types"
 import {
-  isBuffTarget,
-  createBuff,
-  applyBuffStatChanges,
-  removeBuffStatChanges,
-  isCategory,
-  applyStackingBuffStatChanges,
-  removeStackingBuffStatChanges,
-  isOnField,
-  getStacksFromBuff,
-  isOnHitEvent,
-  applyDCondFlat,
-  isOnCooldown,
-  not,
   addArgs,
+  applyBuffStatChanges,
+  applyDCondFlat,
+  applyStackingBuffStatChanges,
+  createBuff,
+  getStacksFromBuff,
   hasCondition,
+  isBuffTarget,
+  isCategory,
+  isHeal,
+  isOnCooldown,
+  isOnField,
+  isOnHitEvent,
+  not,
+  removeBuffStatChanges,
+  removeStackingBuffStatChanges,
   updateBuffIdentity,
 } from "@/simulation/helper"
 
@@ -61,12 +62,42 @@ const weaponResolver: Record<string, BuffResolver> = {
       return removeStackingBuffStatChanges(state, buff)
     },
   },
-  // "Stellar Symphony": {
-  //   id: "Stellar Symphony",
-  //   onTrigger: (state, buff) => {
-  //     return state
-  //   },
-  // },
+  "Stellar Symphony (Hp)": {
+    id: "Stellar Symphony (Hp)",
+    triggerRules: [isBuffTarget],
+    onTrigger: (state, buff) => {
+      return createBuff(state, buff)
+    },
+    onCast: (state, buff) => {
+      return applyBuffStatChanges(state, buff)
+    },
+    onExpire: (state, buff) => {
+      return removeBuffStatChanges(state, buff)
+    },
+  },
+  "Stellar Symphony (Concerto)": {
+    id: "Stellar Symphony (Concerto)",
+    triggerRules: [isBuffTarget, isCategory, not(isOnCooldown)],
+    onTrigger: (state, buff) => {
+      return createBuff(state, buff)
+    },
+    onCast: (state, buff) => {
+      return applyDCondFlat(state, buff)
+    },
+  },
+  "Stellar Symphony": {
+    id: "Stellar Symphony",
+    triggerRules: [isCategory, isHeal],
+    onTrigger: (state, buff) => {
+      return createBuff(state, buff)
+    },
+    onCast: (state, buff) => {
+      return applyBuffStatChanges(state, buff)
+    },
+    onExpire: (state, buff) => {
+      return removeBuffStatChanges(state, buff)
+    },
+  },
   Variation: {
     id: "Variation",
     triggerRules: [isBuffTarget, isCategory, not(isOnCooldown)],

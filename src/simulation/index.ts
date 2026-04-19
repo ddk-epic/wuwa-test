@@ -333,11 +333,11 @@ function processEvent(
 
   // add onSwap buffs
   for (const buffId of state.buffNext) {
-    const buffToAdd = buffHandler[buffId]
+    const resolver = buffHandler[buffId]
     const buff = allBuffs.get(buffId)
-    if (!buffToAdd.onSwap || !buff) continue
+    if (!resolver.onSwap || !buff) continue
 
-    state = buffToAdd.onSwap(state, buff)
+    state = resolver.onSwap(state, buff)
   }
 
   /* snapshot before evaluation */
@@ -346,32 +346,32 @@ function processEvent(
 
   // add triggered buffs
   for (const buff of allBuffs.values()) {
-    const buffToAdd = buffHandler[buff.id]
-    if (!buffToAdd) {
-      // console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
+    const resolver = buffHandler[buff.id]
+    if (!resolver) {
+      console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
       continue
     }
-    const shouldTrigger = buffToAdd?.triggerRules?.every((rule) =>
+    const shouldTrigger = resolver?.triggerRules?.every((rule) =>
       rule(readState, buff),
     ) // AND rule check
     if (!shouldTrigger) continue
 
-    newState = buffToAdd.onTrigger(newState, buff)
+    newState = resolver.onTrigger(newState, buff)
   }
 
   // evaluate buffs
   const buffs =
     newState.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
   for (const buff of buffs.values()) {
-    const buffToEvaluate = buffHandler[buff.id]
-    if (!buffToEvaluate) continue
+    const resolver = buffHandler[buff.id]
+    if (!resolver) continue
 
     if (isOnHitEvent(newState)) {
-      if (!buffToEvaluate.onHit) continue
-      newState = buffToEvaluate.onHit(newState, buff)
+      if (!resolver.onHit) continue
+      newState = resolver.onHit(newState, buff)
     } else {
-      if (!buffToEvaluate.onCast) continue
-      newState = buffToEvaluate.onCast(newState, buff)
+      if (!resolver.onCast) continue
+      newState = resolver.onCast(newState, buff)
     }
 
     newState = applyCooldown(newState, buff)
@@ -379,15 +379,15 @@ function processEvent(
 
   // evaluate team buffs
   for (const buff of newState.activeBuffsGlobal.values()) {
-    const buffToEvaluate = buffHandler[buff.id]
-    if (!buffToEvaluate) continue
+    const resolver = buffHandler[buff.id]
+    if (!resolver) continue
 
     if (isOnHitEvent(newState)) {
-      if (!buffToEvaluate.onHit) continue
-      newState = buffToEvaluate.onHit(newState, buff)
+      if (!resolver.onHit) continue
+      newState = resolver.onHit(newState, buff)
     } else {
-      if (!buffToEvaluate.onCast) continue
-      newState = buffToEvaluate.onCast(newState, buff)
+      if (!resolver.onCast) continue
+      newState = resolver.onCast(newState, buff)
     }
 
     newState = applyCooldown(newState, buff)
@@ -486,7 +486,7 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
           ...buff,
           duration: buff.duration * 60,
           modifiers: buff.modifiers && [buff.modifiers[rankIndex] ?? []],
-          appliesTo: character.id,
+          appliesTo: buff.appliesTo ?? character.id,
           source: character.id,
           ...(buff.stackInterval && {
             stackInterval: buff.stackInterval * 60,

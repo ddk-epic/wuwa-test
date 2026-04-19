@@ -125,6 +125,7 @@ const shorekeeperAbilities: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
         { frame: 1, mv: 0.1575, concerto: 2, resonance: 2 },
         { frame: 1, mv: 0.1575, concerto: 2, resonance: 2 },
         { frame: 1, mv: 0.1575, concerto: 2, resonance: 2 },
+        { frame: 10, mv: 0.0597, flat: 1313, type: "heal" },
       ],
       variations: {
         swap: {

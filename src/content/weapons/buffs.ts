@@ -4,16 +4,44 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
   /* Rectifiers */
   "Stellar Symphony": [
     {
-      id: "Stellar Symphony",
-      name: "Stellar Symphony",
+      id: "Stellar Symphony (Hp)",
+      name: "Stellar Symphony (Hp)",
       modifiers: [
-        { class: "allEle", value: 0.12 },
-        { class: "allEle", value: 0.15 },
-        { class: "allEle", value: 0.18 },
-        { class: "allEle", value: 0.21 },
-        { class: "allEle", value: 0.24 },
+        { class: "hp", value: 0.12 },
+        { class: "hp", value: 0.15 },
+        { class: "hp", value: 0.18 },
+        { class: "hp", value: 0.21 },
+        { class: "hp", value: 0.24 },
       ],
       duration: 99999,
+    },
+    {
+      id: "Stellar Symphony (Concerto)",
+      name: "Stellar Symphony (Concerto)",
+      trigger: { category: ["liberation"] },
+      modifiers: [
+        { class: "concerto", value: 8 },
+        { class: "concerto", value: 10 },
+        { class: "concerto", value: 12 },
+        { class: "concerto", value: 14 },
+        { class: "concerto", value: 16 },
+      ],
+      duration: 0,
+      cooldown: 20,
+    },
+    {
+      id: "Stellar Symphony",
+      name: "Stellar Symphony",
+      trigger: { category: ["skill"] },
+      appliesTo: "all",
+      modifiers: [
+        { class: "atk", value: 0.14 },
+        { class: "atk", value: 0.175 },
+        { class: "atk", value: 0.21 },
+        { class: "atk", value: 0.245 },
+        { class: "atk", value: 0.28 },
+      ],
+      duration: 30,
     },
   ],
   Stringmaster: [
