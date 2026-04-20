@@ -1,12 +1,12 @@
 import type { BuffResolver } from "@/shared/types"
 import {
-  withArgs,
   applyBuffStatChanges,
   applyDCondFlat,
   applyStackingBuffStatChanges,
   createBuff,
   getStacksFromBuff,
-  hasCondition,
+  hasConditionByName,
+  isAbilityOrCategory,
   isBuffTarget,
   isCategory,
   isHealEvent,
@@ -131,7 +131,7 @@ const weaponResolver: Record<string, BuffResolver> = {
     onHit: (state, buff) => {
       if (isOnCooldown(state, buff)) return state
 
-      const stacksToAdd = isCategory(state, buff, "skill") ? 5 : 1
+      const stacksToAdd = isAbilityOrCategory(state, buff, "skill") ? 5 : 1
       return applyStackingBuffStatChanges(state, buff, stacksToAdd)
     },
     onExpire: (state, buff) => {
@@ -141,7 +141,7 @@ const weaponResolver: Record<string, BuffResolver> = {
   "Blazing Brilliance (MAX)": {
     // TODO: make MAX conversation innate
     id: "Blazing Brilliance (MAX)",
-    triggerRules: [isBuffTarget, withArgs(hasCondition, "name")],
+    triggerRules: [isBuffTarget, hasConditionByName],
     onTrigger: (state, buff) => {
       const buffToBeConsumedId = "Blazing Brilliance (Skill)"
       return updateBuffIdentity(state, buff, buffToBeConsumedId)

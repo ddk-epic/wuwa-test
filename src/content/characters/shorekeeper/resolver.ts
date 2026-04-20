@@ -8,10 +8,10 @@ import {
   createHealProcEvent,
   getBuffById,
   getStacksFromStatReq,
-  hasCondition,
+  hasConditionById,
   isAbility,
   isBuffTarget,
-  isCategoryWithCondition,
+  isCategory,
   isOnCastEvent,
   removeBuffStatChanges,
   removeStackingBuffStatChanges,
@@ -20,7 +20,7 @@ import {
 const shorekeeperResolver: Record<string, BuffResolver> = {
   "Self Gravitation": {
     id: "Self Gravitation",
-    triggerRules: [isBuffTarget, hasCondition],
+    triggerRules: [isBuffTarget, hasConditionById],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -57,7 +57,7 @@ const shorekeeperResolver: Record<string, BuffResolver> = {
   },
   "Inner Stellarealm": {
     id: "Inner Stellarealm",
-    triggerRules: [isCategoryWithCondition, isOnCastEvent],
+    triggerRules: [isCategory, hasConditionById, isOnCastEvent],
     onTrigger: (state, buff) => {
       // copy buff duration
       const depBuffId = "Outer Stellarealm"
@@ -85,7 +85,7 @@ const shorekeeperResolver: Record<string, BuffResolver> = {
   },
   "Supernal Stellarealm": {
     id: "Supernal Stellarealm",
-    triggerRules: [isCategoryWithCondition, isOnCastEvent],
+    triggerRules: [isCategory, hasConditionById, isOnCastEvent],
     onTrigger: (state, buff) => {
       // create buff
       let newState = createBuff(state, buff)

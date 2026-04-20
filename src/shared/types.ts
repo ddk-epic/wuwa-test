@@ -228,7 +228,7 @@ export type StateContext = {
 
 export type BuffResolver = {
   id: string
-  triggerRules: ((state: StateContext, buff: BuffDefinition) => boolean)[]
+  triggerRules: ((state: StateContext, buff: BuffDefinition, triggerIndex: number) => boolean)[]
   expireRules?: ((state: StateContext, buff: BuffInstance) => boolean)[]
   onTrigger: (state: StateContext, buff: BuffDefinition) => StateContext
   onSwap?: (state: StateContext, buff: BuffDefinition) => StateContext

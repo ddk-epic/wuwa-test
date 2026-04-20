@@ -5,13 +5,15 @@ import {
   applyDCondFlat,
   createBuff,
   createBuffNext,
+  hasConditionByName,
   isAbility,
   isBuffTarget,
+  isCategory,
   isIndex,
+  isOnCastEvent,
   isOnHitEvent,
   removeBuffStatChanges,
   removeCondition,
-  isCategoryWithCondition,
 } from "@/simulation/helper"
 
 const echoResolver: Record<string, BuffResolver> = {
@@ -68,16 +70,16 @@ const echoResolver: Record<string, BuffResolver> = {
       return applyDCondFlat(state, buff)
     },
   },
-  "Impermanence Heron": {
-    id: "Impermanence Heron",
-    triggerRules: [isBuffTarget, isAbility],
+  "Impermanence Heron (Dormant)": {
+    id: "Impermanence Heron (Dormant)",
+    triggerRules: [isBuffTarget, isAbility, isOnCastEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
   },
-  "Impermanence Heron (Buff)": {
-    id: "Impermanence Heron (Buff)",
-    triggerRules: [isCategoryWithCondition],
+  "Impermanence Heron": {
+    id: "Impermanence Heron",
+    triggerRules: [isCategory, hasConditionByName],
     onTrigger: (state, buff) => {
       let newState = removeCondition(state, buff)
       return addToBuffNext(newState, buff)

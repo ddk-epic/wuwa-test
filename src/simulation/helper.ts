@@ -64,6 +64,31 @@ export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
   return (DCOND_KEYS as readonly string[]).includes(key)
 }
 
+export function shouldTrigger(
+  state: StateContext,
+  buff: BuffDefinition,
+  triggerRules: ((
+    state: StateContext,
+    buff: BuffDefinition,
+    triggerIndex: number,
+  ) => boolean)[],
+): boolean {
+  if (!triggerRules?.length) return true // if no rules, allow
+
+  for (let i = 0; i < triggerRules.length; i++) {
+    // console.log(
+    //   state.row,
+    //   buff.name,
+    //   triggerRules.map((rule) => rule(state, buff, i)),
+    // )
+    if (triggerRules.every((rule) => rule(state, buff, i))) {
+      return true
+    }
+  }
+
+  return false
+}
+
 // ============================================
 // =============== BUFF CHECKS ================
 // ============================================
@@ -93,7 +118,53 @@ export function isHealEvent(state: StateContext): boolean {
   return state.action.type === "heal"
 }
 
+// buff get
+export function getBuffById(
+  state: StateContext,
+  buffId: string,
+): BuffInstance | undefined {
+  for (const [characterId] of state.characters) {
+    const buff = state.activeBuffs.get(characterId)?.get(buffId)
+    if (buff) return buff
+  }
+
+  return state.activeBuffsGlobal.get(buffId)
+}
+
+export function getEnemyBuffById(
+  state: StateContext,
+  buffId: string,
+): BuffInstance | undefined {
+  const existing = state.activeBuffsEnemy.get(buffId)
+
+  return existing
+}
+
+export function isAbilityOrCategory(
+  state: StateContext,
+  buff: BuffDefinition,
+  target: string,
+): boolean {
+  if (!buff.trigger || buff.trigger.length === 0) return false
+
+  const ability = state.action.skill.id === target
+  const category = state.action.skill.category === target
+
+  return ability || category
+}
+
 // buff side
+export function isOnCooldown(
+  state: StateContext,
+  buff: BuffDefinition,
+): boolean {
+  const cdEndTime = state.cooldowns.get(buff.id)
+
+  if (!cdEndTime) return false
+
+  return cdEndTime >= state.time
+}
+
 export function isExpired(state: StateContext, buff: BuffInstance): boolean {
   return buff.endTime <= state.time
 }
@@ -119,147 +190,88 @@ export function isBuffGlobal(
   return buff.appliesTo === "all"
 }
 
-export function hasCondition(
+export function isIndex(
   state: StateContext,
   buff: BuffDefinition,
-  getBuffBy: "id" | "name" = "id",
   triggerIndex: number = 0,
 ): boolean {
-  if (!buff.trigger) return false
-
-  const trigger = buff.trigger[triggerIndex]
-  const condition = trigger?.condition ?? ""
-
-  if (getBuffBy === "id") {
-    const buffs = state.activeBuffs.get(state.action.characterId)
-    if (buffs && buffs.has(condition)) return true
-
-    const globalBuffs = state.activeBuffsGlobal
-    if (globalBuffs.has(condition)) return true
-  }
-
-  const buffs = state.activeBuffs.get(state.action.characterId)
-  if (buffs && [...buffs].some(([_, b]) => b.name.includes(condition)))
-    return true
-
-  const globalBuffs = state.activeBuffsGlobal
-  if ([...globalBuffs].some(([_, b]) => b.name.includes(condition))) return true
-
-  return false
+  return buff.trigger?.[triggerIndex]?.index === state.action.index
 }
 
-export function enemyCondition(
+export function isAbility(
   state: StateContext,
   buff: BuffDefinition,
-  getBuffBy: "id" | "name" = "id",
+  triggerIndex: number = 0,
 ): boolean {
-  const condition =
-    buff.trigger?.flatMap((t) =>
-      typeof t.condition === "string" ? [t.condition] : [],
-    ) ?? []
-  if (!condition) return false
-
-  if (getBuffBy === "id") {
-    const enemyBuffs = state.activeBuffsEnemy
-    if (condition.some((c) => enemyBuffs.has(c))) return true
-  }
-
-  const enemyBuffs = state.activeBuffsEnemy
-  if ([...enemyBuffs].some(([_, b]) => condition.includes(b.name))) return true
-
-  return false
-}
-
-export function isAbility(state: StateContext, buff: BuffDefinition): boolean {
-  if (!buff.trigger) return false
-
-  return buff.trigger.some((t) => state.action.skill.id === t.ability)
-}
-
-export function isAbilityWithCondition(
-  state: StateContext,
-  buff: BuffDefinition,
-): boolean {
-  if (!buff.trigger) return false
-
-  for (let i = 0; i < buff.trigger.length; i++) {
-    const condition = hasCondition(state, buff, "id", i)
-    const ability = state.action.skill.id === buff.trigger[i].ability
-
-    if (condition && ability) return true
-  }
-
-  return false
+  return buff.trigger?.[triggerIndex]?.ability === state.action.skill.id
 }
 
 export function isCategory(
   state: StateContext,
   buff: BuffDefinition,
-  target: string | "buff" = "buff",
+  triggerIndex: number = 0,
 ): boolean {
-  if (!buff.trigger) return false
-
-  if (target === "buff") {
-    return buff.trigger.some((t) => state.action.skill.category === t.category)
-  }
-
-  return state.action.skill.category === target
+  return buff.trigger?.[triggerIndex]?.category === state.action.skill.category
 }
 
-export function isCategoryWithCondition(
+export function hasConditionById(
   state: StateContext,
   buff: BuffDefinition,
+  triggerIndex: number = 0,
 ): boolean {
-  if (!buff.trigger) return false
+  const condition = buff.trigger?.[triggerIndex]?.condition ?? ""
 
-  for (let i = 0; i < buff.trigger.length; i++) {
-    const condition = hasCondition(state, buff, "id", i)
-    const category = state.action.skill.category === buff.trigger[i].category
+  const buffs = state.activeBuffs.get(state.action.characterId)
+  if (buffs && buffs.has(condition)) return true
 
-    if (condition && category) return true
-  }
+  const globalBuffs = state.activeBuffsGlobal
+  if (globalBuffs.has(condition)) return true
 
   return false
 }
 
-export function getBuffById(
-  state: StateContext,
-  buffId: string,
-): BuffInstance | undefined {
-  for (const [characterId] of state.characters) {
-    const buff = state.activeBuffs.get(characterId)?.get(buffId)
-    if (buff) return buff
-  }
-
-  return state.activeBuffsGlobal.get(buffId)
-}
-
-export function getEnemyBuffById(
-  state: StateContext,
-  buffId: string,
-): BuffInstance | undefined {
-  const existing = state.activeBuffsEnemy.get(buffId)
-
-  return existing
-}
-
-export function isIndex(state: StateContext, buff: BuffDefinition): boolean {
-  const index =
-    buff.trigger?.flatMap((t) =>
-      typeof t.index === "number" ? [t.index] : [],
-    ) ?? []
-  return index.includes(state.action.index)
-}
-
-export function isOnCooldown(
+export function hasConditionByName(
   state: StateContext,
   buff: BuffDefinition,
+  triggerIndex: number = 0,
 ): boolean {
-  const cdEndTime = state.cooldowns.get(buff.id)
+  const condition = buff.trigger?.[triggerIndex]?.condition ?? ""
 
-  if (!cdEndTime) return false
+  const buffs = state.activeBuffs.get(state.action.characterId)
+  if (buffs && [...buffs].some(([_, b]) => b.name === condition)) return true
 
-  return cdEndTime >= state.time
+  const globalBuffs = state.activeBuffsGlobal
+  if ([...globalBuffs].some(([_, b]) => b.name === condition)) return true
+
+  return false
+}
+
+export function enemyConditionById(
+  state: StateContext,
+  buff: BuffDefinition,
+  triggerIndex: number = 0,
+): boolean {
+  const condition = buff.trigger?.[triggerIndex]?.condition ?? ""
+  if (!condition) return false
+
+  const enemyBuffs = state.activeBuffsEnemy
+  if (enemyBuffs.has(condition)) return true
+
+  return false
+}
+
+export function enemyConditionByName(
+  state: StateContext,
+  buff: BuffDefinition,
+  triggerIndex: number = 0,
+): boolean {
+  const condition = buff.trigger?.[triggerIndex]?.condition ?? ""
+  if (!condition) return false
+
+  const enemyBuffs = state.activeBuffsEnemy
+  if ([...enemyBuffs].some(([_, b]) => b.name === condition)) return true
+
+  return false
 }
 
 // ============================================

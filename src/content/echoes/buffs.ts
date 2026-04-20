@@ -41,19 +41,19 @@ const echoBuffs: Record<string, BuffDefinition[]> = {
       duration: 0,
     },
     {
-      id: "Impermanence Heron",
-      name: "Impermanence Heron",
+      id: "Impermanence Heron (Dormant)",
+      name: "Impermanence Heron (Dormant)",
       trigger: [{ ability: "Impermanence Heron" }],
       modifiers: [],
       duration: 15,
     },
     {
-      id: "Impermanence Heron (Buff)",
-      name: "Impermanence Heron (Buff)",
+      id: "Impermanence Heron",
+      name: "Impermanence Heron",
       trigger: [
         {
           category: "outro",
-          condition: "Impermanence Heron",
+          condition: "Impermanence Heron (Dormant)",
         },
       ],
       modifiers: [{ class: "all", value: 0.12 }],

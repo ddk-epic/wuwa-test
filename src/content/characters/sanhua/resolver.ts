@@ -10,15 +10,15 @@ import {
   createBuffNext,
   createDamageProcEvent,
   getStacksFromBuff,
+  hasConditionById,
   hasSwapped,
   isAbility,
-  isAbilityWithCondition,
   isBuffTarget,
   isCategory,
   isOnHitEvent,
   removeBuffStatChanges,
   removeStackingBuffStatChanges,
-} from "../../../simulation/helper"
+} from "@/simulation/helper"
 
 const sanhuaResolver: Record<string, BuffResolver> = {
   Condensation: {
@@ -43,7 +43,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Avalanche (bonus)": {
     id: "Avalanche (bonus)",
-    triggerRules: [isBuffTarget, isAbilityWithCondition, isOnHitEvent],
+    triggerRules: [isBuffTarget, isAbility, hasConditionById, isOnHitEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -141,7 +141,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Blade Mastery (bonus)": {
     id: "Blade Mastery (bonus)",
-    triggerRules: [isBuffTarget, isAbilityWithCondition],
+    triggerRules: [isBuffTarget, isAbility, hasConditionById],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },

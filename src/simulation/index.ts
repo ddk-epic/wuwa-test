@@ -31,6 +31,7 @@ import {
   isExpired,
   isOnCastEvent,
   isOnHitEvent,
+  shouldTrigger,
 } from "./helper"
 import { generateWarningMessage, insertTimelineEvent } from "@/lib/helper"
 
@@ -347,16 +348,15 @@ function processEvent(
   // add triggered buffs
   for (const buff of allBuffs.values()) {
     const resolver = buffHandler[buff.id]
+
     if (!resolver) {
       console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
       continue
     }
-    const shouldTrigger = resolver?.triggerRules?.every((rule) =>
-      rule(readState, buff),
-    ) // AND rule check
-    if (!shouldTrigger) continue
 
-    newState = resolver.onTrigger(newState, buff)
+    if (shouldTrigger(readState, buff, resolver.triggerRules)) {
+      newState = resolver.onTrigger(newState, buff)
+    }
   }
 
   // evaluate buffs

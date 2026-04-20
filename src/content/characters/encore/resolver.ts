@@ -4,7 +4,7 @@ import {
   applyDCondFlat,
   applyStackingBuffStatChanges,
   createBuff,
-  hasCondition,
+  hasConditionById,
   isAbility,
   isBuffGlobal,
   isBuffTarget,
@@ -15,7 +15,7 @@ import {
   not,
   removeBuffStatChanges,
   removeStackingBuffStatChanges,
-} from "../../../simulation/helper"
+} from "@/simulation/helper"
 
 const encoreResolver: Record<string, BuffResolver> = {
   "Angry Cosmos": {
@@ -116,7 +116,7 @@ const encoreResolver: Record<string, BuffResolver> = {
   },
   "Woolies Save the World!": {
     id: "Woolies Save the World!",
-    triggerRules: [isBuffTarget, isOnHitEvent, hasCondition],
+    triggerRules: [isBuffTarget, isOnHitEvent, hasConditionById],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
