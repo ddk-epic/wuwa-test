@@ -32,8 +32,8 @@ import type {
   WEAPON_KEY,
 } from "@/shared/types"
 
-import { characterTemplate } from "@/content/registries/characters"
-import { wData } from "@/content/registries/weapons"
+import { characterTemplate } from "@/definitions/characters"
+import { wData } from "@/definitions/weapons"
 
 import { simulate } from "@/simulation"
 

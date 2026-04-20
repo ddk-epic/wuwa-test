@@ -1,5 +1,5 @@
-import { cAbilities } from "@/content/registries/characters"
-import { characterTemplate } from "@/content/registries/characters"
+import { cAbilities } from "@/definitions/characters"
+import { characterTemplate } from "@/definitions/characters"
 import echoData from "@/content/echoes/data"
 
 import type {

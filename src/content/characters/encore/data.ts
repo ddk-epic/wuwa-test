@@ -1,5 +1,5 @@
 import type { Character } from "@/shared/types"
-import { wData } from "@/content/registries/weapons"
+import { wData } from "@/definitions/weapons"
 
 const encoreData: Character = {
   id: "encore",

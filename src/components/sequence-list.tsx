@@ -13,7 +13,7 @@ import {
 } from "./ui/table"
 
 import type { Action, Result } from "@/shared/types"
-import { characterTemplate } from "@/content/registries/characters"
+import { characterTemplate } from "@/definitions/characters"
 import { COLORS, ELEMENT_COLORS } from "@/definitions/colors"
 
 interface SequenceListProps {

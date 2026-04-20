@@ -5,9 +5,9 @@ import type {
   ECHO_SET_KEY,
 } from "@/shared/types"
 
-import echoBuffs from "../echoes/buffs"
-import echoData from "../echoes/data"
-import setBuffs from "../echoes/set-buffs"
+import echoBuffs from "../content/echoes/buffs"
+import echoData from "../content/echoes/data"
+import setBuffs from "../content/echoes/set-buffs"
 
 export const eAbilities: Record<ECHO_KEY, Echo> = {
   "Inferno Rider": echoData["Inferno Rider"],

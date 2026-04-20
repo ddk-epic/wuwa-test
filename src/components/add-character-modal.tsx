@@ -19,9 +19,9 @@ import type {
 } from "@/shared/types"
 import { ELEMENT_COLORS } from "@/definitions/colors"
 import { CHARACTERS } from "@/definitions/constants"
-import { characterTemplate } from "@/content/registries/characters"
-import { eAbilities } from "@/content/registries/echoes"
-import { wData } from "@/content/registries/weapons"
+import { characterTemplate } from "@/definitions/characters"
+import { eAbilities } from "@/definitions/echoes"
+import { wData } from "@/definitions/weapons"
 
 interface AddCharacterModalProps {
   team: TeamSlot[]

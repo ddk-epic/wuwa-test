@@ -1,7 +1,7 @@
 import type { Weapon, WEAPON_KEY, WeaponBuffDefinition } from "@/shared/types"
 
-import weaponBuffs from "../weapons/buffs"
-import weaponData from "../weapons/data"
+import weaponBuffs from "../content/weapons/buffs"
+import weaponData from "../content/weapons/data"
 
 export const wData: Record<WEAPON_KEY, Weapon> = {
   "Blazing Brilliance": weaponData["Blazing Brilliance"],

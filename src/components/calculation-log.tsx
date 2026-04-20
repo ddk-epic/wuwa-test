@@ -4,7 +4,7 @@ import { Table, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 
 import type { BUFF_TYPE, CHARACTER_KEY, Result } from "@/shared/types"
 import { COLORS, ELEMENT_COLORS, STAT_COLORS } from "@/definitions/colors"
-import { characterTemplate } from "@/content/registries/characters"
+import { characterTemplate } from "@/definitions/characters"
 
 interface CalculationLogProps {
   resultTimeline: Result[]

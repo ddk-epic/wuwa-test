@@ -1,9 +1,9 @@
 import { BONUSSTAT_KEYS } from "@/definitions/constants"
 
-import { cBuffs } from "@/content/registries/characters"
-import { wBuffs } from "@/content/registries/weapons"
-import { sBuffs } from "@/content/registries/echoes"
-import { eBuffs } from "@/content/registries/echoes"
+import { cBuffs } from "@/definitions/characters"
+import { wBuffs } from "@/definitions/weapons"
+import { sBuffs } from "@/definitions/echoes"
+import { eBuffs } from "@/definitions/echoes"
 
 import { baseStatMap, getSkillLevel } from "@/shared/maps"
 import type {

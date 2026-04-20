@@ -2,15 +2,9 @@ import { describe, expect, it } from "vitest"
 
 import { CHARACTERS, ECHO, ECHO_SET, WEAPONS } from "@/definitions/constants"
 
-import {
-  cAbilities,
-  cBuffs,
-  characterTemplate,
-} from "@/content/registries/characters"
-import { eBuffs, sBuffs } from "@/content/registries/echoes"
-import { wBuffs } from "@/content/registries/weapons"
-
-import buffHandler from "@/simulation/resolver"
+import { cAbilities, cBuffs, characterTemplate } from "@/definitions/characters"
+import { eBuffs, sBuffs } from "@/definitions/echoes"
+import { wBuffs } from "@/definitions/weapons"
 
 describe("Data integrity validation", () => {
   // count
@@ -21,7 +15,7 @@ describe("Data integrity validation", () => {
 
   const abilities = Object.keys(cAbilities)
 
-  const characterData = Object.keys(characterTemplate)
+  const cData = Object.keys(characterTemplate)
 
   const buffs = {
     characters: Object.keys(cBuffs),
@@ -30,10 +24,8 @@ describe("Data integrity validation", () => {
     weapons: Object.keys(wBuffs),
   }
 
-  const resolvers = Object.keys(buffHandler)
-
   it("Characters", () => {
-    expect.soft(characterData.length).toEqual(characters)
+    expect.soft(cData.length).toEqual(characters)
   })
 
   it("Abilities", () => {
@@ -52,9 +44,4 @@ describe("Data integrity validation", () => {
   it("Buffs: weapons", () => {
     expect.soft(buffs.weapons.length).toEqual(weapons)
   })
-
-  // it("Resolvers", () => {
-  //   const all = characters + echoes + echoSets + weapons
-  //   expect.soft(resolvers.length).toEqual(all)
-  // })
 })

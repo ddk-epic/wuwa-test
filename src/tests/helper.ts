@@ -10,8 +10,8 @@ import type {
 } from "@/shared/types"
 
 import { CHARACTERS } from "@/definitions/constants"
-import { cAbilities, characterTemplate } from "@/content/registries/characters"
-import { wData } from "@/content/registries/weapons"
+import { cAbilities, characterTemplate } from "@/definitions/characters"
+import { wData } from "@/definitions/weapons"
 
 export function isCharacterKey(key: any): key is CHARACTER_KEY {
   return (CHARACTERS as readonly string[]).includes(key)
