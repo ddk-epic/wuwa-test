@@ -10,6 +10,7 @@ import {
   isAbility,
   isBuffTarget,
   isCategory,
+  isIndex,
   isOnHitEvent,
   removeBuffStatChanges,
   removeCondition,
@@ -19,7 +20,7 @@ const echoResolver: Record<string, BuffResolver> = {
   /* Fusion */
   "Inferno Rider (Fusion/Basic)": {
     id: "Inferno Rider (Fusion/Basic)",
-    triggerRules: [isBuffTarget, isAbility],
+    triggerRules: [isBuffTarget, isAbility, isIndex],
     onTrigger: (state, buff) => {
       // TODO: trigger on [hit 3]
       return createBuff(state, buff)

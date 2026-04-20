@@ -1,10 +1,3 @@
-import {
-  CATEGORY_KEYS,
-  DCOND_KEYS,
-  ELEMENT_KEYS,
-} from "../definitions/constants"
-
-import { baseStatMap, bonusToDeepen } from "../shared/maps"
 import type {
   BUFF_TYPE,
   BuffDefinition,
@@ -20,6 +13,13 @@ import type {
   StatMap,
   TimelineEvent,
 } from "../shared/types"
+import { baseStatMap, bonusToDeepen } from "../shared/maps"
+
+import {
+  CATEGORY_KEYS,
+  DCOND_KEYS,
+  ELEMENT_KEYS,
+} from "../definitions/constants"
 
 // ============================================
 // ================== UTILS ===================
@@ -211,11 +211,15 @@ export function getEnemyBuffById(
 }
 
 export function isOnCastEvent(state: StateContext): boolean {
-  return state.action.type === "cast"
+  return state.action.index === 0
 }
 
 export function isOnHitEvent(state: StateContext): boolean {
-  return state.action.type === "damage"
+  return state.action.type === "damage" && state.action.index > 0
+}
+
+export function isIndex(state: StateContext, buff: BuffDefinition): boolean {
+    return state.action.index === buff.trigger?.index
 }
 
 export function isOnCooldown(
@@ -345,6 +349,7 @@ export function addNewTimelineEvent(
   state: StateContext,
   buff: BuffDefinition,
   mod: ModifierValue,
+  index: number,
   sourceEventId: string,
 ): TimelineEvent {
   const type = mod.type ?? "damage"
@@ -353,6 +358,7 @@ export function addNewTimelineEvent(
     id: String(state.row) + type,
     characterId: buff.source ?? "encore",
     type,
+    index,
     skill: {
       id: buff.id,
       name: `Proc: ${buff.id} [${type}]`,
@@ -598,6 +604,11 @@ function applyBuffStatChangesToCharacter(
     if (modifier.resonance) newCharacter.dCond.resonance += modifier.resonance
 
     newPersonalStatMap[modifier.class] += modifier.value
+
+    // console.log(
+    //   state.row,
+    //   `newPersonalStatMap[${modifier.class}] += ${modifier.value}`,
+    // )
   }
 
   // add to the correct buff column
@@ -902,8 +913,9 @@ export function createDamageProcEvent(
 
     const sourceId = buff.sourceEventId
 
-    for (const mod of buffToBeConsumed.modifiers) {
-      const procEvent = addNewTimelineEvent(state, buff, mod, sourceId)
+    for (let i = 0; i < buffToBeConsumed.modifiers.length; i++) {
+      const mod = buffToBeConsumed.modifiers[i]
+      const procEvent = addNewTimelineEvent(state, buff, mod, i, sourceId)
 
       newQueuedEvents.push(procEvent)
     }
@@ -929,11 +941,13 @@ export function createCoordProcEvent(
 
   const newQueuedEvents: TimelineEvent[] = [...state.procQueue]
 
-  for (const mod of buff.modifiers) {
+  for (let i = 0; i < buff.modifiers.length; i++) {
+    const mod = buff.modifiers[i]
     const procEvent = addNewTimelineEvent(
       state,
       buff,
       mod,
+      i,
       sourceEventId ?? state.action.id,
     )
 
@@ -956,11 +970,13 @@ export function createHealProcEvent(
   if (!buff.appliesTo || !buff.modifiers) return state
   const newQueuedEvents: TimelineEvent[] = [...state.procQueue]
 
-  for (const mod of buff.modifiers) {
+  for (let i = 0; i < buff.modifiers.length; i++) {
+    const mod = buff.modifiers[i]
     const procEvent = addNewTimelineEvent(
       state,
       buff,
       mod,
+      i,
       sourceEventId ?? state.action.id,
     )
 

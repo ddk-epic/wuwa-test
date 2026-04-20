@@ -31,7 +31,8 @@ export type DCOND_KEY = (typeof DCOND_KEYS)[number]
 export type variant = (typeof VARIANT)[number]
 
 export type TriggerValue = {
-  type: "coord" | "heal" | "shield" // default to hit
+  type: EventType
+  index: number
   ability: string[]
   category: (SKILL_CATEGORY_KEY | "echo")[]
   condition: string[]
@@ -39,7 +40,7 @@ export type TriggerValue = {
 }
 
 // first-class event types
-export type EventType = "cast" | "damage" | "coord" | "heal" | "shield"
+export type EventType = "damage" | "coord" | "heal" | "shield"
 
 export type ModifierValue = {
   type?: EventType
@@ -138,6 +139,7 @@ export type TimelineEvent = {
   id: string
   characterId: CHARACTER_KEY
   type: EventType
+  index: number // 0: cast, 1+: event instance index
   skill: Skill
   time: number
   sourceEventId?: string
@@ -240,6 +242,7 @@ export type Result = {
   row: number
   characterId: string
   type: EventType
+  index: number
   skill: Skill
   time: number
   forte: number

@@ -171,7 +171,7 @@ function evaluateDCond(
   // resonance
   let resonance =
     newCharacter.dCond.resonance + (onCast ? (skill.onCast?.forte ?? 0) : 0)
-  if (action.type === "cast" && skill.category === "liberation") {
+  if (action.index === 0 && skill.category === "liberation") {
     newState = generateWarningMessage(state, "Resonance Energy", resonance)
 
     resonance = Math.max(rawConcerto, 0)
@@ -403,7 +403,7 @@ function processEvent(
 
 function getResult(state: StateContext): Result {
   const { row, time } = state
-  const { characterId, type, skill, sourceEventId } = state.action
+  const { characterId, type, index, skill, sourceEventId } = state.action
 
   const character = state.characters.get(characterId)
 
@@ -427,6 +427,7 @@ function getResult(state: StateContext): Result {
     row,
     characterId,
     type,
+    index,
     skill,
     time,
     forte: character?.dCond.forte ?? 0,
@@ -559,7 +560,8 @@ function getContext(
   const action: Omit<TimelineEvent, "time"> = {
     id: String(0),
     characterId: "encore",
-    type: "cast",
+    type: "damage",
+    index: 0,
     skill: {
       id: "",
       name: "",

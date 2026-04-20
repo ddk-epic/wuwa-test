@@ -197,7 +197,8 @@ export function computeEventTimeline(actionList: Action[]): TimelineEvent[] {
     const castEvent: TimelineEvent = {
       id: String(i),
       characterId,
-      type: "cast",
+      type: skill.hits[0]?.type ?? "damage",
+      index: 0,
       skill: {
         ...actionSkill,
         mv: 0,
@@ -226,6 +227,7 @@ export function computeEventTimeline(actionList: Action[]): TimelineEvent[] {
         id: `${i}-${j}`,
         characterId,
         type,
+        index: j+1,
         skill: {
           ...actionSkill,
           name: `${skill.id} [${type} ${counter}]`,
@@ -256,7 +258,8 @@ export function aggregateResult(resultTimeline: Result[]): Result[] {
   for (let i = 0; i < resultTimeline.length; i++) {
     const entry = resultTimeline[i]
 
-    if (entry.type === "cast") {
+    // cast event
+    if (entry.index === 0) {
       const parent: Result = {
         ...entry,
         row: i + 1,

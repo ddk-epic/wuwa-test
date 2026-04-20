@@ -6,7 +6,7 @@ const echoBuffs: Record<string, BuffDefinition[]> = {
     {
       id: "Inferno Rider (Fusion/Basic)",
       name: "Inferno Rider (Fusion/Basic)",
-      trigger: { ability: ["Inferno Rider"] },
+      trigger: { ability: ["Inferno Rider"], index: 3 },
       modifiers: [
         { class: "fusion", value: 0.12 },
         { class: "basic", value: 0.12 },
