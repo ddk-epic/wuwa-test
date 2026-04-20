@@ -8,7 +8,7 @@ import {
   addToBuffNext,
   createBuffNext,
   isBuffSource,
-  isHeal,
+  isHealEvent,
 } from "@/simulation/helper"
 
 const echoSetResolver: Record<string, BuffResolver> = {
@@ -84,7 +84,7 @@ const echoSetResolver: Record<string, BuffResolver> = {
   },
   "Rejuvenating Glow 5pc": {
     id: "Rejuvenating Glow 5pc",
-    triggerRules: [isHeal],
+    triggerRules: [isHealEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },

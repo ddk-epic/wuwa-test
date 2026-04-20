@@ -1,6 +1,6 @@
 import type { BuffResolver } from "@/shared/types"
 import {
-  addArgs,
+  withArgs,
   applyBuffStatChanges,
   applyDCondFlat,
   applyStackingBuffStatChanges,
@@ -9,7 +9,7 @@ import {
   hasCondition,
   isBuffTarget,
   isCategory,
-  isHeal,
+  isHealEvent,
   isOnCooldown,
   isOnField,
   isOnHitEvent,
@@ -87,7 +87,7 @@ const weaponResolver: Record<string, BuffResolver> = {
   },
   "Stellar Symphony": {
     id: "Stellar Symphony",
-    triggerRules: [isCategory, isHeal],
+    triggerRules: [isCategory, isHealEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -141,7 +141,7 @@ const weaponResolver: Record<string, BuffResolver> = {
   "Blazing Brilliance (MAX)": {
     // TODO: make MAX conversation innate
     id: "Blazing Brilliance (MAX)",
-    triggerRules: [isBuffTarget, addArgs(hasCondition, "name")],
+    triggerRules: [isBuffTarget, withArgs(hasCondition, "name")],
     onTrigger: (state, buff) => {
       const buffToBeConsumedId = "Blazing Brilliance (Skill)"
       return updateBuffIdentity(state, buff, buffToBeConsumedId)

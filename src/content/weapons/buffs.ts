@@ -18,7 +18,7 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Stellar Symphony (Concerto)",
       name: "Stellar Symphony (Concerto)",
-      trigger: { category: ["liberation"] },
+      trigger: [{ category: "liberation" }],
       modifiers: [
         { class: "concerto", value: 8 },
         { class: "concerto", value: 10 },
@@ -32,7 +32,7 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Stellar Symphony",
       name: "Stellar Symphony",
-      trigger: { category: ["skill"] },
+      trigger: [{ category: "skill" }],
       appliesTo: "all",
       modifiers: [
         { class: "atk", value: 0.14 },
@@ -60,7 +60,7 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Stringmaster (Atk)",
       name: "Stringmaster (Atk)",
-      trigger: { category: ["skill"] },
+      trigger: [{ category: "skill" }],
       modifiers: [
         { class: "atk", value: 0.12 },
         { class: "atk", value: 0.15 },
@@ -75,7 +75,7 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Stringmaster (Off-field)",
       name: "Stringmaster (Off-field)",
-      trigger: { category: ["skill"] },
+      trigger: [{ category: "skill" }],
       modifiers: [
         { class: "atk", value: 0.12 },
         { class: "atk", value: 0.15 },
@@ -92,7 +92,7 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Variation",
       name: "Variation",
-      trigger: { category: ["skill"] },
+      trigger: [{ category: "skill" }],
       modifiers: [
         { class: "concerto", value: 8 },
         { class: "concerto", value: 10 },
@@ -121,7 +121,7 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Blazing Brilliance (Skill)",
       name: "Blazing Brilliance (Skill)",
-      trigger: { ability: ["any"] },
+      trigger: [{ ability: "any" }],
       modifiers: [
         { class: "skill", value: 0.04 },
         { class: "skill", value: 0.05 },
@@ -136,7 +136,7 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Blazing Brilliance (MAX)",
       name: "Blazing Brilliance (MAX)",
-      trigger: { condition: ["Blazing Brilliance (Skill) x14"] },
+      trigger: [{ condition: "Blazing Brilliance (Skill) x14" }],
       duration: 12,
     },
   ],
@@ -156,7 +156,7 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
     {
       id: "Emerald of Genesis (Atk)",
       name: "Emerald of Genesis (Atk)",
-      trigger: { category: ["skill"] },
+      trigger: [{ category: "skill" }],
       modifiers: [
         { class: "skill", value: 0.06 },
         { class: "skill", value: 0.075 },

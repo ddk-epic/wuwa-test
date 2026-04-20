@@ -5,15 +5,24 @@ const verinaBuffs: BuffDefinition[] = [
     id: "Gift of Nature",
     name: "Gift of Nature",
     source: "verina",
-    trigger: {
-      ability: [
-        "Blossom",
-        "Starflower Blooms 1",
-        "Starflower Blooms 2",
-        "Starflower Blooms 3",
-        "Starflower Blooms Heavy",
-      ],
-    },
+    trigger: [
+      {
+        ability: "Starflower Blooms 1",
+      },
+      {
+        ability: "Starflower Blooms 2",
+      },
+      {
+        ability: "Starflower Blooms 3",
+      },
+      {
+        ability: "Starflower Blooms Heavy",
+      },
+      { ability: "Arboreal Flourish" },
+      {
+        ability: "Blossom",
+      },
+    ],
     appliesTo: "all",
     modifiers: [{ class: "atk", value: 0.2 }],
     duration: 20,
@@ -22,7 +31,7 @@ const verinaBuffs: BuffDefinition[] = [
     id: "Blossom",
     name: "Blossom",
     source: "verina",
-    trigger: { ability: ["Blossom"] },
+    trigger: [{ ability: "Blossom" }],
     appliesTo: "all",
     modifiers: [{ class: "allDeep", value: 0.15 }],
     duration: 30,
@@ -31,7 +40,7 @@ const verinaBuffs: BuffDefinition[] = [
     id: "Photosynthesis Mark",
     name: "Photosynthesis Mark",
     source: "verina",
-    trigger: { ability: ["Arboreal Flourish"] },
+    trigger: [{ ability: "Arboreal Flourish" }],
     appliesTo: "enemy",
     duration: 12,
   },
@@ -39,7 +48,7 @@ const verinaBuffs: BuffDefinition[] = [
     id: "Arboreal Flourish (Coord)",
     name: "Arboreal Flourish (Coord)",
     source: "verina",
-    trigger: { ability: ["any"], condition: ["Photosynthesis Mark"] },
+    trigger: [{ ability: "any", condition: "Photosynthesis Mark" }],
     appliesTo: "verina",
     modifiers: [
       { class: "spectro", frame: 10, value: 0.05, type: "coord" },

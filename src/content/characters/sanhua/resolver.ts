@@ -10,9 +10,9 @@ import {
   createBuffNext,
   createDamageProcEvent,
   getStacksFromBuff,
-  hasCondition,
   hasSwapped,
   isAbility,
+  isAbilityWithCondition,
   isBuffTarget,
   isCategory,
   isOnHitEvent,
@@ -43,7 +43,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Avalanche (bonus)": {
     id: "Avalanche (bonus)",
-    triggerRules: [isBuffTarget, isAbility, hasCondition, isOnHitEvent],
+    triggerRules: [isBuffTarget, isAbilityWithCondition, isOnHitEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -141,7 +141,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Blade Mastery (bonus)": {
     id: "Blade Mastery (bonus)",
-    triggerRules: [isBuffTarget, isAbility, hasCondition],
+    triggerRules: [isBuffTarget, isAbilityWithCondition],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },

@@ -1,19 +1,17 @@
 import type { BuffResolver } from "@/shared/types"
 import {
-  addArgs,
   addToBuffNext,
   applyBuffStatChanges,
   applyDCondFlat,
   createBuff,
   createBuffNext,
-  hasCondition,
   isAbility,
   isBuffTarget,
-  isCategory,
   isIndex,
   isOnHitEvent,
   removeBuffStatChanges,
   removeCondition,
+  isCategoryWithCondition,
 } from "@/simulation/helper"
 
 const echoResolver: Record<string, BuffResolver> = {
@@ -33,8 +31,8 @@ const echoResolver: Record<string, BuffResolver> = {
     },
   },
   /* Other */
-  "Fallacy of No Return (energy)": {
-    id: "Fallacy of No Return (energy)",
+  "Fallacy of No Return (Energy)": {
+    id: "Fallacy of No Return (Energy)",
     triggerRules: [isAbility],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
@@ -59,8 +57,8 @@ const echoResolver: Record<string, BuffResolver> = {
       return removeBuffStatChanges(state, buff)
     },
   },
-  "Impermanence Heron (energy)": {
-    id: "Impermanence Heron (energy)",
+  "Impermanence Heron (Energy)": {
+    id: "Impermanence Heron (Energy)",
     triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
     onTrigger: (state, buff) => {
       // TODO: trigger on [hit 3]
@@ -70,16 +68,16 @@ const echoResolver: Record<string, BuffResolver> = {
       return applyDCondFlat(state, buff)
     },
   },
-  "Impermanence Heron (Dormant)": {
-    id: "Impermanence Heron (Dormant)",
+  "Impermanence Heron": {
+    id: "Impermanence Heron",
     triggerRules: [isBuffTarget, isAbility],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
   },
-  "Impermanence Heron": {
-    id: "Impermanence Heron",
-    triggerRules: [isCategory, addArgs(hasCondition, "name")],
+  "Impermanence Heron (Buff)": {
+    id: "Impermanence Heron (Buff)",
+    triggerRules: [isCategoryWithCondition],
     onTrigger: (state, buff) => {
       let newState = removeCondition(state, buff)
       return addToBuffNext(newState, buff)

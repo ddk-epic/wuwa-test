@@ -11,7 +11,7 @@ import {
   hasCondition,
   isAbility,
   isBuffTarget,
-  isCategory,
+  isCategoryWithCondition,
   isOnCastEvent,
   removeBuffStatChanges,
   removeStackingBuffStatChanges,
@@ -57,7 +57,7 @@ const shorekeeperResolver: Record<string, BuffResolver> = {
   },
   "Inner Stellarealm": {
     id: "Inner Stellarealm",
-    triggerRules: [isCategory, hasCondition, isOnCastEvent],
+    triggerRules: [isCategoryWithCondition, isOnCastEvent],
     onTrigger: (state, buff) => {
       // copy buff duration
       const depBuffId = "Outer Stellarealm"
@@ -85,7 +85,7 @@ const shorekeeperResolver: Record<string, BuffResolver> = {
   },
   "Supernal Stellarealm": {
     id: "Supernal Stellarealm",
-    triggerRules: [isCategory, hasCondition, isOnCastEvent],
+    triggerRules: [isCategoryWithCondition, isOnCastEvent],
     onTrigger: (state, buff) => {
       // create buff
       let newState = createBuff(state, buff)

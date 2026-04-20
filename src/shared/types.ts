@@ -33,9 +33,9 @@ export type variant = (typeof VARIANT)[number]
 export type TriggerValue = {
   type: EventType
   index: number
-  ability: string[]
-  category: (SKILL_CATEGORY_KEY | "echo")[]
-  condition: string[]
+  ability: string
+  category: (SKILL_CATEGORY_KEY | "echo")
+  condition: string
   stacksToAdd: number
 }
 
@@ -62,7 +62,7 @@ export type BuffDefinition = {
   name: string
   source?: CHARACTER_KEY
   classifications?: BUFF_TYPE[] // For damage proc's
-  trigger?: Partial<TriggerValue>
+  trigger?: Partial<TriggerValue>[]
   appliesTo?: CHARACTER_KEY | "all" | "current" | "enemy"
   modifiers?: ModifierValue[]
   duration: number

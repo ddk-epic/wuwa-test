@@ -12,7 +12,7 @@ export const setBuffs: Record<ECHO_SET_KEY, BuffDefinition[]> = {
     {
       id: "Molten Rift 5pc",
       name: "Molten Rift 5pc",
-      trigger: { category: ["skill"] },
+      trigger: [{ category: "skill" }],
       modifiers: [{ class: "fusion", value: 0.3 }],
       duration: 15,
     },
@@ -28,7 +28,7 @@ export const setBuffs: Record<ECHO_SET_KEY, BuffDefinition[]> = {
     {
       id: "Moonlit Clouds 5pc",
       name: "Moonlit Clouds 5pc",
-      trigger: { category: ["outro"] },
+      trigger: [{ category: "outro" }],
       modifiers: [{ class: "atk", value: 0.225 }],
       duration: 15,
     },
@@ -43,7 +43,7 @@ export const setBuffs: Record<ECHO_SET_KEY, BuffDefinition[]> = {
     {
       id: "Rejuvenating Glow 5pc",
       name: "Rejuvenating Glow 5pc",
-      trigger: { type: "heal" },
+      trigger: [{ type: "heal" }],
       appliesTo: "all",
       modifiers: [{ class: "atk", value: 0.15 }],
       duration: 30,

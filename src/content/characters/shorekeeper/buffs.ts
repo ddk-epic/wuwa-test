@@ -5,9 +5,11 @@ const shorekeeperBuffs: BuffDefinition[] = [
     id: "Self Gravitation",
     name: "Self Gravitation",
     source: "shorekeeper",
-    trigger: {
-      condition: ["Outer Stellarealm"],
-    },
+    trigger: [
+      {
+        condition: "Outer Stellarealm",
+      },
+    ],
     appliesTo: "shorekeeper",
     modifiers: [{ class: "er", value: 0.1 }],
     duration: 30,
@@ -27,7 +29,7 @@ const shorekeeperBuffs: BuffDefinition[] = [
     id: "Binary Butterfly",
     name: "Binary Butterfly",
     source: "shorekeeper",
-    trigger: { ability: ["Binary Butterfly"] },
+    trigger: [{ ability: "Binary Butterfly" }],
     appliesTo: "all",
     modifiers: [{ class: "allDeep", value: 0.15 }],
     duration: 30,
@@ -36,7 +38,7 @@ const shorekeeperBuffs: BuffDefinition[] = [
     id: "Outer Stellarealm",
     name: "Outer Stellarealm",
     source: "shorekeeper",
-    trigger: { ability: ["End Loop"] },
+    trigger: [{ ability: "End Loop" }],
     appliesTo: "all",
     modifiers: [
       {
@@ -116,7 +118,7 @@ const shorekeeperBuffs: BuffDefinition[] = [
     id: "Inner Stellarealm",
     name: "Inner Stellarealm",
     source: "shorekeeper",
-    trigger: { category: ["intro"], condition: ["Outer Stellarealm"] },
+    trigger: [{ category: "intro", condition: "Outer Stellarealm" }],
     appliesTo: "all",
     modifiers: [
       { class: "crit", statReq: "er", stepValue: 0.002, value: 0.0001 },
@@ -129,7 +131,7 @@ const shorekeeperBuffs: BuffDefinition[] = [
     id: "Supernal Stellarealm",
     name: "Supernal Stellarealm",
     source: "shorekeeper",
-    trigger: { category: ["intro"], condition: ["Inner Stellarealm"] },
+    trigger: [{ category: "intro", condition: "Inner Stellarealm" }],
     appliesTo: "all",
     modifiers: [
       { class: "critDmg", statReq: "er", stepValue: 0.001, value: 0.0001 },
