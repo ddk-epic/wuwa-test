@@ -64,6 +64,14 @@ export function isDCondKey(key: BUFF_TYPE): key is DCOND_KEY {
   return (DCOND_KEYS as readonly string[]).includes(key)
 }
 
+export function isEventType(state: StateContext, type: EventType): boolean {
+  return state.action.type === type
+}
+
+export function isExpired(state: StateContext, buff: BuffInstance): boolean {
+  return buff.endTime <= state.time
+}
+
 export function shouldTrigger(
   state: StateContext,
   buff: BuffDefinition,
@@ -102,10 +110,6 @@ export function hasSwapped(state: StateContext): boolean {
   return state.onFieldChar !== state.prevChar
 }
 
-export function isEventType(state: StateContext, type: EventType): boolean {
-  return state.action.type === type
-}
-
 export function isOnCastEvent(state: StateContext): boolean {
   return state.action.index === 0
 }
@@ -118,7 +122,7 @@ export function isHealEvent(state: StateContext): boolean {
   return state.action.type === "heal"
 }
 
-// buff get
+// buff getters
 export function getBuffById(
   state: StateContext,
   buffId: string,
@@ -153,20 +157,15 @@ export function isAbilityOrCategory(
   return ability || category
 }
 
-// buff side
+// buff checks
 export function isOnCooldown(
   state: StateContext,
   buff: BuffDefinition,
 ): boolean {
   const cdEndTime = state.cooldowns.get(buff.id)
-
   if (!cdEndTime) return false
 
   return cdEndTime >= state.time
-}
-
-export function isExpired(state: StateContext, buff: BuffInstance): boolean {
-  return buff.endTime <= state.time
 }
 
 export function isBuffSource(
@@ -252,7 +251,6 @@ export function enemyConditionById(
   triggerIndex: number = 0,
 ): boolean {
   const condition = buff.trigger?.[triggerIndex]?.condition ?? ""
-  if (!condition) return false
 
   const enemyBuffs = state.activeBuffsEnemy
   if (enemyBuffs.has(condition)) return true
@@ -266,7 +264,6 @@ export function enemyConditionByName(
   triggerIndex: number = 0,
 ): boolean {
   const condition = buff.trigger?.[triggerIndex]?.condition ?? ""
-  if (!condition) return false
 
   const enemyBuffs = state.activeBuffsEnemy
   if ([...enemyBuffs].some(([_, b]) => b.name === condition)) return true
@@ -461,30 +458,6 @@ export function removeCondition(
   }
 
   return state
-}
-
-export function applyDCondFlat(
-  state: StateContext,
-  buff: BuffInstance,
-): StateContext {
-  if (!buff.modifiers) return state
-
-  const { characterId } = state.action
-
-  const character = state.characters.get(characterId)
-  if (!character) return state
-  const newCharacter = { ...character, dCond: { ...character.dCond } }
-
-  for (const modifier of buff.modifiers) {
-    if (isDCondKey(modifier.class)) {
-      newCharacter.dCond[modifier.class] += modifier.value
-    }
-  }
-
-  return {
-    ...state,
-    characters: new Map(state.characters).set(characterId, newCharacter),
-  }
 }
 
 export function addConsumeStacksToBuff(
@@ -892,6 +865,30 @@ export function removeStackingBuffStatChanges(
 }
 
 // other
+export function applyDCondFlat(
+  state: StateContext,
+  buff: BuffInstance,
+): StateContext {
+  if (!buff.modifiers) return state
+
+  const { characterId } = state.action
+
+  const character = state.characters.get(characterId)
+  if (!character) return state
+  const newCharacter = { ...character, dCond: { ...character.dCond } }
+
+  for (const modifier of buff.modifiers) {
+    if (isDCondKey(modifier.class)) {
+      newCharacter.dCond[modifier.class] += modifier.value
+    }
+  }
+
+  return {
+    ...state,
+    characters: new Map(state.characters).set(characterId, newCharacter),
+  }
+}
+
 export function updateBuffIdentity(
   state: StateContext,
   buff: BuffDefinition,
