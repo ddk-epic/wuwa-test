@@ -26,9 +26,9 @@ const shorekeeperAbilities: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       freezetime: 141,
       onCast: { concerto: 20 },
       hits: [
-        { frame: 1, mv: 0.0988, concerto: 0, resonance: 3.34 },
-        { frame: 2, mv: 0.0988, concerto: 0, resonance: 3.34 },
-        { frame: 3, mv: 0.0988, concerto: 0, resonance: 3.34 },
+        { frame: 1, mv: 0.0988, resonance: 3.34 },
+        { frame: 2, mv: 0.0988, resonance: 3.34 },
+        { frame: 3, mv: 0.0988, resonance: 3.34 },
       ],
       variations: {
         swap: {

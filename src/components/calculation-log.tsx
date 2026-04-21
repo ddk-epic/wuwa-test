@@ -169,7 +169,7 @@ function CalculationLog({ resultTimeline }: CalculationLogProps) {
         const healColorText = COLORS["heal"].text
         const shieldColorText = COLORS["shield"].text
 
-        const isCast = result.type === "cast"
+        const isCast = result.index === 0
         const activeBuffString = buffs.join(", ")
         const activeTeamBuffString = buffsGlobal.join(", ")
         const enemydebuffString = buffsEnemy.join(", ")

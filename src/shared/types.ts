@@ -30,6 +30,9 @@ export type BUFF_TYPE = (typeof BUFF_TYPE_KEYS)[number]
 export type DCOND_KEY = (typeof DCOND_KEYS)[number]
 export type variant = (typeof VARIANT)[number]
 
+// first-class event types
+export type EventType = "damage" | "coord" | "heal" | "shield"
+
 export type TriggerValue = {
   type: EventType
   index: number
@@ -39,16 +42,13 @@ export type TriggerValue = {
   stacksToAdd: number
 }
 
-// first-class event types
-export type EventType = "damage" | "coord" | "heal" | "shield"
-
 export type ModifierValue = {
-  type?: EventType
   class: BUFF_TYPE
+  value: number
+  type?: EventType
   statReq?: BASE_STAT
   stepValue?: number
   frame?: number
-  value: number
   flat?: number
   forte?: number
   forte2?: number

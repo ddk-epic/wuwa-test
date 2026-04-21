@@ -220,6 +220,9 @@ export function hasConditionById(
 ): boolean {
   const condition = buff.trigger?.[triggerIndex]?.condition ?? ""
 
+  const enemyBuffs = state.activeBuffsEnemy
+  if (enemyBuffs.has(condition)) return true
+
   const buffs = state.activeBuffs.get(state.action.characterId)
   if (buffs && buffs.has(condition)) return true
 
@@ -236,37 +239,14 @@ export function hasConditionByName(
 ): boolean {
   const condition = buff.trigger?.[triggerIndex]?.condition ?? ""
 
+  const enemyBuffs = state.activeBuffsEnemy
+  if ([...enemyBuffs].some(([_, b]) => b.name === condition)) return true
+
   const buffs = state.activeBuffs.get(state.action.characterId)
   if (buffs && [...buffs].some(([_, b]) => b.name === condition)) return true
 
   const globalBuffs = state.activeBuffsGlobal
   if ([...globalBuffs].some(([_, b]) => b.name === condition)) return true
-
-  return false
-}
-
-export function enemyConditionById(
-  state: StateContext,
-  buff: BuffDefinition,
-  triggerIndex: number = 0,
-): boolean {
-  const condition = buff.trigger?.[triggerIndex]?.condition ?? ""
-
-  const enemyBuffs = state.activeBuffsEnemy
-  if (enemyBuffs.has(condition)) return true
-
-  return false
-}
-
-export function enemyConditionByName(
-  state: StateContext,
-  buff: BuffDefinition,
-  triggerIndex: number = 0,
-): boolean {
-  const condition = buff.trigger?.[triggerIndex]?.condition ?? ""
-
-  const enemyBuffs = state.activeBuffsEnemy
-  if ([...enemyBuffs].some(([_, b]) => b.name === condition)) return true
 
   return false
 }

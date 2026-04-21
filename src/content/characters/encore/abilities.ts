@@ -9,7 +9,7 @@ const encoreAbilities: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       classifications: ["fusion", "intro"],
       frames: 92,
       onCast: { concerto: 10 },
-      hits: [{ frame: 60, mv: 1, concerto: 10, resonance: 10 }],
+      hits: [{ frame: 60, mv: 1, resonance: 10 }],
     },
   },
   outro: {

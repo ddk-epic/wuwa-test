@@ -6,8 +6,8 @@ import {
   createBuffNext,
   createCoordProcEvent,
   createEnemyDebuff,
-  enemyConditionById,
   getEnemyBuffById,
+  hasConditionById,
   isAbility,
   isOnCastEvent,
   isOnCooldown,
@@ -55,7 +55,7 @@ const verinaResolver: Record<string, BuffResolver> = {
   },
   "Arboreal Flourish (Coord)": {
     id: "Arboreal Flourish (Coord)",
-    triggerRules: [enemyConditionById, isOnHitEvent, not(isOnCooldown)],
+    triggerRules: [hasConditionById, isOnHitEvent, not(isOnCooldown)],
     onTrigger: (state, buff) => {
       const buffId = "Photosynthesis Mark"
       const parentId = getEnemyBuffById(state, buffId)?.sourceEventId
