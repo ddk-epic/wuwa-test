@@ -11,7 +11,7 @@ import {
   isCategory,
   isOnCastEvent,
   isOnCooldown,
-  isOnHitEvent,
+  isDamageEvent,
   not,
   removeBuffStatChanges,
   removeStackingBuffStatChanges,
@@ -53,7 +53,7 @@ const encoreResolver: Record<string, BuffResolver> = {
   },
   "Wooly's Fairy Tale": {
     id: "Wooly's Fairy Tale",
-    triggerRules: [isBuffTarget, isCategory, isOnHitEvent],
+    triggerRules: [isBuffTarget, isCategory, isDamageEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -66,7 +66,7 @@ const encoreResolver: Record<string, BuffResolver> = {
   },
   "Sheep-counting Lullaby": {
     id: "Sheep-counting Lullaby",
-    triggerRules: [isBuffTarget, isCategory, isOnHitEvent, not(isOnCooldown)],
+    triggerRules: [isBuffTarget, isCategory, isDamageEvent, not(isOnCooldown)],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -116,7 +116,7 @@ const encoreResolver: Record<string, BuffResolver> = {
   },
   "Woolies Save the World!": {
     id: "Woolies Save the World!",
-    triggerRules: [isBuffTarget, isOnHitEvent, hasConditionById],
+    triggerRules: [isBuffTarget, isDamageEvent, hasConditionById],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },

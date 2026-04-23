@@ -4,42 +4,67 @@ const shorekeeperBuffs: BuffDefinition[] = [
   {
     id: "Self Gravitation",
     name: "Self Gravitation",
-    source: "shorekeeper",
-    trigger: [
+    duration: 30,
+    triggers: [
       {
         condition: "Outer Stellarealm",
       },
     ],
-    appliesTo: "shorekeeper",
+    target: { source: "shorekeeper", appliesTo: "shorekeeper" },
     modifiers: [{ class: "er", value: 0.1 }],
-    duration: 30,
+    // rules
+    onTrigger: {
+      conditions: ["isBuffTarget", "hasConditionById"],
+      effects: ["createBuff"],
+    },
+    onEvent: {
+      effects: ["applyBuffStatChanges"],
+    },
+    onExpire: {
+      effects: ["removeBuffStatChanges"],
+    },
   },
   // {
   //   id: "Self Gravitation (rover)",
   //   name: "Self Gravitation (rover)",
-  //   source: "shorekeeper",
-  //   trigger: {
-  //     condition: ["Outer Stellarealm", " Inner Stellarealm", "Supernal Stellarealm"],
-  //   },
-  //   appliesTo: "rover",
-  //   modifiers: [{ class: "er", value: 0.1 }],
   //   duration: 0,
+  //   triggers: [
+  //     {
+  //       condition: "Outer Stellarealm",
+  //     },
+  //   ],
+  //   target: { source: "shorekeeper", appliesTo: "rover" },
+  //   modifiers: [{ class: "er", value: 0.1 }],
+  //   // rules
   // },
   {
     id: "Binary Butterfly",
     name: "Binary Butterfly",
-    source: "shorekeeper",
-    trigger: [{ ability: "Binary Butterfly" }],
-    appliesTo: "all",
-    modifiers: [{ class: "allDeep", value: 0.15 }],
     duration: 30,
+    triggers: [{ ability: "Binary Butterfly" }],
+    target: { source: "shorekeeper", appliesTo: "all" },
+    modifiers: [{ class: "allDeep", value: 0.15 }],
+    // rules
+    onTrigger: {
+      conditions: ["isAbility"],
+      effects: ["addToBuffNext"],
+    },
+    onSwap: {
+      effects: ["createBuffNext"],
+    },
+    onEvent: {
+      effects: ["applyBuffStatChanges"],
+    },
+    onExpire: {
+      effects: ["removeBuffStatChanges"],
+    },
   },
   {
     id: "Outer Stellarealm",
     name: "Outer Stellarealm",
-    source: "shorekeeper",
-    trigger: [{ ability: "End Loop" }],
-    appliesTo: "all",
+    duration: 30,
+    triggers: [{ ability: "End Loop" }],
+    target: { source: "shorekeeper", appliesTo: "all" },
     modifiers: [
       {
         class: "heal",
@@ -112,33 +137,57 @@ const shorekeeperBuffs: BuffDefinition[] = [
         type: "heal",
       },
     ],
-    duration: 30,
+    // rules
+    onTrigger: {
+      conditions: ["isAbility"],
+      effects: ["createBuff", "createHealProcEvent"],
+    },
   },
   {
     id: "Inner Stellarealm",
     name: "Inner Stellarealm",
-    source: "shorekeeper",
-    trigger: [{ category: "intro", condition: "Outer Stellarealm" }],
-    appliesTo: "all",
+    duration: 30,
+    triggers: [{ category: "intro", condition: "Outer Stellarealm" }],
+    target: { source: "shorekeeper", appliesTo: "all" },
     modifiers: [
       { class: "crit", statReq: "er", stepValue: 0.002, value: 0.0001 },
     ],
     stackLimit: 1250,
     stackInterval: 0,
-    duration: 30,
+    // rules
+    onTrigger: {
+      conditions: ["isCategory", "hasConditionById"],
+      effects: ["createBuff"],
+    },
+    onEvent: {
+      effects: ["applyBuffStatChanges"],
+    },
+    onExpire: {
+      effects: ["removeBuffStatChanges"],
+    },
   },
   {
     id: "Supernal Stellarealm",
     name: "Supernal Stellarealm",
-    source: "shorekeeper",
-    trigger: [{ category: "intro", condition: "Inner Stellarealm" }],
-    appliesTo: "all",
+    duration: 30,
+    triggers: [{ category: "intro", condition: "Inner Stellarealm" }],
+    target: { source: "shorekeeper", appliesTo: "all" },
     modifiers: [
       { class: "critDmg", statReq: "er", stepValue: 0.001, value: 0.0001 },
     ],
     stackLimit: 2500,
     stackInterval: 0,
-    duration: 30,
+    // rules
+    onTrigger: {
+      conditions: ["isCategory", "hasConditionById"],
+      effects: ["createBuff"],
+    },
+    onEvent: {
+      effects: ["applyBuffStatChanges"],
+    },
+    onExpire: {
+      effects: ["removeBuffStatChanges"],
+    },
   },
 ]
 

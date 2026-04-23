@@ -144,7 +144,7 @@ const shorekeeperAbilities: Record<SKILL_CATEGORY_KEY, SkillSequence> = {
       frames: 180 + 2,
       freezetime: 180,
       cooldown: 25,
-      hits: [], // TODO: add healing hits
+      hits: [],
     },
   },
   forte: {

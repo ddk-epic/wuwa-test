@@ -14,6 +14,11 @@ import {
   type WEAPON_STATS,
   type WEAPONS,
 } from "@/definitions/constants"
+import type {
+  buffCheckKeys,
+  buffCreationKeys,
+  buffMutationKeys,
+} from "@/simulation/resolver"
 
 export type CHARACTER_KEY = (typeof CHARACTERS)[number]
 export type ECHO_KEY = (typeof ECHO)[number]
@@ -30,19 +35,29 @@ export type BUFF_TYPE = (typeof BUFF_TYPE_KEYS)[number]
 export type DCOND_KEY = (typeof DCOND_KEYS)[number]
 export type variant = (typeof VARIANT)[number]
 
+export type CHECK_KEYS = (typeof buffCheckKeys)[number]
+export type CREATE_KEYS = (typeof buffCreationKeys)[number]
+
+export type MUTATE_KEYS = (typeof buffMutationKeys)[number]
+
 // first-class event types
 export type EventType = "damage" | "coord" | "heal" | "shield"
 
-export type TriggerValue = {
+export type TriggerData = {
   type: EventType
   index: number
   ability: string
-  category: (SKILL_CATEGORY_KEY | "echo")
+  category: SKILL_CATEGORY_KEY | "echo"
   condition: string
   stacksToAdd: number
 }
 
-export type ModifierValue = {
+export type TargetData = {
+  source: CHARACTER_KEY
+  appliesTo: CHARACTER_KEY | "all" | "enemy"
+}
+
+export type ModifierData = {
   class: BUFF_TYPE
   value: number
   type?: EventType
@@ -60,24 +75,43 @@ export type ModifierValue = {
 export type BuffDefinition = {
   id: string
   name: string
-  source?: CHARACTER_KEY
-  classifications?: BUFF_TYPE[] // For damage proc's
-  trigger?: Partial<TriggerValue>[]
-  appliesTo?: CHARACTER_KEY | "all" | "current" | "enemy"
-  modifiers?: ModifierValue[]
   duration: number
   cooldown?: number
+  classifications?: BUFF_TYPE[] // For damage proc's
+  triggers?: Partial<TriggerData>[]
+  target?: Partial<TargetData>
+  modifiers?: ModifierData[]
   stackLimit?: number
   stackInterval?: number
   sequenceReq?: number
+  sourceEventId?: string
+  //
+  dep?: Record<string, number> // dependency id array
+  onTrigger: {
+    conditions?: CHECK_KEYS[]
+    effects: CREATE_KEYS[]
+  }
+  onSwap?: {
+    conditions?: CHECK_KEYS[]
+    effects: CREATE_KEYS[]
+  }
+  onEvent?: {
+    conditions?: CHECK_KEYS[]
+    effects: MUTATE_KEYS[]
+  }
+  onExpire?: {
+    conditions?: CHECK_KEYS[]
+    effects: MUTATE_KEYS[]
+  }
 }
+
 export type WeaponBuffDefinition = Omit<BuffDefinition, "sequenceReq">
 
 export type BuffInstance = {
   stacks?: number
+  stacksToAdd?: number
   endTime: number
   usesLeft: number
-  sourceEventId: string
 } & BuffDefinition
 
 type EventValue = {
@@ -228,7 +262,11 @@ export type StateContext = {
 
 export type BuffResolver = {
   id: string
-  triggerRules: ((state: StateContext, buff: BuffDefinition, triggerIndex: number) => boolean)[]
+  triggerRules: ((
+    state: StateContext,
+    buff: BuffDefinition,
+    triggerIndex: number,
+  ) => boolean)[]
   expireRules?: ((state: StateContext, buff: BuffInstance) => boolean)[]
   onTrigger: (state: StateContext, buff: BuffDefinition) => StateContext
   onSwap?: (state: StateContext, buff: BuffDefinition) => StateContext

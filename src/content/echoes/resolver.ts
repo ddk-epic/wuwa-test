@@ -11,7 +11,7 @@ import {
   isCategory,
   isIndex,
   isOnCastEvent,
-  isOnHitEvent,
+  isDamageEvent,
   removeBuffStatChanges,
   removeCondition,
 } from "@/simulation/helper"
@@ -22,7 +22,6 @@ const echoResolver: Record<string, BuffResolver> = {
     id: "Inferno Rider (Fusion/Basic)",
     triggerRules: [isBuffTarget, isAbility, isIndex],
     onTrigger: (state, buff) => {
-      // TODO: trigger on [hit 3]
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {
@@ -61,9 +60,8 @@ const echoResolver: Record<string, BuffResolver> = {
   },
   "Impermanence Heron (Energy)": {
     id: "Impermanence Heron (Energy)",
-    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
+    triggerRules: [isBuffTarget, isAbility, isDamageEvent],
     onTrigger: (state, buff) => {
-      // TODO: trigger on [hit 3]
       return createBuff(state, buff)
     },
     onHit: (state, buff) => {

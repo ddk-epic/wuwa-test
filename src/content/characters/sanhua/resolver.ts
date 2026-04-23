@@ -1,6 +1,6 @@
 import type { BuffResolver } from "@/shared/types"
 import {
-  addConsumeStacksToBuff,
+  addDependencyStacksToBuff,
   addToBuffDeferred,
   addToBuffNext,
   applyBuffStatChanges,
@@ -15,7 +15,7 @@ import {
   isAbility,
   isBuffTarget,
   isCategory,
-  isOnHitEvent,
+  isDamageEvent,
   removeBuffStatChanges,
   removeStackingBuffStatChanges,
 } from "@/simulation/helper"
@@ -43,7 +43,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Avalanche (bonus)": {
     id: "Avalanche (bonus)",
-    triggerRules: [isBuffTarget, isAbility, hasConditionById, isOnHitEvent],
+    triggerRules: [isBuffTarget, isAbility, hasConditionById, isDamageEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -73,7 +73,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Ice Prism": {
     id: "Ice Prism",
-    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
+    triggerRules: [isBuffTarget, isAbility, isDamageEvent],
     onTrigger: (state, buff) => {
       let newState = createBuff(state, buff)
       return addToBuffDeferred(newState, buff)
@@ -81,7 +81,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Ice Thorn": {
     id: "Ice Thorn",
-    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
+    triggerRules: [isBuffTarget, isAbility, isDamageEvent],
     onTrigger: (state, buff) => {
       let newState = createBuff(state, buff)
       return addToBuffDeferred(newState, buff)
@@ -89,7 +89,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Ice Glacier": {
     id: "Ice Glacier",
-    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
+    triggerRules: [isBuffTarget, isAbility, isDamageEvent],
     onTrigger: (state, buff) => {
       let newState = createBuff(state, buff)
       return addToBuffDeferred(newState, buff)
@@ -97,7 +97,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   Detonate: {
     id: "Detonate",
-    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
+    triggerRules: [isBuffTarget, isAbility, isDamageEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -105,13 +105,13 @@ const sanhuaResolver: Record<string, BuffResolver> = {
       const consumeById = ["Ice Prism", "Ice Thorn", "Ice Glacier"]
       const consumeByS6 = ["Ice Prism", "Ice Glacier"]
 
-      let newState = addConsumeStacksToBuff(state, buff, consumeByS6)
+      let newState = addDependencyStacksToBuff(state, buff, consumeByS6)
       return createDamageProcEvent(newState, buff, consumeById)
     },
   },
   "Solitude's Embrace": {
     id: "Solitude's Embrace",
-    triggerRules: [isBuffTarget, isAbility, isOnHitEvent],
+    triggerRules: [isBuffTarget, isAbility, isDamageEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -167,7 +167,7 @@ const sanhuaResolver: Record<string, BuffResolver> = {
   },
   "Daybreak Radiance": {
     id: "Daybreak Radiance",
-    triggerRules: [isAbility, isOnHitEvent],
+    triggerRules: [isAbility, isDamageEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },

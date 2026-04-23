@@ -14,11 +14,22 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
         { class: "hp", value: 0.24 },
       ],
       duration: 99999,
+      // rules
+      onTrigger: {
+        conditions: ["isBuffTarget"],
+        effects: ["createBuff"],
+      },
+      onEvent: {
+        effects: ["applyBuffStatChanges"],
+      },
+      onExpire: {
+        effects: ["removeBuffStatChanges"],
+      },
     },
     {
       id: "Stellar Symphony (Concerto)",
       name: "Stellar Symphony (Concerto)",
-      trigger: [{ category: "liberation" }],
+      triggers: [{ category: "liberation" }],
       modifiers: [
         { class: "concerto", value: 8 },
         { class: "concerto", value: 10 },
@@ -28,12 +39,20 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
       ],
       duration: 0,
       cooldown: 20,
+      // rules
+      onTrigger: {
+        conditions: ["isBuffTarget", "isCategory", "isNotOnCooldown"],
+        effects: ["createBuff"],
+      },
+      onEvent: {
+        effects: ["applyDCondFlat"],
+      },
     },
     {
       id: "Stellar Symphony",
       name: "Stellar Symphony",
-      trigger: [{ category: "skill" }],
-      appliesTo: "all",
+      triggers: [{ category: "skill" }],
+      target: { appliesTo: "all" },
       modifiers: [
         { class: "atk", value: 0.14 },
         { class: "atk", value: 0.175 },
@@ -42,6 +61,17 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
         { class: "atk", value: 0.28 },
       ],
       duration: 30,
+      // rules
+      onTrigger: {
+        conditions: ["isCategory", "isHealEvent"],
+        effects: ["createBuff"],
+      },
+      onEvent: {
+        effects: ["applyBuffStatChanges"],
+      },
+      onExpire: {
+        effects: ["removeBuffStatChanges"],
+      },
     },
   ],
   Stringmaster: [
@@ -56,11 +86,22 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
         { class: "allEle", value: 0.24 },
       ],
       duration: 99999,
+      // rules
+      onTrigger: {
+        conditions: ["isBuffTarget"],
+        effects: ["createBuff"],
+      },
+      onEvent: {
+        effects: ["applyBuffStatChanges"],
+      },
+      onExpire: {
+        effects: ["removeBuffStatChanges"],
+      },
     },
     {
       id: "Stringmaster (Atk)",
       name: "Stringmaster (Atk)",
-      trigger: [{ category: "skill" }],
+      triggers: [{ category: "skill" }],
       modifiers: [
         { class: "atk", value: 0.12 },
         { class: "atk", value: 0.15 },
@@ -71,11 +112,18 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
       stackLimit: 2,
       stackInterval: 0.5,
       duration: 5,
+      // rules
+      onTrigger: {
+        conditions: ["isBuffTarget", "isCategory", "isDamageEvent"],
+        effects: ["createBuff"],
+      },
+      onEvent: { effects: ["applyStackingBuffStatChanges"] },
+      onExpire: { effects: ["removeStackingBuffStatChanges"] },
     },
     {
       id: "Stringmaster (Off-field)",
       name: "Stringmaster (Off-field)",
-      trigger: [{ category: "skill" }],
+      triggers: [{ category: "skill" }],
       modifiers: [
         { class: "atk", value: 0.12 },
         { class: "atk", value: 0.15 },
@@ -86,13 +134,21 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
       stackLimit: 2,
       stackInterval: 0,
       duration: 0.5,
+      // rules
+      dep: { "Stringmaster (Atk)": 1 },
+      onTrigger: {
+        conditions: ["isBuffTarget", "isCategory", "isOffField"],
+        effects: ["createBuff"],
+      },
+      onEvent: { effects: ["addStacksToBuff", "applyStackingBuffStatChanges"] },
+      onExpire: { effects: ["removeStackingBuffStatChanges"] },
     },
   ],
   Variation: [
     {
       id: "Variation",
       name: "Variation",
-      trigger: [{ category: "skill" }],
+      triggers: [{ category: "skill" }],
       modifiers: [
         { class: "concerto", value: 8 },
         { class: "concerto", value: 10 },
@@ -102,6 +158,12 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
       ],
       duration: 0,
       cooldown: 20,
+      // rules
+      onTrigger: {
+        conditions: ["isBuffTarget", "isCategory", "isNotOnCooldown"],
+        effects: ["createBuff"],
+      },
+      onEvent: { effects: ["applyDCondFlat"] },
     },
   ],
   /* Swords */
@@ -117,11 +179,15 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
         { class: "atk", value: 0.24 },
       ],
       duration: 99999,
+      // rules
+      onTrigger: { conditions: ["isBuffTarget"], effects: ["createBuff"] },
+      onEvent: { effects: ["applyBuffStatChanges"] },
+      onExpire: { effects: ["removeBuffStatChanges"] },
     },
     {
       id: "Blazing Brilliance (Skill)",
       name: "Blazing Brilliance (Skill)",
-      trigger: [{ ability: "any" }],
+      triggers: [{ ability: "any" }],
       modifiers: [
         { class: "skill", value: 0.04 },
         { class: "skill", value: 0.05 },
@@ -132,13 +198,29 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
       stackLimit: 14,
       stackInterval: 0.5,
       duration: 999,
+      // rules
+      dep: { skill: 5 },
+      onTrigger: {
+        conditions: ["isBuffTarget", "isNotOnCooldown", "isDamageEvent"],
+        effects: ["createBuff"],
+      },
+      onEvent: {
+        conditions: ["isNotOnCooldown", "isDamageEvent"],
+        effects: ["addStacksToBuff", "applyStackingBuffStatChanges"],
+      },
+      onExpire: { effects: ["removeStackingBuffStatChanges"] },
     },
-    {
-      id: "Blazing Brilliance (MAX)",
-      name: "Blazing Brilliance (MAX)",
-      trigger: [{ condition: "Blazing Brilliance (Skill) x14" }],
-      duration: 12,
-    },
+    // {
+    //   id: "Blazing Brilliance (MAX)",
+    //   name: "Blazing Brilliance (MAX)",
+    //   triggers: [{ condition: "Blazing Brilliance (Skill) x14" }],
+    //   duration: 12,
+    //   // rules
+    //   triggerRules: ["isBuffTarget", "hasConditionByName"],
+    //   onTrigger: ["updateBuffIdentity"],
+    //   onIndex: { 0: ["applyBuffStatChanges"] ,
+    //   onExpire: ["removeStackingBuffStatChanges"],
+    // },
   ],
   "Emerald of Genesis": [
     {
@@ -152,11 +234,15 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
         { class: "er", value: 0.256 },
       ],
       duration: 99999,
+      // rules
+      onTrigger: { conditions: ["isBuffTarget"], effects: ["createBuff"] },
+      onEvent: { effects: ["applyBuffStatChanges"] },
+      onExpire: { effects: ["removeBuffStatChanges"] },
     },
     {
       id: "Emerald of Genesis (Atk)",
       name: "Emerald of Genesis (Atk)",
-      trigger: [{ category: "skill" }],
+      triggers: [{ category: "skill" }],
       modifiers: [
         { class: "skill", value: 0.06 },
         { class: "skill", value: 0.075 },
@@ -167,6 +253,13 @@ const weaponBuffData: Record<string, WeaponBuffDefinition[]> = {
       stackLimit: 2,
       stackInterval: 0,
       duration: 10,
+      // rules
+      onTrigger: {
+        conditions: ["isBuffTarget", "isCategory"],
+        effects: ["createBuff"],
+      },
+      onEvent: { effects: ["applyStackingBuffStatChanges"] },
+      onExpire: { effects: ["removeStackingBuffStatChanges"] },
     },
   ],
 }

@@ -6,12 +6,19 @@ const echoBuffs: Record<string, BuffDefinition[]> = {
     {
       id: "Inferno Rider (Fusion/Basic)",
       name: "Inferno Rider (Fusion/Basic)",
-      trigger: [{ ability: "Inferno Rider", index: 3 }],
+      duration: 15,
+      triggers: [{ ability: "Inferno Rider", index: 3 }],
       modifiers: [
         { class: "fusion", value: 0.12 },
         { class: "basic", value: 0.12 },
       ],
-      duration: 15,
+      // rules
+      onTrigger: {
+        conditions: ["isBuffTarget", "isAbility", "isIndex"],
+        effects: ["createBuff"],
+      },
+      onEvent: { effects: ["applyBuffStatChanges"] },
+      onExpire: { effects: ["removeBuffStatChanges"] },
     },
   ],
   /* Other */
@@ -19,45 +26,77 @@ const echoBuffs: Record<string, BuffDefinition[]> = {
     {
       id: "Fallacy of No Return (Energy)",
       name: "Fallacy of No Return (Energy)",
-      trigger: [{ ability: "Fallacy of No Return" }],
-      modifiers: [{ class: "er", value: 0.1 }],
       duration: 20,
+      triggers: [{ ability: "Fallacy of No Return" }],
+      modifiers: [{ class: "er", value: 0.1 }],
+      // rules
+      onTrigger: {
+        conditions: ["isAbility"],
+        effects: ["createBuff"],
+      },
+      onEvent: { effects: ["applyBuffStatChanges"] },
+      onExpire: { effects: ["removeBuffStatChanges"] },
     },
     {
       id: "Fallacy of No Return",
       name: "Fallacy of No Return",
-      trigger: [{ ability: "Fallacy of No Return" }],
-      appliesTo: "all",
-      modifiers: [{ class: "atk", value: 0.1 }],
       duration: 20,
+      triggers: [{ ability: "Fallacy of No Return" }],
+      target: { appliesTo: "all" },
+      modifiers: [{ class: "atk", value: 0.1 }],
+      // rules
+      onTrigger: { conditions: ["isAbility"], effects: ["createBuff"] },
+      onEvent: { effects: ["applyBuffStatChanges"] },
+      onExpire: { effects: ["removeBuffStatChanges"] },
     },
   ],
   "Impermanence Heron": [
     {
       id: "Impermanence Heron (Energy)",
       name: "Impermanence Heron (Energy)",
-      trigger: [{ ability: "Impermanence Heron" }],
-      modifiers: [{ class: "er", value: 10 }],
       duration: 0,
+      triggers: [{ ability: "Impermanence Heron" }],
+      modifiers: [{ class: "er", value: 10 }],
+      // rules
+      onTrigger: {
+        conditions: ["isCategory", "hasConditionById"],
+        effects: ["createBuff"],
+      },
+      onEvent: {
+        effects: ["applyDCondFlat"],
+      },
     },
     {
       id: "Impermanence Heron (Dormant)",
       name: "Impermanence Heron (Dormant)",
-      trigger: [{ ability: "Impermanence Heron" }],
-      modifiers: [],
       duration: 15,
+      triggers: [{ ability: "Impermanence Heron" }],
+      modifiers: [],
+      // rules
+      onTrigger: {
+        conditions: ["isBuffTarget", "isAbility"],
+        effects: ["createBuff"],
+      },
     },
     {
       id: "Impermanence Heron",
       name: "Impermanence Heron",
-      trigger: [
+      duration: 15,
+      triggers: [
         {
           category: "outro",
           condition: "Impermanence Heron (Dormant)",
         },
       ],
       modifiers: [{ class: "all", value: 0.12 }],
-      duration: 15,
+      // rules
+      onTrigger: {
+        conditions: ["isCategory", "hasConditionByName"],
+        effects: ["addToBuffNext", "removeCondition"],
+      },
+      onSwap: { effects: ["createBuffNext"] },
+      onEvent: { effects: ["applyBuffStatChanges"] },
+      onExpire: { effects: ["removeBuffStatChanges"] },
     },
   ],
 }

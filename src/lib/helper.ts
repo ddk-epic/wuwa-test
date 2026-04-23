@@ -39,7 +39,6 @@ export function computeBaseCharacter(
   const bonusMultiplier =
     base.bonus2 === "crit" ? 2 / 3 : base.bonus2 === "critDmg" ? 4 / 3 : 1
   bonusStats[base.bonus1] += 0.12
-  // TODO: implement healing bonus
   if (base.bonus2 !== "heal") {
     bonusStats[base.bonus2] += 0.12 * bonusMultiplier
   }
@@ -239,7 +238,7 @@ export function computeEventTimeline(actionList: Action[]): TimelineEvent[] {
           resonance: hit.resonance ?? 0,
         },
         time: time + hitFrame,
-        sourceEventId: String(i),
+        sourceEventId: castEvent.id,
       }
 
       timeline.push(subEvent)

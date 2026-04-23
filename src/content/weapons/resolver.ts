@@ -12,7 +12,7 @@ import {
   isHealEvent,
   isOnCooldown,
   isOnField,
-  isOnHitEvent,
+  isDamageEvent,
   not,
   removeBuffStatChanges,
   removeStackingBuffStatChanges,
@@ -36,7 +36,7 @@ const weaponResolver: Record<string, BuffResolver> = {
   },
   "Stringmaster (Atk)": {
     id: "Stringmaster (Atk)",
-    triggerRules: [isBuffTarget, isCategory, isOnHitEvent],
+    triggerRules: [isBuffTarget, isCategory, isDamageEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -49,7 +49,7 @@ const weaponResolver: Record<string, BuffResolver> = {
   },
   "Stringmaster (Off-field)": {
     id: "Stringmaster (Off-field)",
-    triggerRules: [isBuffTarget, isCategory, not(isOnField), isOnHitEvent],
+    triggerRules: [isBuffTarget, isCategory, not(isOnField), isDamageEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -124,7 +124,7 @@ const weaponResolver: Record<string, BuffResolver> = {
   },
   "Blazing Brilliance (Skill)": {
     id: "Blazing Brilliance (Skill)",
-    triggerRules: [isBuffTarget, not(isOnCooldown), isOnHitEvent],
+    triggerRules: [isBuffTarget, not(isOnCooldown), isDamageEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },
@@ -165,7 +165,7 @@ const weaponResolver: Record<string, BuffResolver> = {
   },
   "Emerald of Genesis (Atk)": {
     id: "Emerald of Genesis (Atk)",
-    triggerRules: [isBuffTarget, isCategory, isOnHitEvent],
+    triggerRules: [isBuffTarget, isCategory, isDamageEvent],
     onTrigger: (state, buff) => {
       return createBuff(state, buff)
     },

@@ -19,7 +19,11 @@ import type {
   BONUSSTAT_KEY,
 } from "@/shared/types"
 
-import buffHandler from "@/simulation/resolver"
+import {
+  buffCheckRegistry,
+  buffCreationRegistry,
+  buffMutationRegistry,
+} from "@/simulation/resolver"
 
 import {
   applyCooldown,
@@ -30,66 +34,96 @@ import {
   isEventType,
   isExpired,
   isOnCastEvent,
-  isOnHitEvent,
+  shouldEvaluate,
   shouldTrigger,
 } from "./helper"
 import { generateWarningMessage, insertTimelineEvent } from "@/lib/helper"
 
 function removeExpiredBuffs(state: StateContext): StateContext {
   const { characterId } = state.action
-  const activeBuffs =
-    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
 
   let newState = state
 
+  const activeBuffs =
+    state.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
   const newBuffs = new Map(activeBuffs)
   for (const buff of activeBuffs.values()) {
-    const buffToUpdate = buffHandler[buff.id]
-    if (!buffToUpdate) continue
-
     const shouldExpire =
-      buffToUpdate.expireRules?.some((rule) => rule(newState, buff)) ??
-      isExpired(newState, buff) // basic expiration fallback
+      buff.onExpire?.conditions?.some((ref) => {
+        const fn = buffCheckRegistry[ref]
+        if (!fn) {
+          console.log(`Missing buffCheckRegistry for ${ref}`)
+          return
+        }
+        return fn(newState, buff, 0)
+      }) ?? isExpired(newState, buff) // basic expiration fallback
     if (!shouldExpire) continue
 
     newBuffs.delete(buff.id)
 
-    if (buffToUpdate.onExpire) {
-      newState = buffToUpdate.onExpire(newState, buff)
+    if (buff.onExpire?.effects) {
+      for (const ref of buff.onExpire.effects) {
+        const fn = buffMutationRegistry[ref]
+        if (!fn) {
+          console.log(`Missing buffMutationRegistry for ${ref}`)
+          continue
+        }
+        newState = fn(newState, buff)
+      }
     }
   }
 
   const newBuffsGlobal = new Map(state.activeBuffsGlobal)
   for (const buff of state.activeBuffsGlobal.values()) {
-    const buffToUpdate = buffHandler[buff.id]
-    if (!buffToUpdate) continue
-
     const shouldExpire =
-      buffToUpdate.expireRules?.some((rule) => rule(newState, buff)) ??
-      isExpired(newState, buff)
+      buff.onExpire?.conditions?.some((ref) => {
+        const fn = buffCheckRegistry[ref]
+        if (!fn) {
+          console.log(`Missing buffCheckRegistry for ${ref}`)
+          return
+        }
+        return fn(newState, buff, 0)
+      }) ?? isExpired(newState, buff) // basic expiration fallback
     if (!shouldExpire) continue
 
     newBuffsGlobal.delete(buff.id)
 
-    if (buffToUpdate.onExpire) {
-      newState = buffToUpdate.onExpire(newState, buff)
+    if (buff.onExpire?.effects) {
+      for (const ref of buff.onExpire.effects) {
+        const fn = buffMutationRegistry[ref]
+        if (!fn) {
+          console.log(`Missing buffMutationRegistry for ${ref}`)
+          continue
+        }
+        newState = fn(newState, buff)
+      }
     }
   }
 
   const newBuffsEnemy = new Map(state.activeBuffsEnemy)
   for (const buff of state.activeBuffsGlobal.values()) {
-    const buffToUpdate = buffHandler[buff.id]
-    if (!buffToUpdate) continue
-
     const shouldExpire =
-      buffToUpdate.expireRules?.some((rule) => rule(newState, buff)) ??
-      isExpired(newState, buff)
+      buff.onExpire?.conditions?.some((ref) => {
+        const fn = buffCheckRegistry[ref]
+        if (!fn) {
+          console.log(`Missing buffCheckRegistry for ${ref}`)
+          return
+        }
+        return fn(newState, buff, 0)
+      }) ?? isExpired(newState, buff) // basic expiration fallback
     if (!shouldExpire) continue
 
     newBuffsEnemy.delete(buff.id)
 
-    // if (buffToUpdate.onExpire) {
-    //   newState = buffToUpdate.onExpire(newState, buff)
+    // if (buff.onExpire?.effects) {
+    //   for (const ref of buff.onExpire.effects) {
+    //     const fn = buffMutationRegistry[ref]
+    //     if (!fn) {
+    //       console.log(`Missing buffMutationRegistry for ${ref}`)
+    //       continue
+    //     }
+    //     newState = fn(newState, buff)
+    //   }
     // }
   }
 
@@ -334,11 +368,17 @@ function processEvent(
 
   // add onSwap buffs
   for (const buffId of state.buffNext) {
-    const resolver = buffHandler[buffId]
     const buff = allBuffs.get(buffId)
-    if (!resolver.onSwap || !buff) continue
+    if (!buff || !buff?.onSwap) continue
 
-    state = resolver.onSwap(state, buff)
+    for (const ref of buff.onSwap.effects) {
+      const fn = buffCreationRegistry[ref]
+      if (!fn) {
+        console.log(`Missing buffCreationRegistry for ${ref}`)
+        continue
+      }
+      state = fn(state, buff)
+    }
   }
 
   /* snapshot before evaluation */
@@ -347,15 +387,16 @@ function processEvent(
 
   // add triggered buffs
   for (const buff of allBuffs.values()) {
-    const resolver = buffHandler[buff.id]
-
-    if (!resolver) {
-      console.log(state.row, `${buff.id}.onTrigger() not found in buffResolver`)
+    if (!shouldTrigger(readState, buff, buff.onTrigger.conditions || []))
       continue
-    }
 
-    if (shouldTrigger(readState, buff, resolver.triggerRules)) {
-      newState = resolver.onTrigger(newState, buff)
+    for (const ref of buff.onTrigger.effects) {
+      const fn = buffCreationRegistry[ref]
+      if (!fn) {
+        console.log(`Missing buffEvaluationRegistry for ${ref}`)
+        continue
+      }
+      newState = fn(newState, buff)
     }
   }
 
@@ -363,31 +404,38 @@ function processEvent(
   const buffs =
     newState.activeBuffs.get(characterId) ?? new Map<string, BuffInstance>()
   for (const buff of buffs.values()) {
-    const resolver = buffHandler[buff.id]
-    if (!resolver) continue
+    if (!buff.onEvent) continue
 
-    if (isOnHitEvent(newState)) {
-      if (!resolver.onHit) continue
-      newState = resolver.onHit(newState, buff)
-    } else {
-      if (!resolver.onCast) continue
-      newState = resolver.onCast(newState, buff)
+    if (!shouldEvaluate(readState, buff, buff.onTrigger.conditions || []))
+      continue
+
+    for (const ref of buff.onEvent.effects) {
+      const fn = buffMutationRegistry[ref]
+      if (!fn) {
+        console.log(`Missing buffMutationRegistry for ${ref}`)
+        continue
+      }
+      // console.log(newState.row, buff.name, ref, fn(state, buff))
+      newState = fn(newState, buff)
     }
-
     newState = applyCooldown(newState, buff)
   }
 
   // evaluate team buffs
   for (const buff of newState.activeBuffsGlobal.values()) {
-    const resolver = buffHandler[buff.id]
-    if (!resolver) continue
+    if (!buff.onEvent) continue
 
-    if (isOnHitEvent(newState)) {
-      if (!resolver.onHit) continue
-      newState = resolver.onHit(newState, buff)
-    } else {
-      if (!resolver.onCast) continue
-      newState = resolver.onCast(newState, buff)
+    if (!shouldEvaluate(readState, buff, buff.onTrigger.conditions || []))
+      continue
+
+    for (const ref of buff.onEvent.effects) {
+      const fn = buffMutationRegistry[ref]
+      if (!fn) {
+        console.log(`Missing buffMutationRegistry for ${ref}`)
+        continue
+      }
+      // console.log(newState.row, buff.name, ref, fn(state, buff))
+      newState = fn(newState, buff)
     }
 
     newState = applyCooldown(newState, buff)
@@ -396,7 +444,6 @@ function processEvent(
   // update dCond
   newState = evaluateDCond(newState, action)
 
-  // merge
   state = newState
   return state
 }
@@ -487,8 +534,10 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
           ...buff,
           duration: buff.duration * 60,
           modifiers: buff.modifiers && [buff.modifiers[rankIndex] ?? []],
-          appliesTo: buff.appliesTo ?? character.id,
-          source: character.id,
+          target: {
+            source: character.id,
+            appliesTo: buff?.target?.appliesTo ?? character.id,
+          },
           ...(buff.stackInterval && {
             stackInterval: buff.stackInterval * 60,
           }),
@@ -505,8 +554,10 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
         allBuffs.set(buff.id, {
           ...buff,
           duration: buff.duration * 60,
-          source: character.id,
-          appliesTo: buff.appliesTo ?? character.id,
+          target: {
+            source: character.id,
+            appliesTo: buff?.target?.appliesTo ?? character.id,
+          },
         })
       }
     }
@@ -520,8 +571,10 @@ function getAllBuffs(characters: Map<CHARACTER_KEY, Character>) {
         allBuffs.set(buff.id, {
           ...buff,
           duration: buff.duration * 60,
-          source: character.id,
-          appliesTo: buff.appliesTo ?? character.id,
+          target: {
+            source: character.id,
+            appliesTo: buff?.target?.appliesTo ?? character.id,
+          },
         })
       }
     }
@@ -643,6 +696,8 @@ export function simulate(
       const event = nextState.procQueue.shift()!
       insertTimelineEvent(timeline, event)
     }
+    // limit
+    if (state.row === 300) break
 
     // reset for next iteration
     state = {

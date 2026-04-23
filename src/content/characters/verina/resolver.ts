@@ -5,13 +5,12 @@ import {
   createBuff,
   createBuffNext,
   createCoordProcEvent,
-  createEnemyDebuff,
-  getEnemyBuffById,
+  getBuffById,
   hasConditionById,
   isAbility,
   isOnCastEvent,
   isOnCooldown,
-  isOnHitEvent,
+  isDamageEvent,
   not,
   removeBuffStatChanges,
 } from "@/simulation/helper"
@@ -50,15 +49,15 @@ const verinaResolver: Record<string, BuffResolver> = {
     id: "Photosynthesis Mark",
     triggerRules: [isAbility],
     onTrigger: (state, buff) => {
-      return createEnemyDebuff(state, buff)
+      return createBuff(state, buff)
     },
   },
   "Arboreal Flourish (Coord)": {
     id: "Arboreal Flourish (Coord)",
-    triggerRules: [hasConditionById, isOnHitEvent, not(isOnCooldown)],
+    triggerRules: [hasConditionById, isDamageEvent, not(isOnCooldown)],
     onTrigger: (state, buff) => {
       const buffId = "Photosynthesis Mark"
-      const parentId = getEnemyBuffById(state, buffId)?.sourceEventId
+      const parentId = getBuffById(state, buffId)?.sourceEventId
       return createCoordProcEvent(state, buff, parentId)
     },
   },
